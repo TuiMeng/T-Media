@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="9525" systemVersion="15C50" minimumToolsVersion="Xcode 7.0">
+    <entity name="TaskInfo" representedClassName="TaskInfo" syncable="YES">
+        <attribute name="area" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="column_name" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="content" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="create_time" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="encrypt_id" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="extra1" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="extra2" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="extra3" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="extra4" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="extra5" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="gao_click_price" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="task_img" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="task_name" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="task_price" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="task_status" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="total_task" optional="YES" attributeType="String" syncable="YES"/>
+    </entity>
+    <elements>
+        <element name="TaskInfo" positionX="-63" positionY="-18" width="128" height="285"/>
+    </elements>
+</model>

@@ -1,0 +1,159 @@
+//
+//  PrefixHeader.pch
+//  推盟
+//
+//  Created by joinus on 15/7/28.
+//  Copyright (c) 2015年 joinus. All rights reserved.
+//
+
+#ifndef ___PrefixHeader_pch
+#define ___PrefixHeader_pch
+
+// Include any system framework and library headers here that should be included in all compilation units.
+// You will also need to set the Prefix Header build setting of one or more of your targets to reference this file.
+
+
+
+#import <UIKit/UIKit.h>
+#import <Foundation/Foundation.h>
+#import <coreData/CoreData.h>
+
+///公共类头文件
+//CoreData
+#import <MagicalRecord/MagicalRecord.h>
+#import "DefaultConstant.h"
+#import "AFHTTPRequestOperation.h"
+#import "AFHTTPRequestOperationManager.h"
+#import "JSONKit.h"
+#import "UIImageView+WebCache.h"
+#import "SDCycleScrollView.h"
+#import "MBProgressHUD.h"
+#import "MYIntroductionPanel.h"
+#import "MYIntroductionView.h"
+#import "ZTools.h"
+#import "MovieNetWork.h"
+#import "ZAPI.h"
+#import "MovieConstant.h"
+#import "MovieTools.h"
+#import "SNRefreshTableView.h"
+#import "UIView+Frame.h"
+#import "MyViewController.h"
+#import "BaseModel.h"
+#import "STextField.h"
+#import "STextView.h"
+#import "SLabel.h"
+#import "SView.h"
+#import "SAlertView.h"
+#import "SShareView.h"
+#import "LogInViewController.h"
+#import "SWebViewController.h"
+#import "STableViewCell.h"
+#import "DJWStarRatingView.h"
+#import <DJWStarRatingView/DJWStarRatingView.h>
+#import "CSNPlaceholderTextView.h"
+//侧边栏
+#import "MMDrawerController.h"
+#import "UIViewController+MMDrawerController.h"
+//约束
+#import "Masonry.h"
+
+
+
+//友盟
+#import "MobClick.h"
+#import "UMessage.h"
+#import "UMSocialControllerService.h"
+#import "UMFeedback.h"
+#import "UMSocial.h"
+#import "UMSocialData.h"
+#import "UMSocialControllerService.h"
+#import "UMSocialWechatHandler.h"
+#import "UMSocialQQHandler.h"
+#import "UMSocialSinaHandler.h"
+#import "UMCheckUpdate.h"
+//高德地图
+#import <AMapLocationKit/AMapLocationKit.h>
+
+//微信
+#import "WXApi.h"
+
+
+#define MYAPPID @"921896755"
+#define USERNAME @"username"
+#define PASSWORD "password"
+#define LOGIN @"login"
+#define UID @"uid"
+#define PHONE_NUMBER @"phone_number"
+//ip地址
+#define IP_ADRESS @"ip_area"
+//手机号码地区
+#define PHONE_ADDRESS @"mobile_area"
+//gps所在地
+#define GPS_ADDRESS @"gps_area"
+//提现说明
+#define APPLY_INTRODUCTION_STRING @"apply_introduction_string"
+///用户认证状态
+#define CHECK_STATUS @"check_status"
+///用户头像
+#define HEAD @"head"
+///行业
+#define TRADE @"trade"
+///认证照片
+#define PHOTO @"photo"
+///工作单位
+#define COMPANY @"company"
+///工作年限
+#define LIFE @"life"
+///银行名称
+#define BANK @"bank"
+///银行卡号
+#define BANK_CARD @"bank_card"
+///银行卡户名
+#define BANK_NAME @"bank_name"
+///支付宝账号姓名
+#define ALIPAY_NAME @"alipay_name"
+///支付宝号
+#define ALIPAY_NUM @"alipay_num"
+
+//用户兴趣爱好标签数据
+#define HOBBY_TITLES @"hobbyTitiles"
+
+/**
+ *  默认字体
+ */
+#define DEFAULT_FONT @"RTWS YueGothic Trial"
+
+//颜色
+
+#define RGBCOLOR(r,g,b) [UIColor colorWithRed:(r)/255.0f green:(g)/255.0f blue:(b)/255.0f alpha:1]
+#define RGBACOLOR(r,g,b,a) [UIColor colorWithRed:(r)/255.0f green:(g)/255.0f blue:(b)/255.0f \
+alpha:(a)]
+
+//蓝色背景
+#define DEFAULT_BACKGROUND_COLOR RGBCOLOR(251,75,78)
+//黄色背景
+#define DEFAULT_YELLOW_COLOR RGBCOLOR(255,201,70)
+//灰色背景
+#define DEFAULT_LINE_COLOR RGBCOLOR(167,167,167)
+//浅黑色背景
+#define DEFAULT_LIGHT_BLACK_COLOR RGBCOLOR(73,73,73)
+
+
+//判断屏幕长度
+#define iPhone5 ([UIScreen instancesRespondToSelector:@selector(currentMode)] ? CGSizeEqualToSize(CGSizeMake(640, 1136), [[UIScreen mainScreen] currentMode].size) : NO)
+
+#pragma mark - 屏幕宽度
+///屏幕宽度
+#define DEVICE_WIDTH  [UIScreen mainScreen].bounds.size.width
+#pragma mark - 屏幕高度
+///屏幕高度
+#define DEVICE_HEIGHT [UIScreen mainScreen].bounds.size.height
+
+
+
+#define MY_MACRO_NAME [[[UIDevice currentDevice] systemVersion] floatValue]
+#define BACK_DEFAULT_IMAGE @"app_default_back_image"
+
+
+
+#endif
