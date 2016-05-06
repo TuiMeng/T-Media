@@ -50,8 +50,14 @@
  *  话题
  */
 @property(nonatomic,strong)NSString * topic;
-
-
+/**
+ *  电影评分
+ */
+@property(nonatomic,strong)NSString * movieScore;
+/**
+ *  影片标签（2D，3D）
+ */
+@property(nonatomic,strong)NSString * dimensional;
 
 @end
 

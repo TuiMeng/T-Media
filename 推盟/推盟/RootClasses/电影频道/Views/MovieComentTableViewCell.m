@@ -18,8 +18,8 @@
     self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
     if (self) {
         if (!_starRatingView) {
-            _starRatingView = [[DJWStarRatingView alloc] initWithStarSize:CGSizeMake(13, 13) numberOfStars:5 rating:4.5 fillColor:RGBCOLOR(253, 180, 90) unfilledColor:[UIColor clearColor] strokeColor:RGBCOLOR(253, 180, 90)];
-            _starRatingView.padding = 2;
+            _starRatingView = [[DJWStarRatingView alloc] initWithStarSize:CGSizeMake(15, 15) numberOfStars:5 rating:4.5 fillColor:STAR_FILL_COLOR unfilledColor:STAR_UNFILL_COLOR strokeColor:[UIColor clearColor]];
+            _starRatingView.padding = 1;
             _starRatingView.top = 16;
             _starRatingView.left = 16;
             [self.contentView addSubview:_starRatingView];
@@ -45,7 +45,7 @@
         }
         
         if (!_user_name_label) {
-            _user_name_label = [ZTools createLabelWithFrame:CGRectMake(_header_imageView.right+5, _header_imageView.top, DEVICE_WIDTH-16-_header_imageView.right-5, _header_imageView.height) text:@"weee20160801" textColor:RGBCOLOR(106, 106, 106) textAlignment:NSTextAlignmentLeft font:12];
+            _user_name_label = [ZTools createLabelWithFrame:CGRectMake(_header_imageView.right+5, _header_imageView.top, DEVICE_WIDTH-16-_header_imageView.right-5, _header_imageView.height) text:@"" textColor:RGBCOLOR(106, 106, 106) textAlignment:NSTextAlignmentLeft font:12];
             [self.contentView addSubview:_user_name_label];
         }
     }
@@ -55,13 +55,18 @@
 
 -(void)setInfomationWithMovieCommentsModel:(MovieCommentsModel *)model{
     
-    CGSize content_size = [ZTools stringHeightWithFont:_content_label.font WithString:model.content WithWidth:_content_label.width];
-    _content_label.height = content_size.height;
-    _content_label.text = model.content;
-    _header_imageView.top = _content_label.bottom+10;
-    _user_name_label.top = _header_imageView.top;
+    CGSize content_size     = [ZTools stringHeightWithFont:_content_label.font
+                                                WithString:model.content
+                                                 WithWidth:_content_label.width];
+    _content_label.height   = content_size.height;
+    _content_label.text     = model.content;
+    _header_imageView.top   = _content_label.bottom+10;
+    _user_name_label.top    = _header_imageView.top;
     
-    
+    _starRatingView.rating  = model.score.intValue/2.0f;
+    [_header_imageView sd_setImageWithURL:[NSURL URLWithString:model.headerImage] placeholderImage:[UIImage imageNamed:DEFAULT_LOADING_SMALL_IMAGE]];
+    _user_name_label.text   = model.userName;
+    _date_label.text        = model.createTime;
     
 }
 

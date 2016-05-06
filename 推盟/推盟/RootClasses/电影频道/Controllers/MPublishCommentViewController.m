@@ -53,7 +53,7 @@
 
 -(void)createMainView{
     
-    starRatingView = [[DJWStarRatingView alloc] initWithStarSize:CGSizeMake(20, 20) numberOfStars:5 rating:0 fillColor:STAR_FILL_COLOR unfilledColor:STAR_UNFILL_COLOR strokeColor:STAR_STROKE_COLOR];
+    starRatingView = [[DJWStarRatingView alloc] initWithStarSize:CGSizeMake(30, 30) numberOfStars:5 rating:0 fillColor:STAR_FILL_COLOR unfilledColor:STAR_UNFILL_COLOR strokeColor:[UIColor clearColor]];
     starRatingView.top = 15;
     starRatingView.left = 15;
     starRatingView.editable = YES;
@@ -66,7 +66,7 @@
     }];
     
     
-    score_label = [ZTools createLabelWithFrame:CGRectMake(starRatingView.right+5, starRatingView.top, DEVICE_WIDTH-starRatingView.right-20, starRatingView.height) text:@"" textColor:DEFAULT_ORANGE_TEXT_COLOR textAlignment:NSTextAlignmentRight font:13];
+    score_label = [ZTools createLabelWithFrame:CGRectMake(starRatingView.right+5, starRatingView.top, DEVICE_WIDTH-starRatingView.right-20, starRatingView.height) text:@"" textColor:DEFAULT_ORANGE_TEXT_COLOR textAlignment:NSTextAlignmentRight font:16];
     [self.view addSubview:score_label];
     
     textView = [[CSNPlaceholderTextView alloc] initWithFrame:CGRectMake(15, starRatingView.bottom+10, DEVICE_WIDTH-30, 100)];
@@ -83,25 +83,35 @@
 #pragma mark ------  发表评论
 -(void)uploadComment{
     
-    if (textView.text.length == 0) {
-        [ZTools showMBProgressWithText:@"请输入评论内容" WihtType:MBProgressHUDModeText addToView:self.view isAutoHidden:YES];
+    if (starRatingView.rating == 0) {
+        [ZTools showMBProgressWithText:@"请先评分" WihtType:MBProgressHUDModeText addToView:self.view isAutoHidden:YES];
         return;
     }
     
-    NSDictionary * dic = @{@"movieId":_movieId,@"userId":@"6",@"commentContext":textView.text,@"commentScore":[NSString stringWithFormat:@"%f",starRatingView.rating]};
+    MBProgressHUD * loadingHUD = [ZTools showMBProgressWithText:@"评分提交中..." WihtType:MBProgressHUDModeIndeterminate addToView:self.view isAutoHidden:NO];
+    __WeakSelf__ wself = self;
+    NSDictionary * dic = @{@"movieId":_movieId,
+                           @"userId":[ZTools getUid],
+                           @"content":textView.text.length?textView.text:@"",
+                           @"score":[NSString stringWithFormat:@"%d",(int)(starRatingView.rating*2)],
+                           @"picUrl":[NSString stringWithFormat:@"http://static.twttmob.com/h5/headImg/%d.png",arc4random()%30+1],
+                           @"userName":[ZTools getUserName]};
     
     [[ZAPI manager] sendMoviePost:M_PUBLISH_COMMENTS_URL myParams:dic success:^(id data) {
-        
+        [loadingHUD hide:YES];
         if (data && [data isKindOfClass:[NSDictionary class]]) {
-            [ZTools showMBProgressWithText:data[@"message"] WihtType:MBProgressHUDModeText addToView:self.view isAutoHidden:YES];
+            if ([data[MOVIE_ERROR_CODE] intValue] == 0) {
+                [ZTools showMBProgressWithText:@"评论成功" WihtType:MBProgressHUDModeText addToView:wself.view isAutoHidden:YES];
+                [wself disappearWithPOP:NO afterDelay:1.6f];
+            }else{
+                [ZTools showMBProgressWithText:data[@"message"] WihtType:MBProgressHUDModeText addToView:wself.view isAutoHidden:YES];
+            }
         }
         
     } failure:^(NSError *error) {
-        
+        [loadingHUD hide:YES];
     }];
 }
-
-
 
 
 @end

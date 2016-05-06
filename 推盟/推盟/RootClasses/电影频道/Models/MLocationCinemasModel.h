@@ -23,9 +23,13 @@
  */
 @property(nonatomic,strong)NSString * cinemaAddr;
 /**
- *  场次数量
+ *  场次时间
  */
 @property(nonatomic,strong)NSString * plans;
+/**
+ *  场次数量
+ */
+@property(nonatomic,strong)NSString * planCount;
 /**
  *  距离
  */

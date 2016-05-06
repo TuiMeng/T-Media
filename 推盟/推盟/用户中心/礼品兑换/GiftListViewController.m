@@ -131,7 +131,7 @@
         _c_scrollView.autoScrollTimeInterval = 5.f;
         
         UIImage * image = [UIImage imageNamed:@"gift_all_money_image"];
-        NSString * money_string = [NSString stringWithFormat:@"余额:%@",[ZTools getRestMoney]];
+        NSString * money_string = [NSString stringWithFormat:@"可用积分:%@",[ZTools getRestMoney]];
         CGSize money_size = [ZTools stringHeightWithFont:[ZTools returnaFontWith:15] WithString:money_string WithWidth:MAXFLOAT];
         
         UIButton * all_money_button = [UIButton buttonWithType:UIButtonTypeCustom];

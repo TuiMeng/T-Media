@@ -13,8 +13,9 @@
 #import "MovieCityViewController.h"
 #import "MNearByCinemasViewController.h"
 #import "MovieTopicListViewController.h"
+#import "FocusImageModel.h"
 
-@interface RootMovieView ()<UISearchBarDelegate>{
+@interface RootMovieView ()<UISearchBarDelegate,SDCycleScrollViewDelegate>{
     UIButton * area_button;
     float _lastPosition;
 }
@@ -22,6 +23,9 @@
 @property(nonatomic,strong)NSMutableArray   * data_array;
 @property(nonatomic,strong)NSString         * current_city;
 @property(nonatomic,strong)NSMutableArray   * rowHeightArray;
+@property(nonatomic,strong)SDCycleScrollView * cycle_scrollView;
+
+@property(nonatomic,strong)NSMutableDictionary  * cycleData;
 
 @end
 
@@ -35,6 +39,7 @@
       //  [self setTopView];
         [self setTableView];
 //        [self loadMoiveData];
+        [self loadFocusData];
     }
     return self;
 }
@@ -64,10 +69,10 @@
     [_top_view addSubview:search_bar];
     
     
-    area_button                     = [ZTools createButtonWithFrame:CGRectMake(10, (_top_view.height-30)/2.0f, 50, 30) title:@"北京" image:nil];
+    area_button                     = [ZTools createButtonWithFrame:CGRectMake(10, (_top_view.height-30)/2.0f, 50, 30) title:[ZTools getSelectedCity] image:nil];
     area_button.backgroundColor     = [UIColor whiteColor];
     area_button.contentHorizontalAlignment = UIControlContentHorizontalAlignmentLeft;
-    [area_button setTitle:@"北京" forState:UIControlStateNormal];
+    [area_button setTitle:[ZTools getSelectedCity] forState:UIControlStateNormal];
     area_button.titleLabel.adjustsFontSizeToFitWidth = YES;
     [area_button layoutIfNeeded];
     [area_button setImage:[UIImage imageNamed:@"root_area_arrow_down_image"] forState:UIControlStateNormal];
@@ -89,13 +94,25 @@
     [top_view addSubview:screen_button];
     */
 }
+#pragma mark -----  创建轮播图
+-(void)setCycleView{
+    
+    _cycle_scrollView                   = [SDCycleScrollView cycleScrollViewWithFrame:CGRectMake(0,0,DEVICE_WIDTH,[ZTools autoHeightWith:80]) imageURLStringsGroup:_cycleData[@"image"]];
+//    _cycle_scrollView.titlesGroup       = _cycleData[@"title"];
+    _cycle_scrollView.delegate          = self;
+    _cycle_scrollView.pageControlStyle  = SDCycleScrollViewPageContolStyleNone;
+    _cycle_scrollView.autoScrollTimeInterval = 5.f;
+    _myTableView.tableHeaderView   = _cycle_scrollView;
+}
+
 
 -(void)setTableView{
-    _myTableView                    = [[SNRefreshTableView alloc] initWithFrame:CGRectMake(0, _top_view.bottom, DEVICE_WIDTH, self.height-_top_view.height) showLoadMore:YES];
+    _myTableView                    = [[SNRefreshTableView alloc] initWithFrame:CGRectMake(0, _cycle_scrollView.bottom, DEVICE_WIDTH, self.height-_cycle_scrollView.height) showLoadMore:YES];
     _myTableView.backgroundColor    = RGBCOLOR(237, 237, 237);
     _myTableView.separatorStyle     = UITableViewCellSeparatorStyleNone;
     _myTableView.refreshDelegate    = self;
     _myTableView.dataSource         = self;
+    [_myTableView removeFooterView];
     [self addSubview:_myTableView];
 }
 
@@ -103,13 +120,58 @@
     RootUpDownBlock = block;
 }
 #pragma mark -------  网络请求
+//获取轮播图数据
+-(void)loadFocusData{
+    
+    if (!_cycleData) {
+        _cycleData = [NSMutableDictionary dictionary];
+    }
+    
+    __weak typeof(self)wself = self;
+    [[ZAPI manager] sendGet:[NSString stringWithFormat:@"%@&type=%@",GIFT_FOCUS_IMAGES_URL,@"root"] success:^(id data) {
+        if (data && [data isKindOfClass:[NSDictionary class]]) {
+            NSMutableArray * modelArray = [NSMutableArray array];
+            NSMutableArray * titleArray = [NSMutableArray array];
+            NSMutableArray * imageArray = [NSMutableArray array];
+            NSArray * array = [data objectForKey:@"Focus_img"];
+            for (NSDictionary * dic in array) {
+                
+                FocusImageModel * model = [[FocusImageModel alloc] initWithDictionary:dic];
+                [modelArray addObject:model];
+                [imageArray addObject:model.focus_img];
+                [titleArray addObject:model.title];
+            }
+            
+            [_cycleData setObject:modelArray forKey:@"model"];
+            [_cycleData setObject:imageArray forKey:@"image"];
+            [_cycleData setObject:titleArray forKey:@"title"];
+            modelArray = nil;
+            imageArray = nil;
+            titleArray = nil;
+            
+            
+            [wself setCycleView];
+        }
+        
+    } failure:^(NSError *error) {
+        
+    }];
+}
+
+
+
 //获取电影数据
 -(void)loadMoiveData{
     __weak typeof(self)wself = self;
-    [[ZAPI manager] sendPost:[NSString stringWithFormat:@"%@qrMovies?cityId=1&kind=1",BASE_MOVIE_URL] myParams:nil success:^(id data) {
+    NSDictionary * dic = @{@"cityId":[ZTools getSelectedCityId],@"kind":@"1",@"page":@(_myTableView.pageNum)};
+    NSLog(@"------  %@",[NSString stringWithFormat:@"%@qrMovies?",BASE_MOVIE_URL]);
+    [[ZAPI manager] sendMoviePost:[NSString stringWithFormat:@"%@qrMovies?",BASE_MOVIE_URL] myParams:dic success:^(id data) {
         
         NSMutableDictionary * dic = [NSMutableDictionary dictionary];
         if (data && [data isKindOfClass:[NSArray class]]) {
+            
+            [wself.data_array removeAllObjects];
+            
             if ([data count] > 0) {
                 for (NSDictionary * item in data) {
                     MovieListModel * model  = [[MovieListModel alloc] initWithDictionary:item];
@@ -253,6 +315,18 @@
         [wself updateButtonContentWithButton:button WithText:model.cityName];
     }];
 }
+#pragma mark -------   轮播图代理回调
+- (void)cycleScrollView:(SDCycleScrollView *)cycleScrollView didSelectItemAtIndex:(NSInteger)index{
+    FocusImageModel * model = [self.cycleData[@"model"] objectAtIndex:index];
+    if (model.link.length == 0 || [model.link isKindOfClass:[NSNull class]]) {
+        return;
+    }
+    
+    SWebViewController * webViewController = [[SWebViewController alloc] init];
+    webViewController.url = model.link;
+    [_viewController.navigationController pushViewController:webViewController animated:YES];
+}
+
 #pragma mark ---  筛选
 -(void)screenButtonClicked:(UIButton*)button{
     

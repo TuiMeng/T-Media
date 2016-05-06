@@ -9,22 +9,6 @@
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "&#x63a8;&#x76df;/&#x767b;&#x9646;&#x6ce8;&#x518c;/LogInViewController.m"
-            timestampString = "478172909.004314"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "214"
-            endingLineNumber = "214"
-            landmarkName = "-sendCodeButtonTap:"
-            landmarkType = "5">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
             filePath = "&#x63a8;&#x76df;/PersonAPI/STextView.m"
             timestampString = "479121860.009987"
             startingColumnNumber = "9223372036854775807"
@@ -54,64 +38,16 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            shouldBeEnabled = "Yes"
+            shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "&#x63a8;&#x76df;/RootClasses/&#x7535;&#x5f71;&#x9891;&#x9053;/Controllers/MPayViewController.m"
-            timestampString = "481715202.610337"
+            filePath = "&#x63a8;&#x76df;/PersonAPI/MovieNetWork.m"
+            timestampString = "483601977.23684"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "72"
-            endingLineNumber = "72"
-            landmarkName = "-applicationWillEnterForeground:"
-            landmarkType = "5">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "&#x63a8;&#x76df;/RootClasses/&#x7535;&#x5f71;&#x9891;&#x9053;/Controllers/MCardPayViewController.m"
-            timestampString = "482051232.966191"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "163"
-            endingLineNumber = "163"
-            landmarkName = "-uploadOrderWithCardInfoString:"
-            landmarkType = "5">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "&#x63a8;&#x76df;/RootClasses/&#x7535;&#x5f71;&#x9891;&#x9053;/Controllers/MCardPayViewController.m"
-            timestampString = "482051232.966191"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "168"
-            endingLineNumber = "168"
-            landmarkName = "-uploadOrderWithCardInfoString:"
-            landmarkType = "5">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "&#x63a8;&#x76df;/RootClasses/&#x7535;&#x5f71;&#x9891;&#x9053;/Controllers/MovieSelectSeatViewController.m"
-            timestampString = "482309752.299916"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "458"
-            endingLineNumber = "458"
-            landmarkName = "-dealloc"
+            startingLineNumber = "43"
+            endingLineNumber = "43"
+            landmarkName = "-releaseMovieSeatsWithOrderId:"
             landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>

@@ -21,7 +21,7 @@
     return sharedMovie;
 }
 
-
+#pragma mark ------   网络请求
 -(void)releaseMovieSeatsWithOrderId:(NSString *)orderId{
     if (!queue) {
         queue = [NSOperationQueue new];
@@ -32,7 +32,7 @@
     // 获取参数
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
     [request setHTTPMethod:@"POST"];
-    [request setHTTPBody:[self buildData:@{@"pay_no":orderId}]];
+    [request setHTTPBody:[self buildData:@{@"pay_no":orderId.length?orderId:@""}]];
 
     AFHTTPRequestOperation *operation = [[AFHTTPRequestOperation alloc]initWithRequest:request];
     
@@ -47,6 +47,22 @@
     }];
     
     [queue addOperation:operation];
+}
+
+-(void)checkCityIdWitCityName:(NSString *)name success:(void(^)(NSString * id))success failure:(void(^)(NSString *error))failure{
+    [[ZAPI manager] sendMoviePost:M_GET_CITY_ID_URL myParams:@{@"cityName":name.length?name:@""} success:^(id data) {
+        if (data && [data isKindOfClass:[NSDictionary class]]) {
+            NSString * message = data[MOVIE_ERROR_INFO];
+            if (message.length == 0) {
+                [ZTools setSelectedCity:name cityId:data[@"cityId"]];
+                success(data[@"cityId"]);
+            }else{
+                failure(message.length?message:@"切换失败");
+            }
+        }
+    } failure:^(NSError *error) {
+        failure(@"切换失败...");
+    }];
 }
 
 -(NSData*)buildData:(NSDictionary*)dic{
@@ -74,6 +90,8 @@
     if (!timer) {
         timer       = [NSTimer scheduledTimerWithTimeInterval:interval target:self selector:@selector(countDown) userInfo:nil repeats:repeats];
         [[NSRunLoop currentRunLoop] addTimer:timer forMode:NSRunLoopCommonModes];
+    }else{
+        [timer fire];
     }
 }
 
@@ -93,6 +111,7 @@
 
 -(void)endTimer{
     [timer invalidate];
+    timer = nil;
 }
 
 @end

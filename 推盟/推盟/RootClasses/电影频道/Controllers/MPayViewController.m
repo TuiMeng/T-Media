@@ -9,8 +9,11 @@
 #import "MPayViewController.h"
 #import "MSelectPayTypeCell.h"
 #import "WXManager.h"
+#import "WXUtil.h"
 #import "MCardPayViewController.h"
 #import "UIAlertView+Blocks.h"
+#import "MovieSelectSeatViewController.h"
+#import "MOrderListController.h"
 
 #define PAY_CARD    @"新影联票卡支付"
 #define PAY_WECHAT @"微信支付"
@@ -44,13 +47,19 @@
     BOOL                    isGoPay;
     //支付信息
     NSMutableDictionary     * payInfoDic;
+    
+    MBProgressHUD * payLoadingHUD;
+    
+
 }
 
 
 
-@property(nonatomic,strong)UITableView * myTableView;
+@property(nonatomic,strong)UITableView  * myTableView;
 
-@property(nonatomic,strong)NSArray * titleArray;
+@property(nonatomic,strong)NSArray      * titleArray;
+//加密字符
+@property(nonatomic,strong)NSString     * sign;
 
 @end
 
@@ -69,7 +78,6 @@
 }
 
 -(void)applicationWillEnterForeground:(NSNotification *)notification{
-    
     if (isGoPay) {
         isGoPay = NO;
         [self loadPayState];
@@ -84,17 +92,16 @@
     showCardPayOption           = YES;
     if (showCardPayOption) {
         currentIndex = 1;
-        _titleArray = @[PAY_CARD,PAY_WECHAT,PAY_ALIPAY,SUB_CARD_PAY,SUB_WECHAT_PAY,SUB_ALIPAY,@"pay_card_image",@"pay_wechat_image",@"pay_alipay_image"];
+        _titleArray = @[PAY_CARD,PAY_WECHAT,SUB_CARD_PAY,SUB_WECHAT_PAY,@"pay_card_image",@"pay_wechat_image"];
     }else{
-        _titleArray = @[PAY_WECHAT,PAY_ALIPAY,SUB_CARD_PAY,SUB_WECHAT_PAY,SUB_ALIPAY,@"pay_wechat_image",@"pay_alipay_image"];
+        _titleArray = @[PAY_WECHAT,SUB_CARD_PAY,SUB_WECHAT_PAY,@"pay_wechat_image"];
     }
     
     NSDictionary * dic = @{@"pay_no":_orderId,                                                  //订单号
                            @"order_from":@"2",                                                  //订单来源（1：安卓 2：ios）
-                           @"movie_money":_sequenceModel.price,                                 //单张电影票价格
+                           @"movie_money":@(_sequenceModel.price.floatValue-_sequenceModel.fee.intValue),                                 //单张电影票价格
                            @"page":@(_seatCount),                                               //座位数
-                           @"yamount":_serverPrice?@"1":@"2",                                   //是否包括手续费（1：包括  2：不包括）
-                           @"fee":@(_serverPrice),                                              //手续费
+                           @"fee":_sequenceModel.fee.length?_sequenceModel.fee:@"0",                                              //手续费
                            @"pay_money1":@"0",                                                  //银联支付金额
                            @"integral":@(_scorePrice?_scorePrice:0)};                            //兑换使用的积分
     payInfoDic          = [[NSMutableDictionary alloc] initWithDictionary:dic];
@@ -102,6 +109,11 @@
 
     
     [self setMainView];
+    
+    [self buildSign];
+    
+    //检测微信支付状态
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(weChatPayState:) name:@"WChatPayState" object:nil];
 }
 
 -(void)timeCount:(NSNotification *)notification{
@@ -160,7 +172,9 @@
     priceLabel.attributedText = [ZTools labelTextFontWith:priceString Color:DEFAULT_BLACK_TEXT_COLOR Font:13 range:[priceString rangeOfString:@"还需支付："]];
     [orderView addSubview:priceLabel];
     
-    UILabel * orderIdLabel = [ZTools createLabelWithFrame:CGRectMake(priceLabel.left, priceLabel.bottom+3, priceLabel.width, 15) text:[NSString stringWithFormat:@"推盟电影频道-订单编号：%@",_orderId] textColor:DEFAULT_BLACK_TEXT_COLOR textAlignment:NSTextAlignmentLeft font:12];
+    UILabel * orderIdLabel = [ZTools createLabelWithFrame:CGRectMake(priceLabel.left, priceLabel.bottom+3, priceLabel.width, 15) text:[NSString stringWithFormat:@"订单编号：%@",_orderId] textColor:DEFAULT_BLACK_TEXT_COLOR textAlignment:NSTextAlignmentLeft font:12];
+    orderIdLabel.numberOfLines = 0;
+    [orderIdLabel sizeToFit];
     [orderView addSubview:orderIdLabel];
     
     _myTableView.tableHeaderView = headerView;
@@ -188,13 +202,20 @@
         timePromptLabel.text    = @"订单支付超时，请重新选择座位";
         
         [[MovieNetWork sharedManager] endTimer];
+        
+        
+        UIAlertView * alertView     = [UIAlertView showWithTitle:@"支付超时，该订单已失效，请重新选座购买" message:@"" cancelButtonTitle:@"确定" otherButtonTitles:nil tapBlock:^(UIAlertView * _Nonnull alertView, NSInteger buttonIndex) {
+            [self popToSeatsController];
+        }];
+        
+        [alertView show];
     }
 }
 
 
 #pragma mark ------  UITableViewDelegate
 -(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
-    return 3;
+    return _titleArray.count/3;
 }
 
 -(CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath{
@@ -211,8 +232,8 @@
     
     NSString * title                = _titleArray[indexPath.row];
     cell.titleLabel.text            = title;
-    cell.subTitleLabel.text         = _titleArray[indexPath.row+3];
-    cell.headerImageView.image      = [UIImage imageNamed:_titleArray[indexPath.row+6]];
+    cell.subTitleLabel.text         = _titleArray[indexPath.row+_titleArray.count/3];
+    cell.headerImageView.image      = [UIImage imageNamed:_titleArray[indexPath.row+_titleArray.count/3*2]];
     cell.selectButton.tag           = 100 + indexPath.row;
     
     if ([title isEqualToString:PAY_CARD]) {
@@ -240,7 +261,9 @@
 -(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
     
-    if (indexPath.row == 0) {
+    NSString * title                = _titleArray[indexPath.row];
+    
+    if ([title isEqualToString:PAY_CARD]) {
         
         MCardPayViewController      * viewController = [[MCardPayViewController alloc] init];
         viewController.countDown    = _countDown;
@@ -248,6 +271,7 @@
         viewController.needPayPrice = _totalPrice-_scorePrice;
         viewController.cardInfoArray = cardDataArray;
         viewController.payInfoDic   = payInfoDic;
+        viewController.sign         = [self buildSign];
         
         [self.navigationController pushViewController:viewController animated:YES];
         
@@ -277,7 +301,20 @@
     currentIndex = index;
 }
 
+-(NSString *)buildSign{
+    if (!_sign) {
+        NSString * first = [WXUtil md5:[NSString stringWithFormat:@"e%@p%@o%@i%@",_movie_model.movieId,_cinema_model.cinemaId,[ZTools getUid],_sequenceModel.seqId]];
+                            
+        _sign = [[WXUtil md5:[NSString stringWithFormat:@"%@nt188542360",[first lowercaseString]]] lowercaseString];
+    }
+    NSLog(@"md5 ----   %@",_sign);
+    return _sign;
+}
+
+
 -(void)payButtonClicked:(UIButton *)button{
+    
+    [MobClick event:@"MovieBuyTickets"];
         
     [self startLoading];
     __weak typeof(self)wself = self;
@@ -288,6 +325,7 @@
     [payInfoDic setObject:@(cardMoney?cardMoney:0) forKey:@"pay_money2"];                       //电影卡支付金额
     [payInfoDic setObject:cardInfoString?cardInfoString:@"" forKey:@"nfa_ticket"];              //电影卡字符串信息
     [payInfoDic setObject:[ZTools timechangeToDateline] forKey:@"order_data"];                  //支付日期
+    [payInfoDic setObject:[self buildSign] forKey:@"sign"];                                     //加密字符
 
     /*
     NSDictionary * dic = @{@"pay_no":_orderId,                                                  //订单号
@@ -297,7 +335,6 @@
                            @"money":@(_totalPrice-cardMoney-_scorePrice),                       //用户需要支付的金额
                            @"movie_money":_sequenceModel.price,                                 //单张电影票价格
                            @"page":@(_seatCount),                                               //座位数
-                           @"yamount":_serverPrice?@"1":@"2",                                   //是否包括手续费（1：包括  2：不包括）
                            @"fee":@(_serverPrice),                                              //手续费
                            @"pay_money1":@"0",                                                  //银联支付金额
                            @"integral":@(_scorePrice?_scorePrice:0),                            //兑换使用的积分
@@ -383,24 +420,32 @@
 
 #pragma mark -----   检测支付状态
 -(void)checkPayState{
-    
+    __WeakSelf__ wself = self;
     [[ZAPI manager] sendMoviePost:MOVIE_CHECK_PAY_INFO_URL myParams:@{@"pay_no":_orderId} success:^(id data) {
-        
         if (data && [data isKindOfClass:[NSDictionary class]]) {
             NSString * status   = data[ERROR_CODE];
             if (status.intValue == 1) {
-//                [payTimer invalidate];
-                [ZTools showMBProgressWithText:data[@"fetchNo"] WihtType:MBProgressHUDModeText addToView:self.view isAutoHidden:YES];
+                [payLoadingHUD hide:YES];
+                [payTimer invalidate];
+                UIAlertView * alertView = [UIAlertView showWithTitle:@"您已支付成功，正在获取取票码，如果15分钟之后未收到通知短信，请您拨打400-666-9696与客服联系" message:nil cancelButtonTitle:@"确认" otherButtonTitles:nil tapBlock:^(UIAlertView * _Nonnull alertView, NSInteger buttonIndex) {
+                    
+                    MOrderListController * orderList = [[MOrderListController alloc] init];
+                    [wself.navigationController pushViewController:orderList animated:YES];
+                    
+                }];
+                [alertView show];
             }else{
-                [ZTools showMBProgressWithText:data[ERROR_INFO] WihtType:MBProgressHUDModeText addToView:self.view isAutoHidden:YES];
+                
+                [ZTools showMBProgressWithText:data[ERROR_INFO] WihtType:MBProgressHUDModeText addToView:wself.view isAutoHidden:YES];
             }
         }
     } failure:^(NSError *error) {
-        [payTimer invalidate];
+        
     }];
 }
 
 -(void)loadPayState{
+    payLoadingHUD = [ZTools showMBProgressWithText:@"获取订单状态..." WihtType:MBProgressHUDModeIndeterminate addToView:self.view isAutoHidden:YES];
     if (!payTimer) {
         payTimer = [NSTimer scheduledTimerWithTimeInterval:3 target:self selector:@selector(checkPayState) userInfo:nil repeats:YES];
         [[NSRunLoop currentRunLoop] addTimer:payTimer forMode:NSDefaultRunLoopMode];
@@ -409,6 +454,37 @@
     if (!payTimer.valid) {
         [payTimer fire];
     }
+}
+
+#pragma mark ---  检测微信支付状态
+-(void)weChatPayState:(NSNotification *)notification{
+    
+    NSString * result = (NSString *)notification.object;
+    
+    if ([result rangeOfString:@"ret=0"].length == 0) {
+        UIAlertView * alertView = [UIAlertView showWithTitle:@"支付失败" message:nil cancelButtonTitle:@"确定" otherButtonTitles:nil tapBlock:^(UIAlertView * _Nonnull alertView, NSInteger buttonIndex) {
+            
+        }];
+        [alertView show];
+        
+        isGoPay = NO;
+        
+        [payTimer invalidate];
+        
+        [[ZAPI manager] cancel];
+    }
+}
+
+#pragma mark -----  跳转到选座界面
+-(void)popToSeatsController{
+    
+    for (UIViewController * vc in self.navigationController.childViewControllers) {
+        if ([vc isKindOfClass:[MovieSelectSeatViewController class]]) {
+            [self.navigationController popToViewController:vc animated:YES];
+            return;
+        }
+    }
+    [self.navigationController popViewControllerAnimated:YES];
 }
 
 

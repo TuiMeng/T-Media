@@ -47,5 +47,13 @@
  *  任务时间
  */
 @property(nonatomic,strong)NSString * create_time;
+/**
+ *  点击限制
+ */
+@property(nonatomic,strong)NSString * task_content;
+/**
+ *  任务上线时间
+ */
+@property(nonatomic,strong)NSString * online_time;
 
 @end

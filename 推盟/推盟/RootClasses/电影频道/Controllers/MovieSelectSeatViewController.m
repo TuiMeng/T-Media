@@ -12,6 +12,8 @@
 #import "MConfirmOrderViewController.h"
 #import "UIAlertView+Blocks.h"
 #import "MovieNetWork.h"
+#import "WXUtil.h"
+#define WS(weakSelf)  __weak __typeof(&*self)weakSelf = self;
 
 
 #define MAX_SEATS_LIMIT @"一次最多选择5个座位"
@@ -35,9 +37,22 @@
 
 @implementation MovieSelectSeatViewController
 
+-(void)viewWillAppear:(BOOL)animated{
+    [super viewWillAppear:animated];
+    
+    if (_refreshSeatsData) {
+        [self loadData];
+    }
+}
+
+-(void)viewWillDisappear:(BOOL)animated{
+    _refreshSeatsData = NO;
+}
+
+
 -(void)viewDidLoad{
     [super viewDidLoad];
-    
+   
     self.title_label.text = _movie_model.movieName;
     [self setMyViewControllerLeftButtonType:MyViewControllerButtonTypeBack WihtLeftString:@"backImage"];
     
@@ -45,8 +60,6 @@
     _selectedSeatArray =   [NSMutableArray arrayWithObjects:[NSMutableArray array],[NSMutableArray array], nil];
     
     [self setMainView];
-    
-    [self loadData];
 }
 
 -(void)leftButtonTap:(UIButton *)sender{
@@ -84,7 +97,7 @@
         [header_view addSubview:cinema_name_label];
         //电影介绍（时间 属性）
         UILabel * movie_info_label  = [ZTools createLabelWithFrame:CGRectMake(15, cinema_name_label.bottom+5, DEVICE_WIDTH-30, 18)
-                                                              text:@"明天 3月4日 11:20 国语3D"
+                                                              text:[NSString stringWithFormat:@"%@ %@ %@",_sequenceModel.seqDate,_sequenceModel.seqTime,_sequenceModel.language]
                                                          textColor:DEFAULT_GRAY_TEXT_COLOR
                                                      textAlignment:NSTextAlignmentLeft
                                                               font:12];
@@ -172,6 +185,14 @@
     }
 }
 
+#pragma mark -----   更新座位信息
+-(void)reloadSeats:(NSNotification *)notification{
+    
+    NSLog(@"made-=-------------");
+    
+    [self loadData];
+}
+
 #pragma mark -----  网络请求
 -(void)loadData{
     
@@ -214,7 +235,6 @@
         [_selectedSeatArray[0] removeObjectAtIndex:index];
         [_selectedSeatArray[1] removeObjectAtIndex:index];
         
-        [self scrollViewUpdateContentView];
     }else{
         [_selectedSeatArray[0] addObject:model];
         UIButton * button           = [ZTools createButtonWithFrame:CGRectMake(([_selectedSeatArray[0] count]-1)*75, 2.5, 70, 25) title:model.seatCode image:nil];
@@ -228,11 +248,13 @@
         [selectedSeatScrollView addSubview:button];
         [_selectedSeatArray[1] addObject:button];
     }
+    
+    [self scrollViewUpdateContentView];
 }
 
 -(void)scrollViewUpdateContentView{
     
-    selectedSeatScrollView.contentSize = CGSizeMake(75*[_selectedSeatArray[0] count], 0);
+    selectedSeatScrollView.contentSize = CGSizeMake(75*[_selectedSeatArray[0] count]+10, 0);
     
     int x = 0;
     for (id obj in selectedSeatScrollView.subviews) {
@@ -291,13 +313,13 @@
 
 #pragma mark ---------   生成订单号
 -(NSString * )buildOrderId{
-    if (!_orderId) {
-        _orderId = [NSString stringWithFormat:@"%@%04d%@",[ZTools timechangeToDateline],arc4random()%10000,_movie_model.movieId];
-    }
+    _orderId = [NSString stringWithFormat:@"%@%06d",[ZTools timechangeToDateline],arc4random()%1000000];
     return _orderId;
 }
 
 -(void)prepareForPay{
+    
+    [MobClick event:@"MovieSelectSeats"];
     
     if (![ZTools isLogIn]) {
         UIStoryboard *storyboard        = [UIStoryboard storyboardWithName:@"Main" bundle:nil];
@@ -321,25 +343,28 @@
                     
                     if (preIndex >= 0) {
                         SeatModel * preModel = array[preIndex];
+                        //前一个座位为空座位
                         if (preModel.seatStatus.intValue == 2) {
-                            //如果前一项为空
+                            //如果前一项为空，判断往前两个座位
                             int preIndex2 = preIndex-1;
                             if (preIndex2 >= 0) {
                                 SeatModel * preModel2 = array[preIndex2];
-                                
+                                //往前两个座位是不是过道
                                 if (preModel2.seatStatus.intValue == 0) {
-                                    if (preModel.seatStatus.intValue == 2 && ![_selectedSeatArray[0] containsObject:preModel]) {
+                                    //判断前一个座位没有被选中
+                                    if (![_selectedSeatArray[0] containsObject:preModel]) {
                                         isSure = NO;
                                     }
                                 }else{
-                                    if (preModel2.seatStatus.intValue != 2 && ![_selectedSeatArray[0] containsObject:preModel2]) {
+                                    //如果前两个座位不是过道，判断前两个座位如果不是空座并且没有被选中，那么这个座位不能选
+                                    if (preModel2.seatStatus.intValue != 2 && ![_selectedSeatArray[0] containsObject:preModel]) {
                                         isSure = NO;
                                     }
                                 }
                                 
                             }
                         }
-                        
+                        //如果前一个座位是第一列
                         if (preIndex == 0 && preModel.seatStatus.intValue == 2 && ![_selectedSeatArray[0] containsObject:array[preIndex]]) {
                             isSure = NO;
                         }
@@ -358,7 +383,7 @@
                                         isSure = NO;
                                     }
                                 }else{
-                                    if (lastModel2.seatStatus.intValue != 2 && ![_selectedSeatArray[0] containsObject:lastModel2]) {
+                                    if (lastModel2.seatStatus.intValue != 2 && ![_selectedSeatArray[0] containsObject:lastModel]) {
                                         isSure = NO;
                                     }
                                 }
@@ -368,7 +393,6 @@
                         if (lastIndex == array.count-1 && lastModel.seatStatus.intValue == 2 && ![_selectedSeatArray[0] containsObject:array[lastIndex]]) {
                             isSure = NO;
                         }
-                        
                     }
                     
                 }
@@ -387,29 +411,28 @@
         return;
     }
     
-    
-    NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
-    [dateFormatter setDateFormat:@"yyyy-MM-dd HH:mm:ss"];
-    NSDate *date = [dateFormatter dateFromString:[NSString stringWithFormat:@"%@ %@:00",_sequenceModel.seqDate,_sequenceModel.seqTime]];
-    NSString * dateline = [ZTools timechangeToDatelineWithDate:date];
-
-    
+    //锁定座位
     MBProgressHUD * loadHUD = [ZTools showMBProgressWithText:@"订单提交中..." WihtType:MBProgressHUDModeText addToView:self.view isAutoHidden:NO];
     
     __weak typeof(self)wself = self;
     NSArray * seatsInfoArray = [self getTickets];
-    NSDictionary * dic = @{@"user_id"       :[ZTools getUid],
-                           @"cinema_id"     :_cinema_model.cinemaId,
-                           @"movie_id"      :_movie_model.movieId,
-                           @"plan_id"       :_sequenceModel.seqId,
-                           @"movie_money"   :_sequenceModel.price,
-                           @"tickts"        :seatsInfoArray[0],
-                           @"tickts_amount" :[NSString stringWithFormat:@"%d",(int)[_selectedSeatArray[0] count]],
-                           @"hall_name"     :_sequenceModel.hallId,
-                           @"pay_no"        :[self buildOrderId],
-                           @"feature_time"  :dateline,
-                           @"ticket_desc"   :seatsInfoArray[1],
-                           @"mobile"        :[ZTools getPhoneNum]};
+    NSDictionary * dic = @{@"user_id"       :[ZTools getUid],               //用户id
+                           @"cinema_id"     :_cinema_model.cinemaId,        //影院id
+                           @"movie_id"      :_movie_model.movieId,          //影片id
+                           @"plan_id"       :_sequenceModel.seqId,          //排期id
+                           @"movie_money"   :@(_sequenceModel.price.floatValue-_sequenceModel.fee.intValue),          //影片价格
+                           @"tickts"        :seatsInfoArray[0],             //座位id
+                           @"tickts_amount" :[NSString stringWithFormat:@"%d",(int)[_selectedSeatArray[0] count]],      //所选座位数量
+                           @"hall_name"     :_sequenceModel.hallName,         //影厅名称
+                           @"pay_no"        :[self buildOrderId],           //订单号
+                           @"feature_time"  :[NSString stringWithFormat:@"%@ %@",_sequenceModel.seqDate,_sequenceModel.seqTime],    //影片放映时间
+                           @"ticket_desc"   :seatsInfoArray[1],             //座位号
+                           @"mobile"        :[ZTools getPhoneNum],          //手机号
+                           @"movie_name":_movie_model.movieName,            //电影名称
+                           @"cinema_name":_cinema_model.cinemaName,         //影院名称
+                           @"movie_img":_movie_model.moviePick.length?_movie_model.moviePick:@""};           //影片头图
+    
+    
     
     
     [[ZAPI manager] sendPost:MOVIE_ADD_MOVIE_ORDER myParams:dic success:^(id data) {
@@ -419,7 +442,10 @@
             if (status.intValue == 1) {
                 [wself pushToConfirOrderViewController];
             }else{
-                [ZTools showMBProgressWithText:data[ERROR_INFO] WihtType:MBProgressHUDModeText addToView:wself.view isAutoHidden:YES];
+                UIAlertView * alertView = [UIAlertView showWithTitle:@"预定失败" message:@"非常抱歉，您选的座位已经被其他用户预定，请重新选择" cancelButtonTitle:@"确定" otherButtonTitles:nil tapBlock:^(UIAlertView * _Nonnull alertView, NSInteger buttonIndex) {
+                    
+                }];
+                [alertView show];
             }
         }else{
             [ZTools showMBProgressWithText:@"提交订单失败，请重试" WihtType:MBProgressHUDModeText addToView:wself.view isAutoHidden:YES];
@@ -458,7 +484,7 @@
     seclectSeatView = nil;
     header_view = nil;
     
-    
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
 @end

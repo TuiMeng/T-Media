@@ -18,8 +18,11 @@
 #import "AppDelegate.h"
 #import "RootMovieView.h"
 #import "MovieCityViewController.h"
+#import "SWebViewController.h"
+#import "WXUtil.h"
+#import "UIAlertView+Blocks.h"
 
-@interface RootViewController ()<SNRefreshDelegate,UITableViewDataSource,CLLocationManagerDelegate,SDCycleScrollViewDelegate>{
+@interface RootViewController ()<SNRefreshDelegate,UITableViewDataSource,SDCycleScrollViewDelegate>{
     BOOL                isShowCycleView;
     /**
      *  选择地区按钮
@@ -30,7 +33,8 @@
      */
     int                 currentPage;
     
-    CLLocationManager   * locationManager;
+//    CLLocationManager   * locationManager;
+    AMapLocationManager * locationManager;
     //记录取到数据库第几条数据
     int                 get_sql_index;
     //记录每个栏目读到第几条数据
@@ -49,6 +53,9 @@
     NSString            * location_city;
     
     BOOL                area_success_load;
+    
+    //当前选中地区
+    NSString            * currentArea;
 }
 
 @property(nonatomic,strong)NSMutableArray           * data_array;
@@ -71,36 +78,44 @@
 @implementation RootViewController
 
 -(void)createLeftItem{
-    left_button = [ZTools createButtonWithFrame:CGRectMake(0, 0, 60, 44) title:@"北京" image:[UIImage imageNamed:@"seller_bottom_arrow_image"]];
-    left_button.adjustsImageWhenHighlighted = NO;
-    [left_button setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
-    left_button.titleLabel.font = [UIFont systemFontOfSize:15];
-    [left_button setImage:[UIImage imageNamed:@"seller_top_arrow_image"] forState:UIControlStateSelected];
+    currentArea = [ZTools getSelectedCity];
+    if (!left_button) {
+        UIImage * image = [UIImage imageNamed:@"seller_bottom_arrow_image"];
+        left_button = [ZTools createButtonWithFrame:CGRectMake(0, 0, 70, 44) title:currentArea image:image];
+        left_button.adjustsImageWhenHighlighted = NO;
+        left_button.clipsToBounds = YES;
+        [left_button setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+        left_button.titleLabel.font = [UIFont systemFontOfSize:12];
+        
+        [left_button addTarget:self action:@selector(leftButtonClicked:) forControlEvents:UIControlEventTouchUpInside];
+        self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:left_button];
+    }
     
-    CGSize size = [ZTools stringHeightWithFont:[UIFont systemFontOfSize:15] WithString:@"北京" WithWidth:left_button.width];
-    [left_button setImageEdgeInsets:UIEdgeInsetsMake(0, (size.width+left_button.width)/2, 0, 0)];
-    [left_button setTitleEdgeInsets:UIEdgeInsetsMake(0, -15, 0, 15)];
-    [left_button addTarget:self action:@selector(leftButtonClicked:) forControlEvents:UIControlEventTouchUpInside];
-    self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:left_button];
+    [left_button setTitle:currentArea forState:UIControlStateNormal];
+    CGSize size = [ZTools stringHeightWithFont:[UIFont systemFontOfSize:12] WithString:currentArea WithWidth:left_button.width];
+    
+    [left_button setImageEdgeInsets:UIEdgeInsetsMake(0, size.width+2, 0, 0)];
+    [left_button setTitleEdgeInsets:UIEdgeInsetsMake(0, -10, 0,left_button.width - size.width-1)];
+
+   
 }
 
 -(void)leftButtonClicked:(UIButton *)button{
-    left_button.selected = !left_button.selected;
     MovieCityViewController * viewController = [[MovieCityViewController alloc] init];
     UINavigationController * navc = [[UINavigationController alloc] initWithRootViewController:viewController];
-    viewController.current_city = @"北京";
+    viewController.current_city = currentArea;
     [self presentViewController:navc animated:YES completion:nil];
     
-    __weak typeof(self)wself = self;
+    __WeakSelf__ wself = self;
     [viewController selectedCityWithCityBlock:^(SubCityModel *model) {
-        [button setTitle:model.cityName forState:UIControlStateNormal];
+        [ZTools setSelectedCity:model.cityName cityId:model.cityId];
+        currentArea = model.cityName;
+        [wself createLeftItem];
     }];
 }
 
-
 - (void)viewDidLoad {
     [super viewDidLoad];
-    
     
     [UIApplication sharedApplication].statusBarHidden = NO;
     
@@ -253,9 +268,9 @@
 //获取已结束任务数据
 -(void)loadOffLineTaskListData{
     
-    __weak typeof(self)wself = self;
-    RootTopTitleModel*model = _top_array[currentPage];
-    SNRefreshTableView * tableView = _contentViews[currentPage];
+    __weak typeof(self)wself        = self;
+    RootTopTitleModel*model         = _top_array[currentPage];
+    SNRefreshTableView * tableView  = _contentViews[currentPage];
     
     //最后一条任务id
     NSString * task_id = @"";
@@ -336,7 +351,7 @@
     NSString *copy_path = [NSHomeDirectory() stringByAppendingString:@"/Documents/task_copy.txt"];
     
     AFHTTPRequestSerializer *serializer = [AFHTTPRequestSerializer serializer];
-    NSMutableURLRequest *request =[serializer requestWithMethod:@"GET" URLString:[NSString stringWithFormat:@"https://www.twttmob.com/Apinew/include/index_list.txt?%@",[ZTools timechangeToDateline]] parameters:nil error:nil];
+    NSMutableURLRequest *request =[serializer requestWithMethod:@"GET" URLString:[NSString stringWithFormat:@"http://test.twttmob.com/Test_version/include/index_list.txt?%@",[ZTools timechangeToDateline]] parameters:nil error:nil];
     
     AFHTTPRequestOperation *operation = [[AFHTTPRequestOperation alloc]initWithRequest:request];
     [operation setOutputStream:[NSOutputStream outputStreamToFileAtPath:savedPath append:NO]];
@@ -374,15 +389,15 @@
 -(void)loadFocusData{
     
     if (!_c_array) {
-        _c_array = [NSMutableArray array];
-        _focus_image_array = [NSMutableArray array];
-        _focus_title_array = [NSMutableArray array];
+        _c_array            = [NSMutableArray array];
+        _focus_image_array  = [NSMutableArray array];
+        _focus_title_array  = [NSMutableArray array];
     }
     
     __weak typeof(self)wself = self;
     [[ZAPI manager] sendGet:[NSString stringWithFormat:@"%@&type=%@",GIFT_FOCUS_IMAGES_URL,@"root"] success:^(id data) {
         if (data && [data isKindOfClass:[NSDictionary class]]) {
-            [_c_array removeAllObjects];
+            [_c_array           removeAllObjects];
             [_focus_title_array removeAllObjects];
             [_focus_image_array removeAllObjects];
             NSArray * array = [data objectForKey:@"Focus_img"];
@@ -404,8 +419,8 @@
 -(void)loadTitlesData{
     
     if (!_top_title_array) {
-        _top_title_array = [NSMutableArray array];
-        _top_array = [NSMutableArray array];
+        _top_title_array    = [NSMutableArray array];
+        _top_array          = [NSMutableArray array];
     }
     [_top_title_array removeAllObjects];
     [_top_array removeAllObjects];
@@ -700,6 +715,12 @@
          
          if ([tableView isKindOfClass:[RootMovieView class]]) {
              [(RootMovieView*)tableView loadMoiveData];
+         }else if ([tableView isKindOfClass:[UIWebView class]]){
+             UIWebView * webView = (UIWebView *)tableView;
+             [MobClick event:@"RootGame"];
+             if (!webView.request.URL) {
+                 [webView loadRequest:[[NSURLRequest alloc] initWithURL:[NSURL URLWithString:@"http://gc.hgame.com/home/index/appid/100465"]]];
+             }
          }else{
              [(SNRefreshTableView*)pre_tableView setScrollsToTop:NO];
              
@@ -711,11 +732,13 @@
          }
      }];
     
+    /*向下滑动隐藏导航栏
     if (page != 2) {
         [self.navigationController setNavigationBarHidden:NO animated:YES];
         [[UIApplication sharedApplication] setStatusBarHidden:NO withAnimation:UIStatusBarAnimationSlide];
         _myScrollView.height = DEVICE_HEIGHT-_topScrollView.height-64;
     }
+     */
 }
 #pragma mark -----  创建所有tableview
 -(void)createMainViews{
@@ -742,17 +765,24 @@
             }];
              */
             
-        }else{
-            SNRefreshTableView * tableView = [[SNRefreshTableView alloc] initWithFrame:CGRectMake(DEVICE_WIDTH*i,0,DEVICE_WIDTH,self.myScrollView.height) showLoadMore:YES];
-            tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
-            tableView.refreshDelegate = self;
-            tableView.dataSource = self;
-            tableView.isHaveMoreData = NO;
-            tableView.tag = 1000 + i;
-            tableView.backgroundColor = RGBCOLOR(237, 237, 237);
-            tableView.scrollsToTop = NO;
+        }else if ([title rangeOfString:@"游戏"].length){
+            
+            UIWebView * webView = [[UIWebView alloc] initWithFrame:CGRectMake(DEVICE_WIDTH*i,0,DEVICE_WIDTH,self.myScrollView.height)];
+            webView.scalesPageToFit = YES;
+            [_myScrollView addSubview:webView];
+            [_contentViews addObject:webView];
+        }else
+        {
+            SNRefreshTableView * tableView  = [[SNRefreshTableView alloc] initWithFrame:CGRectMake(DEVICE_WIDTH*i,0,DEVICE_WIDTH,self.myScrollView.height) showLoadMore:YES];
+            tableView.separatorStyle        = UITableViewCellSeparatorStyleNone;
+            tableView.refreshDelegate       = self;
+            tableView.dataSource            = self;
+            tableView.isHaveMoreData        = NO;
+            tableView.tag                   = 1000 + i;
+            tableView.backgroundColor       = RGBCOLOR(237, 237, 237);
+            tableView.scrollsToTop          = NO;
             if (i==0) {
-                tableView.scrollsToTop = YES;
+                tableView.scrollsToTop      = YES;
             }
             
             [_myScrollView addSubview:tableView];
@@ -768,16 +798,16 @@
 
 -(void)setCycleView{
     
-    _cycle_scrollView = [SDCycleScrollView cycleScrollViewWithFrame:CGRectMake(0,40,DEVICE_WIDTH,[ZTools autoHeightWith:180]) imageURLStringsGroup:_focus_image_array];
-    _cycle_scrollView.titlesGroup = _focus_title_array;
-    _cycle_scrollView.delegate = self;
-    _cycle_scrollView.pageControlStyle = SDCycleScrollViewPageContolStyleClassic;
+    _cycle_scrollView                   = [SDCycleScrollView cycleScrollViewWithFrame:CGRectMake(0,40,DEVICE_WIDTH,[ZTools autoHeightWith:180]) imageURLStringsGroup:_focus_image_array];
+    _cycle_scrollView.titlesGroup       = _focus_title_array;
+    _cycle_scrollView.delegate          = self;
+    _cycle_scrollView.pageControlStyle  = SDCycleScrollViewPageContolStyleClassic;
     _cycle_scrollView.pageControlAliment = SDCycleScrollViewPageContolAlimentRight;
     _cycle_scrollView.autoScrollTimeInterval = 5.f;
     
     if (currentPage == 0) {
-        UITableView * tableView = (UITableView*)[_myScrollView viewWithTag:1000];
-        tableView.tableHeaderView = _cycle_scrollView;
+        UITableView * tableView     = (UITableView*)[_myScrollView viewWithTag:1000];
+        tableView.tableHeaderView   = _cycle_scrollView;
     }
 }
 #pragma mark ------------------   Refresh delegate methods
@@ -851,47 +881,61 @@
 #pragma mark ---------  获取用户地理位置信息
 - (void) setupLocationManager {
     
-    locationManager = [[CLLocationManager alloc] init] ;
+    __weak typeof(self)wself = self;
+    //高德地图
+    [AMapLocationServices sharedServices].apiKey = AMAP_KEY;
     
-    if ([CLLocationManager locationServicesEnabled]) {
-        NSLog( @"Starting CLLocationManager" );
-        locationManager.delegate = self;
-        locationManager.distanceFilter = 200;
-        locationManager.desiredAccuracy = kCLLocationAccuracyBest;
-        if ([locationManager respondsToSelector:@selector(requestWhenInUseAuthorization)]) {
-            [locationManager requestWhenInUseAuthorization];
-        }
-        [locationManager startUpdatingLocation];
-        
-    } else {
-        //提示用户无法进行定位操作
-//        UIAlertView *alertView = [[UIAlertView alloc]initWithTitle:@"提示" message:@"定位不成功 ,请确认开启定位" delegate:nil cancelButtonTitle:@"取消" otherButtonTitles:@"确定", nil];
-//        [alertView show];
-    }
-}
-
-- (void)locationManager:(CLLocationManager *)manager
-     didUpdateLocations:(NSArray *)locations{
     
-    [locationManager stopUpdatingLocation];
-    CLLocation *currentLocation = [locations lastObject];
-    // 获取当前所在的城市名
-    CLGeocoder *geocoder = [[CLGeocoder alloc] init];
-    //根据经纬度反向地理编译出地址信息
-    [geocoder reverseGeocodeLocation:currentLocation completionHandler:^(NSArray *array, NSError *error){
-        
-        if (array.count > 0)
+    locationManager = [[AMapLocationManager alloc] init];
+    [locationManager setDesiredAccuracy:kCLLocationAccuracyHundredMeters];
+    locationManager.locationTimeout = 3;
+    locationManager.reGeocodeTimeout = 3;
+    [locationManager requestLocationWithReGeocode:YES completionBlock:^(CLLocation *location, AMapLocationReGeocode *regeocode, NSError *error) {
+        if (error)
         {
-            CLPlacemark *placemark = [array objectAtIndex:0];
-            //将获得的所有信息显示到label上
-//            NSLog(@"%@",placemark);
-//            //获取城市
-//            NSString *city = placemark.locality;
-            location_city = [ZTools CutAreaString:placemark.administrativeArea];
-            NSLog(@"city ----  %@",location_city);
-            [[NSUserDefaults standardUserDefaults] setObject:location_city forKey:GPS_ADDRESS];
+            NSLog(@"locError:{%ld - %@};", (long)error.code, error.localizedDescription);
+            if (error.code == AMapLocationErrorLocateFailed) {
+                
+            }
+        }
+        
+//        locationLat = location.coordinate.latitude;
+//        locationLng = location.coordinate.longitude;
+        if (regeocode)
+        {
+            NSLog(@"regeoco.city ----  %@",regeocode.formattedAddress);
+            [wself handleLocationManagerDataWithCity:regeocode.formattedAddress];
+            
         }
     }];
+}
+
+#pragma mark ----  处理定位信息
+-(void)handleLocationManagerDataWithCity:(NSString *)city{
+    location_city = [ZTools CutAreaString:city];
+    
+    NSRange range = [city rangeOfString:@"市"];
+    if (range.length) {
+        city = [city substringToIndex:range.location];
+    }
+    
+    if (![currentArea rangeOfString:city].length) {
+        __WeakSelf__ wself = self;
+        UIAlertView * alertView = [UIAlertView showWithTitle:@"温馨提示" message:[NSString stringWithFormat:@"系统定位您在%@，是否切换到当前城市",city] cancelButtonTitle:@"取消" otherButtonTitles:@[@"切换"] tapBlock:^(UIAlertView * _Nonnull alertView, NSInteger buttonIndex) {
+            if (buttonIndex == 1) {
+                MBProgressHUD * hud = [ZTools showMBProgressWithText:@"切换中" WihtType:MBProgressHUDModeIndeterminate addToView:wself.view isAutoHidden:NO];
+                [[MovieNetWork sharedManager] checkCityIdWitCityName:city success:^(id data) {
+                    [hud hide:YES];
+                    [wself createLeftItem];
+                } failure:^(NSString *error) {
+                    [hud hide:YES];
+                    [ZTools showMBProgressWithText:error WihtType:MBProgressHUDModeText addToView:wself.view isAutoHidden:YES];
+                }];
+            }
+        }];
+        [alertView show];
+    }
+    [[NSUserDefaults standardUserDefaults] setObject:location_city forKey:GPS_ADDRESS];
 }
 
 -(void)successLoginWithSource:(NSString*)source{

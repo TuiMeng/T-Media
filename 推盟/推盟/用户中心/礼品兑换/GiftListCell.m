@@ -89,7 +89,9 @@
 -(void)setGiftOneWith:(GiftListModel *)model1 TwoWith:(GiftListModel *)model2{
     _title_label1.text = model1.gift_name;
     [_header_imageView1 sd_setImageWithURL:[NSURL URLWithString:model1.gift_image_small] placeholderImage:[UIImage imageNamed:@"default_loading_small_image"]];
-    _price_label1.text = [NSString stringWithFormat:@"%@元",model1.price];
+    
+    NSString * _priceString1 = [NSString stringWithFormat:@"%@积分",model1.price];
+    _price_label1.attributedText = [ZTools labelTextFontWith:_priceString1 Color:DEFAULT_ORANGE_TEXT_COLOR Font:12 range:[_priceString1 rangeOfString:@"积分"]];
     
     if (!model2) {
         _line_view.hidden = YES;
@@ -99,9 +101,10 @@
         _right_view.hidden = NO;
     }
     
+    NSString * _priceString2 = [NSString stringWithFormat:@"%@积分",model2.price];
     _title_label2.text = model2.gift_name;
     [_header_imageView2 sd_setImageWithURL:[NSURL URLWithString:model2.gift_image_small] placeholderImage:[UIImage imageNamed:@"default_loading_small_image"]];
-    _price_label2.text = [NSString stringWithFormat:@"%@元",model2.price];
+    _price_label2.attributedText = [ZTools labelTextFontWith:_priceString2 Color:DEFAULT_ORANGE_TEXT_COLOR Font:12 range:[_priceString2 rangeOfString:@"积分"]];
 }
 
 - (void)setSelected:(BOOL)selected animated:(BOOL)animated {

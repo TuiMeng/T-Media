@@ -12,6 +12,10 @@
 #define ERROR_CODE @"status"
 #define ERROR_INFO @"errorinfo"
 
+//弱引用
+#define __WeakSelf__ __weak typeof (self)
+
+
 #define SPREAD_WECHAT_TYPE  @"wechat"
 #define SPREAD_QQ_TYPE      @"qq"
 #define SPREAD_SINA_TYPE    @"sina"
@@ -24,6 +28,9 @@
 //商户API密钥，填写相应参数
 #define PARTNER_ID          @"34EE39AE4A5262A220781A78A1DC4F6D"
 #define WECHAT_CALLBACK_URL @"http://test.twttmob.com/Test_version/include/wxpay/xmkp_notify.php"
+
+//高德地图key
+#define AMAP_KEY            @"5ec3a1c302941db6046f74f673259efa"
 
 
 #define WEBSITE @"http://www.twttmob.com"
@@ -45,9 +52,11 @@
 #pragma mark 所有接口
 #pragma mark -----------域名--------------
 //#define BASE_URL          @"http://www.twttmob.com/api.php"
-#define BASE_URL            @"http://www.twttmob.com/apinew.php"
-#define  BASE_MOVIE_URL     @"http://www.yingmile.com/tmmobile/mobile/"
-//#define BASE_MOVIE_URL      @"http://202.108.31.66:8081/tmmobile/mobile/"
+//#define BASE_URL            @"http://www.twttmob.com/apinew.php"
+#define BASE_URL            @"http://test.twttmob.com/test_version.php"
+
+//#define  BASE_MOVIE_URL     @"http://www.yingmile.com/tmmobile/mobile/"
+#define BASE_MOVIE_URL      @"http://202.108.31.66:8088/tmmobile/mobile/"
 //电影频道图片地址域名
 #define BASE_MOVIE_IMAGE_URL @"http://www.yingmile.com/yml_img"
 
@@ -122,9 +131,16 @@
 #define GIFT_APPLY_URL [NSString stringWithFormat:@"%@?m=Gift&a=e_point_getgift",BASE_URL]
 #pragma mark -------- 礼品兑换记录接口
 #define GIFT_RECORD_LIST [NSString stringWithFormat:@"%@?m=Gift&a=e_point_giftrecordlist",BASE_URL]
+#pragma mark --------  申请礼品兑换获取验证码接口
+#define GET_APPLY_VERIFICATION_GIFT_URL [NSString stringWithFormat:@"%@?m=Gift&a=dx_getlist",BASE_URL]
+
 
 #pragma mark -------- 提现记录接口
 #define APPLY_LIST_URL [NSString stringWithFormat:@"%@?m=Gift&a=e_point_applylist",BASE_URL]
+#pragma mark --------  申请提现获取验证码接口
+#define GET_APPLY_VERIFICATION_CODE_URL [NSString stringWithFormat:@"%@?m=Gift&a=reflect",BASE_URL]
+
+
 
 #pragma mark -----------------  排行榜
 #define RANGKING_LIST_URL [NSString stringWithFormat:@"%@?m=Gift&a=e_point_rankinglist",BASE_URL]
@@ -194,10 +210,12 @@
 #pragma mark ******************电影相关接口***********************
 #define GET_MOVIE_LIST_URL 
 #define GET_MOVIEW_DETAIL_URL(movieid) [NSString stringWithFormat:@"%@qrMovie?movieId=%@",BASE_MOVIE_URL,movieid]
+//查询附近影院接口
+#define GET_NEAR_CINEMA_URL [NSString stringWithFormat:@"%@qrLocalCinemas?",BASE_MOVIE_URL]
 //电影评论列表
-#define GET_MOVIE_COMMENTS_URL [NSString stringWithFormat:@"%@qrMovieComments?",BASE_MOVIE_URL]
+#define GET_MOVIE_COMMENTS_URL [NSString stringWithFormat:@"%@qrTmMovieScore?",BASE_MOVIE_URL]
 //发表电影评论
-#define M_PUBLISH_COMMENTS_URL [NSString stringWithFormat:@"%@addMovieComment?",BASE_MOVIE_URL]
+#define M_PUBLISH_COMMENTS_URL [NSString stringWithFormat:@"%@addTmMovieScore?",BASE_MOVIE_URL]
 //所有地区
 #define GET_ALL_CITY_URL [NSString stringWithFormat:@"%@qrCitys",BASE_MOVIE_URL]
 #define SEARCH_NEARBY_CINEMAS_URL [NSString stringWithFormat:@"%@qrLocalCinemas?",BASE_MOVIE_URL]
@@ -213,7 +231,8 @@
 #define M_ORDER_PAY [NSString stringWithFormat:@"%@beforePay?",BASE_MOVIE_URL]
 //查询卡信息接口
 #define M_GET_CARD_INFO_URL [NSString stringWithFormat:@"%@qrNfaTicket?",BASE_MOVIE_URL]
-
+//查询所在城市id
+#define M_GET_CITY_ID_URL [NSString stringWithFormat:@"%@qrCityId?",BASE_MOVIE_URL]
 
 
 

@@ -13,8 +13,10 @@
 #import "MCinemaDetailViewController.h"
 #import "SListTopBarScrollView.h"
 #import "MovieDetailViewController.h"
+#import "SMapViewController.h"
+#import "UIAlertView+Blocks.h"
 
-@interface MCinemaScheduleViewController ()<SNRefreshDelegate,UITableViewDataSource>{
+@interface MCinemaScheduleViewController ()<SNRefreshDelegate,UITableViewDataSource,UIAlertViewDelegate>{
     SView   * section_view;
     SView   * footer_view;
     UILabel * emptyLabel;
@@ -24,7 +26,6 @@
 @property(nonatomic,strong)SNRefreshTableView       * myTableView;
 @property(nonatomic,strong)NSMutableArray           * dataArray;
 @property(nonatomic,strong)SListTopBarScrollView    * topScrollView;
-@property(nonatomic,assign)int                      currentPage;
 
 @end
 
@@ -50,8 +51,7 @@
     [self createSectionHeaderView];
     [self createFooterWithHaveData:YES];
     
-    _currentPage = 0;
-    [self loadDataWithDayKind:_currentPage];
+    [self loadDataWithDayKind:_dayKind];
 }
 
 
@@ -91,21 +91,22 @@
         section_view = [[SView alloc] initWithFrame:CGRectMake(0, 0, DEVICE_WIDTH, 410)];
         
         
-        SView * cinemaInfoView = [[SView alloc] initWithFrame:CGRectMake(0, 0, DEVICE_WIDTH, 55)];
+        SView * cinemaInfoView = [[SView alloc] initWithFrame:CGRectMake(0, 0, DEVICE_WIDTH, 40)];
         cinemaInfoView.backgroundColor = [UIColor whiteColor];
         cinemaInfoView.lineColor = DEFAULT_LINE_COLOR;
         cinemaInfoView.isShowBottomLine = YES;
         [section_view addSubview:cinemaInfoView];
+        /*影院详情跳转
         UITapGestureRecognizer * cinemaInfoTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(showCinemaDetail:)];
         [cinemaInfoView addGestureRecognizer:cinemaInfoTap];
-        
-        //箭头
+        */
+        /*//箭头
         UIImageView * first_arrow_imageView = [[UIImageView alloc] initWithFrame:CGRectMake(DEVICE_WIDTH-23, 20, 8, 15)];
         first_arrow_imageView.image = [UIImage imageNamed:@"cinema_right_arrow_image"];
         [cinemaInfoView addSubview:first_arrow_imageView];
-        
+        */
         //影院名称
-        UILabel * cinema_name_label = [ZTools createLabelWithFrame:CGRectMake(15, 10, DEVICE_WIDTH-80, 30)
+        UILabel * cinema_name_label = [ZTools createLabelWithFrame:CGRectMake(15, 10, DEVICE_WIDTH-30, 30)
                                                               text:_cinema_model.cinemaName
                                                          textColor:RGBCOLOR(31,31,31)
                                                      textAlignment:NSTextAlignmentLeft
@@ -113,6 +114,7 @@
         [cinemaInfoView addSubview:cinema_name_label];
         [cinema_name_label sizeToFit];
         
+        /*
         //影院评分
         UILabel * cinema_score_label = [ZTools createLabelWithFrame:CGRectMake(cinema_name_label.right+5, cinema_name_label.top, 50, cinema_name_label.height)
                                                                text:@"8.7分"
@@ -121,11 +123,13 @@
                                                                font:14];
         [cinemaInfoView addSubview:cinema_score_label];
         [cinema_score_label sizeToFit];
-        
+         */
+        /*
         if (cinema_name_label.right >= (first_arrow_imageView.left-cinema_score_label.width-10)) {
             cinema_name_label.width = first_arrow_imageView.left-cinema_score_label.width-25;
             cinema_score_label.right = first_arrow_imageView.left-10;
         }
+         */
         
         //地址图标
         UIImageView * location_imageView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"cinema_location_image"]];
@@ -181,7 +185,7 @@
         [movieInfoView addSubview:movie_name_label];
         //电影评分
         UILabel * movie_score_label = [ZTools createLabelWithFrame:CGRectMake(movie_name_label.right+5, movie_name_label.top, 50, cinema_name_label.height)
-                                                              text:@"7.8分"
+                                                              text:[NSString stringWithFormat:@"%@分",_movie_model.movieScore]
                                                          textColor:RGBCOLOR(255, 132, 1)
                                                      textAlignment:NSTextAlignmentLeft
                                                               font:14];
@@ -233,14 +237,15 @@
         self.topScrollView.backgroundColor          = [UIColor whiteColor];
         __weak typeof(self)wself                    = self;
         self.topScrollView.listBarItemClickBlock    = ^(NSString *itemName , NSInteger itemIndex){
-            wself.currentPage = (int)itemIndex;
-            if ([wself.dataArray[wself.currentPage] count]) {
+            wself.dayKind = (int)itemIndex;
+            if ([wself.dataArray[wself.dayKind] count]) {
                 [wself createFooterWithHaveData:YES];
                 [wself.myTableView finishReloadigData];
             }else{
-                [wself loadDataWithDayKind:wself.currentPage];
+                [wself loadDataWithDayKind:wself.dayKind];
             }
         };
+        [self.topScrollView itemClickByScrollerWithIndex:_dayKind];
         [section_view addSubview:self.topScrollView];
 
         
@@ -272,7 +277,7 @@
 
 #pragma mark --------UITableViewDelegate
 -(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
-    return [_dataArray[_currentPage] count];
+    return [_dataArray[_dayKind] count];
 }
 
 -(UITableViewCell*)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
@@ -283,7 +288,7 @@
         cell.selectionStyle = UITableViewCellSelectionStyleNone;
     }
     
-    MovieSequencesModel * model         = _dataArray[_currentPage][indexPath.row];
+    MovieSequencesModel * model         = _dataArray[_dayKind][indexPath.row];
     [cell setInfomationWithMovieSequencesModel:model];
     cell.end_time_label.text            =[NSString stringWithFormat:@"%@散场",[MovieTools getEndTimeWithStartTime:model.seqTime WithDur:_movie_model.duration.intValue]];
     
@@ -293,14 +298,20 @@
         viewController.cinema_model                     = wself.cinema_model;
         viewController.movie_model                      = wself.movie_model;
         viewController.sequenceModel                    = model;
+        viewController.refreshSeatsData                 = YES;
         [wself.navigationController pushViewController:viewController animated:YES];
+        
+        
+        if (_dayKind) {
+            [wself showRemindDateAlertView];
+        }
     }];
     
     return cell;
 }
 
 -(void)loadNewData{
-    [self loadDataWithDayKind:_currentPage];
+    [self loadDataWithDayKind:_dayKind];
 }
 
 - (void)didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
@@ -320,12 +331,22 @@
 
 #pragma mark -----  显示地理位置
 -(void)showAddress:(UITapGestureRecognizer *)sender{
-    
+    SMapViewController * vc     = [[SMapViewController alloc] init];
+    vc.lat                      = _cinema_model.lat.doubleValue;
+    vc.lng                      = _cinema_model.lon.doubleValue;
+    vc.stitle                   = _cinema_model.cinemaAddr;
+    [self.navigationController pushViewController:vc animated:YES];
 }
 
 #pragma mark -----   拨打电话
 -(void)takePhoneNum:(UIButton *)button{
-    
+    __weak typeof(self)wself = self;
+    UIAlertView * alertView = [UIAlertView showWithTitle:_cinema_model.linkPhone message:@"" cancelButtonTitle:@"取消" otherButtonTitles:@[@"拨打"] tapBlock:^(UIAlertView * _Nonnull alertView, NSInteger buttonIndex) {
+        if (buttonIndex == 1 && wself.cinema_model.linkPhone.length) {
+            [[UIApplication sharedApplication] openURL:[NSURL URLWithString:[NSString stringWithFormat:@"tel:%@",wself.cinema_model.linkPhone]]];
+        }
+    }];
+    [alertView show];
 }
 
 #pragma mark -------  查看电影信息
@@ -335,6 +356,16 @@
     [self.navigationController pushViewController:detailVC animated:YES];
 }
 
+#pragma mark -------   提示用户选择的日期
+-(void)showRemindDateAlertView{
+    UIAlertView * alertView = [[UIAlertView alloc] initWithTitle:[NSString stringWithFormat:@"您选择的是%@的场次，请仔细核对！",self.topScrollView.visibleItemList[_dayKind]]
+                                                         message:@""
+                                                        delegate:self
+                                               cancelButtonTitle:@"知道了"
+                                               otherButtonTitles:nil, nil];
+    [alertView show];
+    
+}
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];

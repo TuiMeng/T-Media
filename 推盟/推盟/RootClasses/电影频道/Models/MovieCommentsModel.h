@@ -15,6 +15,15 @@
 
 
 @property(nonatomic,strong)NSString * content;
+@property(nonatomic,strong)NSString * createTime;
+@property(nonatomic,strong)NSString * score;
+@property(nonatomic,strong)NSString * msId;
+@property(nonatomic,strong)NSString * headerImage;
+@property(nonatomic,strong)NSString * userName;
 
 
 @end
+
+
+
+

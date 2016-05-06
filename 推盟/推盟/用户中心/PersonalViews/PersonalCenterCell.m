@@ -30,7 +30,7 @@
     
     _title_label.text = info.task_name;
     _clicked_num_label.text = [NSString stringWithFormat:@"累计点击：%@",info.click_num];
-    _total_money_label.text = [NSString stringWithFormat:@"累计奖金：%@",info.get_points];
+    _total_money_label.text = [NSString stringWithFormat:@"累计积分：%@",info.get_points];
 }
 
 

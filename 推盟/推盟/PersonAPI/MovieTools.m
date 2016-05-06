@@ -35,7 +35,8 @@
 +(NSMutableArray *)returnThreeDaysArray{
     NSString * today    = [NSString stringWithFormat:@"今天%@",[ZTools timechangeWithDate:[NSDate date] WithFormat:@"MM月dd日"]];
     NSString * nextDay  = [NSString stringWithFormat:@"明天%@",[ZTools timechangeWithDate:[NSDate dateWithTimeIntervalSinceNow:24*60*60] WithFormat:@"MM月dd日"]];
-    NSString * thirdDay = [NSString stringWithFormat:@"后天%@",[ZTools timechangeWithDate:[NSDate dateWithTimeIntervalSinceNow:24*60*60*2] WithFormat:@"MM月dd日"]];
+    NSDate * thirdDate  = [NSDate dateWithTimeIntervalSinceNow:24*60*60*2];
+    NSString * thirdDay = [NSString stringWithFormat:@"%@%@",[ZTools timeWeekdayStringFromDate:thirdDate],[ZTools timechangeWithDate:thirdDate WithFormat:@"MM月dd日"]];
     return [NSMutableArray arrayWithObjects:today,nextDay,thirdDay,nil];
 }
 

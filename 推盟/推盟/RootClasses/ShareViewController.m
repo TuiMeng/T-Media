@@ -48,7 +48,7 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     self.title_label.text = @"抢单页";
-    [self setMyViewControllerRightButtonType:MyViewControllerButtonTypeText WihtRightString:@"相册"];
+//    [self setMyViewControllerRightButtonType:MyViewControllerButtonTypeText WihtRightString:@"相册"];
     
     
     current = 1000;
@@ -79,8 +79,9 @@
 }
 -(void)applicationWillEnterForeground:(NSNotification*)notification{
 //    [self userDidTakeScreenshot:nil];
-    
-    [self reloadImagesFromLibrary];
+    if (_task_model.task_status.intValue == 1) {
+        [self reloadImagesFromLibrary];
+    }
 }
 
 
@@ -225,7 +226,7 @@
         UITapGestureRecognizer * tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(showPersonalInfomation)];
         [label addGestureRecognizer:tap];
         
-        NSString * str = [NSString stringWithFormat:@"您是普通用户单次点击价格为%@元（立即升级为高级用户）单次点击价格为%@元",_task_model.task_price,_task_model.gao_click_price];
+        NSString * str = [NSString stringWithFormat:@"您是普通用户单次点击积分为%@积分（立即升级为高级用户）单次点击积分为%@积分",_task_model.task_price,_task_model.gao_click_price];
         NSMutableAttributedString * attributed_string = [ZTools labelTextColorWith:str Color:DEFAULT_BACKGROUND_COLOR range:[str rangeOfString:@"立即升级为高级用户"]];
         [attributed_string addAttribute:NSUnderlineStyleAttributeName value:[NSNumber numberWithInteger:NSUnderlineStyleSingle] range:[str rangeOfString:@"立即升级为高级用户"]];
         label.attributedText = attributed_string;
@@ -249,53 +250,55 @@
     }
 
     
-    UIView * share_screenshot_background_view = [[UIView alloc] initWithFrame:CGRectMake(0, share_button.bottom+20, DEVICE_WIDTH, 300)];
-    share_screenshot_background_view.backgroundColor = RGBCOLOR(239, 239, 239);
-    [footer_view addSubview:share_screenshot_background_view];
-    
-    
-    UIView * share_selected_image_background_view = [[UIView alloc] initWithFrame:CGRectMake(0, 20, DEVICE_WIDTH, share_screenshot_background_view.height-20)];
-    share_selected_image_background_view.backgroundColor = [UIColor whiteColor];
-    [share_screenshot_background_view addSubview:share_selected_image_background_view];
-    
-    UILabel * prompt_label = [ZTools createLabelWithFrame:CGRectMake(10, 10, DEVICE_WIDTH-20, 20) tag:10 text:@"上传转发截图，有机会获取额外奖金" textColor:RGBCOLOR(251, 75, 78) textAlignment:NSTextAlignmentCenter font:15];
-    [share_selected_image_background_view addSubview:prompt_label];
-    
-    
-    selected_photo_imageView = [[UIImageView alloc] initWithFrame:CGRectMake((DEVICE_WIDTH-200)/2.0f, prompt_label.bottom+20, 200, 200)];
-    selected_photo_imageView.clipsToBounds = YES;
-    selected_photo_imageView.contentMode = UIViewContentModeScaleAspectFit;
-    selected_photo_imageView.image = [UIImage imageNamed:@"share_photo_background_image"];
-    [share_selected_image_background_view addSubview:selected_photo_imageView];
-    
-    UIButton * choose_button = [UIButton buttonWithType:UIButtonTypeCustom];
-    choose_button.frame = CGRectMake(0, 0, 43, 43);
-    choose_button.center = CGPointMake(selected_photo_imageView.width/2.0f, selected_photo_imageView.height/2.0f);
-    [choose_button setImage:[UIImage imageNamed:@"share_choose_photo_image"] forState:UIControlStateNormal];
-    [selected_photo_imageView addSubview:choose_button];
-    
-    
-    //重新选取图片+上传
-    NSArray * title_array = @[@"重新选择",@"上 传"];
-    for (int i = 0; i < 2; i++) {
+    //张少南   这里应该判断如果还可以再上传图片
+    if (_task_model.task_status.intValue == 1) {
         
-        UIButton * button = [ZTools createButtonWithFrame:CGRectMake(0, selected_photo_imageView.bottom+30, 70, 30) tag:100+i title:title_array[i] image:nil];
-        button.center = CGPointMake(DEVICE_WIDTH/2.0f/2.0f + (DEVICE_WIDTH/2.0f)*i, button.center.y);
-        button.titleLabel.font = [ZTools returnaFontWith:15];
-        [button addTarget:self action:@selector(choosePhotoButtonTap:) forControlEvents:UIControlEventTouchUpInside];
-        [share_selected_image_background_view addSubview:button];
+        UIView * share_screenshot_background_view = [[UIView alloc] initWithFrame:CGRectMake(0, share_button.bottom+20, DEVICE_WIDTH, 300)];
+        share_screenshot_background_view.backgroundColor = RGBCOLOR(239, 239, 239);
+        [footer_view addSubview:share_screenshot_background_view];
+        
+        UIView * share_selected_image_background_view = [[UIView alloc] initWithFrame:CGRectMake(0, 20, DEVICE_WIDTH, share_screenshot_background_view.height-20)];
+        share_selected_image_background_view.backgroundColor = [UIColor whiteColor];
+        [share_screenshot_background_view addSubview:share_selected_image_background_view];
+        
+        UILabel * prompt_label = [ZTools createLabelWithFrame:CGRectMake(10, 10, DEVICE_WIDTH-20, 20) tag:10 text:@"上传转发截图，有机会获取额外奖金" textColor:RGBCOLOR(251, 75, 78) textAlignment:NSTextAlignmentCenter font:15];
+        [share_selected_image_background_view addSubview:prompt_label];
+        
+        selected_photo_imageView = [[UIImageView alloc] initWithFrame:CGRectMake((DEVICE_WIDTH-200)/2.0f, prompt_label.bottom+20, 200, 200)];
+        selected_photo_imageView.clipsToBounds = YES;
+        selected_photo_imageView.contentMode = UIViewContentModeScaleAspectFit;
+        selected_photo_imageView.image = [UIImage imageNamed:@"share_photo_background_image"];
+        [share_selected_image_background_view addSubview:selected_photo_imageView];
+        
+        UIButton * choose_button = [UIButton buttonWithType:UIButtonTypeCustom];
+        choose_button.frame = CGRectMake(0, 0, 43, 43);
+        choose_button.center = CGPointMake(selected_photo_imageView.width/2.0f, selected_photo_imageView.height/2.0f);
+        [choose_button setImage:[UIImage imageNamed:@"share_choose_photo_image"] forState:UIControlStateNormal];
+        [selected_photo_imageView addSubview:choose_button];
+        
+        //重新选取图片+上传
+        NSArray * title_array = @[@"重新选择",@"上 传"];
+        for (int i = 0; i < 2; i++) {
+            
+            UIButton * button = [ZTools createButtonWithFrame:CGRectMake(0, selected_photo_imageView.bottom+30, 70, 30) tag:100+i title:title_array[i] image:nil];
+            button.center = CGPointMake(DEVICE_WIDTH/2.0f/2.0f + (DEVICE_WIDTH/2.0f)*i, button.center.y);
+            button.titleLabel.font = [ZTools returnaFontWith:15];
+            [button addTarget:self action:@selector(choosePhotoButtonTap:) forControlEvents:UIControlEventTouchUpInside];
+            [share_selected_image_background_view addSubview:button];
+        }
+        
+        share_screenshot_background_view.height = selected_photo_imageView.bottom + 120;
+        share_selected_image_background_view.height = share_screenshot_background_view.height-20;
+        footer_view.height = share_screenshot_background_view.bottom;
+
+        
+    
+        
+        [self reloadImagesFromLibrary];
     }
-    
-    
-   
-    share_screenshot_background_view.height = selected_photo_imageView.bottom + 120;
-    share_selected_image_background_view.height = share_screenshot_background_view.height-20;
-    footer_view.height = share_screenshot_background_view.bottom;
 
 
     _myTableView.tableFooterView = footer_view;
-    
-    [self reloadImagesFromLibrary];
 }
 
 #pragma mark ----  分享 ---- 

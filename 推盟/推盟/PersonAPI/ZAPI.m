@@ -156,8 +156,11 @@
         }
     }];
     
-    NSOperationQueue *queue = [[NSOperationQueue alloc] init];
-    [queue addOperation:operation];
+    if (!_queue) {
+        _queue = [[NSOperationQueue alloc] init];
+    }
+    
+    [_queue addOperation:operation];
 }
 
 -(BOOL)is_array:(id)target{
@@ -186,7 +189,10 @@
 }
 
 
-#pragma mark ---------  匹配ip地区
+#pragma mark ---------  取消网络请求
+-(void)cancel{
+    [_queue cancelAllOperations];
+}
 
 
 

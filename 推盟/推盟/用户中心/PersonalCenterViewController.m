@@ -10,6 +10,7 @@
 #import "UserInfoModel.h"
 #import "UserTaskModel.h"
 #import "PersonalCenterCell.h"
+#import "MOrderListController.h"
 
 @interface PersonalCenterViewController ()<UITableViewDataSource,UITableViewDelegate,UIAlertViewDelegate,SNRefreshDelegate>{
     //当前选中项（抢单中任务/已完成任务）
@@ -130,7 +131,7 @@
         rest_money_label = [ZTools createLabelWithFrame:CGRectMake((DEVICE_WIDTH-rest_size.width)/2.0f, 10, rest_size.width, 50) tag:102 text:rest_money_string textColor:RGBCOLOR(254, 239, 3) textAlignment:NSTextAlignmentCenter font:40];
         [money_background_view addSubview:rest_money_label];
         
-        rest_label = [ZTools createLabelWithFrame:CGRectMake((DEVICE_WIDTH-rest_size.width)/2.0f-70, 10,65, 50) tag:103 text:@"当前余额:" textColor:[UIColor whiteColor] textAlignment:NSTextAlignmentRight font:15];
+        rest_label = [ZTools createLabelWithFrame:CGRectMake((DEVICE_WIDTH-rest_size.width)/2.0f-70, 10,65, 50) tag:103 text:@"当前积分:" textColor:[UIColor whiteColor] textAlignment:NSTextAlignmentRight font:15];
         rest_label.font = [ZTools returnaFontWith:15];
         [money_background_view addSubview:rest_label];
         
@@ -150,12 +151,16 @@
             [button setTitleColor:RGBCOLOR(254, 239, 3) forState:UIControlStateNormal];
             [money_background_view addSubview:button];
             
-            UILabel * label = [ZTools createLabelWithFrame:CGRectMake(0, button.height-20, button.width, 20) tag:10000 text:@"" textColor:[UIColor whiteColor] textAlignment:NSTextAlignmentCenter font:15];
+            UILabel * label = [ZTools createLabelWithFrame:CGRectMake(0, button.height-20, button.width, 20)
+                                                      text:@""
+                                                 textColor:[UIColor whiteColor]
+                                             textAlignment:NSTextAlignmentCenter
+                                                      font:15];
             label.font = [ZTools returnaFontWith:14];
             [button addSubview:label];
             
             if (i == 0) {
-                label.text = @"总收入";
+                label.text = @"总积分";
                 [button setTitle:@"0" forState:UIControlStateNormal];
             }else if (i == 1){
                 label.text = @"累计提现";
@@ -179,6 +184,31 @@
             [money_background_view addSubview:line_view];
         }
         
+        //邀请好友、我的电影票、礼品兑换
+        NSArray * dataArray = @[[UIImage imageNamed:@"personal_invitation_image"],[UIImage imageNamed:@"personal_movie_image"],[UIImage imageNamed:@"personal_gift_image"],@"邀请好友",@"我的电影票",@"礼品兑换"];
+        for (int i = 0; i < 3; i++) {
+            UIView * lineView           = [[UIView alloc] initWithFrame:CGRectMake(DEVICE_WIDTH/3.0f*i, 180, 0.5, 45)];
+            lineView.backgroundColor    = DEFAULT_LINE_COLOR;
+            [section_view addSubview:lineView];
+            
+            UIButton * button           = [UIButton buttonWithType:UIButtonTypeCustom];
+            button.frame                = CGRectMake(lineView.right, 175, DEVICE_WIDTH/3.0f, 55);
+            [button addTarget:self action:@selector(functionButtonClicked:) forControlEvents:UIControlEventTouchUpInside];
+            button.tag                  = 10000+i;
+            [section_view addSubview:button];
+            
+            UIImageView * imageView     = [[UIImageView alloc] initWithImage:dataArray[i]];
+            imageView.center = CGPointMake(button.width/2.0f, imageView.height/2.0f+5);
+            [button addSubview:imageView];
+            
+            UILabel * label             = [ZTools createLabelWithFrame:CGRectMake(0, imageView.bottom+5, button.width, 20)
+                                                                  text:dataArray[i+3]
+                                                             textColor:DEFAULT_BLACK_TEXT_COLOR
+                                                         textAlignment:NSTextAlignmentCenter
+                                                                  font:12];
+            [button addSubview:label];
+        }
+        /*
         ///邀请好友
         UIButton * invitation_button = [ZTools createButtonWithFrame:CGRectMake(15, 180, 130, 40) tag:0 title:@"邀请好友" image:nil];
         invitation_button.titleLabel.font = [ZTools returnaFontWith:15];
@@ -194,8 +224,8 @@
         gift_apply_button.layer.cornerRadius = 5;
         [gift_apply_button addTarget:self action:@selector(giftButtonTap:) forControlEvents:UIControlEventTouchUpInside];
         [section_view addSubview:gift_apply_button];
-        
-        UIView * section_h_line_view = [[UIView alloc] initWithFrame:CGRectMake(0, 235, DEVICE_WIDTH, 0.5)];
+        */
+        UIView * section_h_line_view = [[UIView alloc] initWithFrame:CGRectMake(0, 240, DEVICE_WIDTH, 0.5)];
         section_h_line_view.backgroundColor = DEFAULT_LINE_COLOR;
         [section_view addSubview:section_h_line_view];
         
@@ -236,7 +266,7 @@
         }
     }
     
-    NSString * rest_money_string = [NSString stringWithFormat:@"￥%@",[ZTools getRestMoney]];
+    NSString * rest_money_string = [NSString stringWithFormat:@"%@",[ZTools getRestMoney]];
     CGSize rest_size = [ZTools stringHeightWithFont:[ZTools returnaFontWith:40] WithString:rest_money_string WithWidth:MAXFLOAT];
     rest_money_label.frame = CGRectMake((DEVICE_WIDTH-rest_size.width)/2.0f, 10, rest_size.width, 50);
     rest_label.frame = CGRectMake((DEVICE_WIDTH-rest_size.width)/2.0f-70, 10,65, 50);
@@ -245,9 +275,9 @@
     for (int i = 0; i < 3; i++) {
         UIButton * button = (UIButton*)[money_background_view viewWithTag:1000+i];
         if (i == 0) {
-            [button setTitle:[NSString stringWithFormat:@"￥%@",[ZTools getAllMoney]] forState:UIControlStateNormal];
+            [button setTitle:[NSString stringWithFormat:@"%@",[ZTools getAllMoney]] forState:UIControlStateNormal];
         }else if (i == 1){
-            [button setTitle:[NSString stringWithFormat:@"￥%@",[ZTools getMoney]] forState:UIControlStateNormal];
+            [button setTitle:[NSString stringWithFormat:@"%@",[ZTools getMoney]] forState:UIControlStateNormal];
         }
     }
     
@@ -262,7 +292,7 @@
 -(void)loadPersonalInfo{
     
     __weak typeof(self)wself = self;
-    
+    NSLog(@"nihoadasod  ----  %@",[NSString stringWithFormat:@"%@&user_id=%@",GET_USERINFOMATION_URL,[ZTools getUid]]);
     [[ZAPI manager] sendGet:[NSString stringWithFormat:@"%@&user_id=%@",GET_USERINFOMATION_URL,[ZTools getUid]] success:^(id data) {
         if (data && [data isKindOfClass:[NSDictionary class]]) {
             wself.info = [[UserInfoModel alloc] initWithDictionary:[data objectForKey:@"user_info"]];
@@ -344,6 +374,31 @@
 }
 - (CGFloat)heightForRowIndexPath:(NSIndexPath *)indexPath{
     return 80;
+}
+
+#pragma mark ----  邀请好友、电影票订单、礼品兑换
+-(void)functionButtonClicked:(UIButton *)button{
+    switch (button.tag-10000) {
+        case 0://邀请好友
+        {
+            [self performSegueWithIdentifier:@"showInvitationSegue" sender:nil];
+        }
+            break;
+        case 1://电影票订单
+        {
+            MOrderListController * vc = [[MOrderListController alloc] init];
+            [self.navigationController pushViewController:vc animated:YES];
+        }
+            break;
+        case 2://礼品兑换
+        {
+            [self performSegueWithIdentifier:@"showGiftListSegue" sender:nil];
+        }
+            break;
+            
+        default:
+            break;
+    }
 }
 
 #pragma mark - 邀请好友

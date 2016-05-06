@@ -9,7 +9,8 @@
 #ifndef MovieConstant_h
 #define MovieConstant_h
 
-
+#define MOVIE_ERROR_CODE @"result"
+#define MOVIE_ERROR_INFO @"message"
 
 #pragma mark  *****************颜色********************
 //星星颜色
@@ -38,9 +39,11 @@
 //检测订单支付信息
 #define MOVIE_CHECK_PAY_INFO_URL    [NSString stringWithFormat:@"%@?m=Pay&a=wx_order",BASE_M_URL]
 //解锁座位信息
-#define MOVIE_RELEASE_SEAT_URL    [NSString stringWithFormat:@"%@?m=Pay&a=unlock",BASE_M_URL]
-
-
+#define MOVIE_RELEASE_SEAT_URL      [NSString stringWithFormat:@"%@?m=Pay&a=unlock",BASE_M_URL]
+//查看订单列表
+#define MOVIE_ORDER_LIST_URL        [NSString stringWithFormat:@"%@?m=Task&a=getMovieOrderList",BASE_M_URL]
+//重新发送取票码接口
+#define MOVIE_SEND_TICKERCODE_URL   [NSString stringWithFormat:@"%@?m=Gift&a=renote",BASE_M_URL]
 
 
 

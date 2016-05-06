@@ -29,10 +29,7 @@ typedef void(^SNLocationManagerFailedBlock)(void);
 @interface MyViewController : UIViewController<UITextFieldDelegate,UITextViewDelegate,CLLocationManagerDelegate>{
     MyViewControllerButtonType          leftType;
     MyViewControllerButtonType          rightType;
-    /**
-     *  加载中提示
-     */
-    MBProgressHUD                       * loading_hud;
+    
     
     CLLocationManager                   * locationManager;
     SNLocationManagerSuccessBlock       location_manager_success_block;
@@ -59,6 +56,10 @@ typedef void(^SNLocationManagerFailedBlock)(void);
  *  标题
  */
 @property(nonatomic,strong)UILabel * title_label;
+/**
+ *  加载中提示
+ */
+@property(nonatomic,strong)MBProgressHUD * loading_hud;
 
 /**
  *  左侧按钮点击方法
@@ -97,6 +98,7 @@ typedef void(^SNLocationManagerFailedBlock)(void);
  *  开始加载动画
  */
 -(void)startLoading;
+-(void)startLoadingWithText:(NSString *)text;
 /**
  *  结束加载动画
  */

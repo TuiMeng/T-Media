@@ -218,15 +218,15 @@
         cell.backgroundColor = SILDE_DEFAULT_BACKGROUND_COLOR;
         cell.contentView.backgroundColor = SILDE_DEFAULT_BACKGROUND_COLOR;
         
-        cell.selectedBackgroundView=[[UIView alloc]initWithFrame:cell.frame];
+        cell.selectedBackgroundView = [[UIView alloc]initWithFrame:cell.frame];
         cell.selectedBackgroundView.backgroundColor=SILDE_TABLEVIEW_CELL_SELECTED_COLOR;
     }
     
-    cell.textLabel.textColor = [UIColor whiteColor];
-    cell.textLabel.font = [ZTools returnaFontWith:17];
-    cell.textLabel.text = title_array[indexPath.row];
-    cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
-    cell.imageView.image = image_array[indexPath.row];
+    cell.textLabel.textColor    = [UIColor whiteColor];
+    cell.textLabel.font         = [ZTools returnaFontWith:17];
+    cell.textLabel.text         = title_array[indexPath.row];
+    cell.accessoryType          = UITableViewCellAccessoryDisclosureIndicator;
+    cell.imageView.image        = image_array[indexPath.row];
     return cell;
 }
 -(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{

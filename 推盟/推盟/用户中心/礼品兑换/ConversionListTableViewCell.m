@@ -58,7 +58,12 @@
 -(void)setInfomationWith:(GiftRecordModel *)model{
     [_header_imageView sd_setImageWithURL:[NSURL URLWithString:model.gift_image_small] placeholderImage:[UIImage imageNamed:@"default_loading_small_image"]];
     _title_label.text = model.gift_name;
-    _amount_label.text = [NSString stringWithFormat:@"%@元",model.price];
+    
+    NSString * amountString = [NSString stringWithFormat:@"%@积分",model.price];
+    _amount_label.attributedText = [ZTools labelTextFontWith:amountString
+                                                       Color:DEFAULT_BLACK_TEXT_COLOR
+                                                        Font:11
+                                                       range:[amountString rangeOfString:@"积分"]];
     
     
     if (model.status.intValue == 1)//未充值
@@ -156,8 +161,6 @@
     }
     
     CGSize state_size = [ZTools stringHeightWithFont:_state_label.font WithString:_state_label.text WithWidth:MAXFLOAT];
-//    _state_label.backgroundColor = [UIColor redColor];
-//    _title_label.backgroundColor = [UIColor greenColor];
     _state_width_constraints.constant = state_size.width;
     
     [_state_label sizeToFit];

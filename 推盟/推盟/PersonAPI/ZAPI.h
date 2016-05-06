@@ -14,7 +14,7 @@
 
 @property (nonatomic,strong)    NSDictionary *responseResult;
 @property (readwrite, nonatomic, strong) NSURL *baseURL;
-
+@property(nonatomic,strong)NSOperationQueue *queue;
 
 +(instancetype)manager;
 
@@ -45,7 +45,9 @@
 -(void)sendGet:(NSString *)rawURL success:(void (^)(id data))success failure:(void (^)(NSError*error))failure;
 //电影数据不需要传平台版本号
 -(void)sendMovieGet:(NSString *)rawURL success:(void (^)(id data))success failure:(void (^)(NSError*error))failure;
-
-
+/**
+ *  取消所有网络请求
+ */
+-(void)cancel;
 
 @end

@@ -20,7 +20,9 @@ PODS:
   - AFNetworking/UIKit (2.5.4):
     - AFNetworking/NSURLConnection
     - AFNetworking/NSURLSession
+  - AMap2DMap (3.3.0)
   - AMapLocation (1.2.2)
+  - AMapSearch (3.3.0)
   - CSNPlaceholderTextView (0.0.4)
   - DJWStarRatingView (0.0.4)
   - JSONKit (1.5pre)
@@ -51,7 +53,9 @@ PODS:
 
 DEPENDENCIES:
   - AFNetworking (~> 2.5.4)
+  - AMap2DMap (~> 3.3.0)
   - AMapLocation (~> 1.2.2)
+  - AMapSearch (~> 3.3.0)
   - CSNPlaceholderTextView (~> 0.0.4)
   - DJWStarRatingView (~> 0.0.4)
   - JSONKit (~> 1.5pre)
@@ -69,7 +73,9 @@ DEPENDENCIES:
 
 SPEC CHECKSUMS:
   AFNetworking: 05edc0ac4c4c8cf57bcf4b84be5b0744b6d8e71e
+  AMap2DMap: e53461cdc345375e514579db17dbd721ff9ed9eb
   AMapLocation: 5412fbf0385716d4d481e39a95929057cddc093f
+  AMapSearch: cff4faf59c007f7d1f2bae2d7170c3912783981a
   CSNPlaceholderTextView: aeea1ae8b82d53fd8af76a11307db2841536b044
   DJWStarRatingView: bd8b6f4aaac0d5dbf74c29f7cc3c2c2d4de50abb
   JSONKit: bae313ce6a6c444f40489a6c0b023f399888871f

@@ -114,6 +114,28 @@
     }
     return @"";
 }
+#pragma mark ---  获取用户所选地区
++(NSString *)getSelectedCity{
+    id area = [[NSUserDefaults standardUserDefaults] objectForKey:@"ChooseArea"];
+    if (area && [area isKindOfClass:[NSDictionary class]]) {
+        return [area objectForKey:@"city"];
+    }else{
+        return @"北京";
+    }
+}
+#pragma mark ----  获取用户所选地区Id
++(NSString *)getSelectedCityId{
+    id area = [[NSUserDefaults standardUserDefaults] objectForKey:@"ChooseArea"];
+    if (area && [area isKindOfClass:[NSDictionary class]]) {
+        return [area objectForKey:@"cityId"];
+    }else{
+        return @"110000";
+    }
+}
+#pragma mark ----   设置默认地区
++(void)setSelectedCity:(NSString *)city cityId:(NSString *)cityId{
+    [[NSUserDefaults standardUserDefaults] setObject:@{@"city":city,@"cityId":cityId} forKey:@"ChooseArea"];
+}
 
 
 #pragma mark - 根据高度按比例适配大小（基于iphone6大小）
@@ -187,7 +209,81 @@
         return dateString;
     }
 }
-
++ (NSString *)timeIntervalFromNowWithformateDate:(NSString *)dateString
+{
+    
+    @try {
+        //实例化一个NSDateFormatter对象
+        NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+        [dateFormatter setDateFormat:@"YYYY-MM-dd HH:mm:ss"];
+        
+        NSDate * nowDate = [NSDate date];
+        
+        /////  将需要转换的时间转换成 NSDate 对象
+        NSDate * needFormatDate = [NSDate dateWithTimeIntervalSince1970:[dateString intValue]];
+        /////  取当前时间和转换时间两个日期对象的时间间隔
+        /////  这里的NSTimeInterval 并不是对象，是基本型，其实是double类型，是由c定义的:  typedef double NSTimeInterval;
+        NSTimeInterval time = [nowDate timeIntervalSinceDate:needFormatDate];
+        
+        //// 再然后，把间隔的秒数折算成天数和小时数：
+        
+        NSString *dateStr = @"";
+        
+        if (time<=60) {  //// 1分钟以内的
+            dateStr = @"刚刚";
+        }else if(time<=60*60){  ////  一个小时以内的
+            
+            int mins = time/60;
+            dateStr = [NSString stringWithFormat:@"%d分钟前",mins];
+            
+        }else if(time<=60*60*24){   //// 在两天内的
+            
+            [dateFormatter setDateFormat:@"YYYY/MM/dd"];
+            NSString * need_yMd = [dateFormatter stringFromDate:needFormatDate];
+            NSString *now_yMd = [dateFormatter stringFromDate:nowDate];
+            
+            [dateFormatter setDateFormat:@"HH:mm"];
+            if ([need_yMd isEqualToString:now_yMd]) {
+                //// 在同一天
+                dateStr = [NSString stringWithFormat:@"今天 %@",[dateFormatter stringFromDate:needFormatDate]];
+            }else{
+                ////  昨天
+                dateStr = [NSString stringWithFormat:@"昨天 %@",[dateFormatter stringFromDate:needFormatDate]];
+            }
+        }else {
+            
+            [dateFormatter setDateFormat:@"yyyy"];
+            NSString * yearStr = [dateFormatter stringFromDate:needFormatDate];
+            NSString *nowYear = [dateFormatter stringFromDate:nowDate];
+            
+            if ([yearStr isEqualToString:nowYear]) {
+                ////  在同一年
+                [dateFormatter setDateFormat:@"MM-dd"];
+                dateStr = [dateFormatter stringFromDate:needFormatDate];
+            }else{
+                [dateFormatter setDateFormat:@"yyyy-MM-dd"];
+                dateStr = [dateFormatter stringFromDate:needFormatDate];
+            }
+        }
+        
+        return dateStr;
+    }
+    @catch (NSException *exception) {
+        return @"";
+    }
+}
+//判断NSDate是星期几
++(NSString*)timeWeekdayStringFromDate:(NSDate*)inputDate {
+    
+    NSArray *weekdays = [NSArray arrayWithObjects: [NSNull null], @"周日", @"周一", @"周二", @"周三", @"周四", @"周五", @"周六", nil];
+    
+    NSCalendar * calendar = [[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar];
+    NSDateComponents *comps = [[NSDateComponents alloc] init];
+    NSInteger unitFlags =NSYearCalendarUnit | NSMonthCalendarUnit |NSDayCalendarUnit | NSWeekdayCalendarUnit |
+    NSHourCalendarUnit |NSMinuteCalendarUnit | NSSecondCalendarUnit;
+    comps = [calendar components:unitFlags fromDate:inputDate];
+    return weekdays[comps.weekday];
+}
 
 #pragma mark - 显示提示框
 + (MBProgressHUD *)showMBProgressWithText:(NSString *)text WihtType:(MBProgressHUDMode)theModel addToView:(UIView *)aView isAutoHidden:(BOOL)hidden

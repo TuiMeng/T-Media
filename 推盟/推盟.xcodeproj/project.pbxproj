@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		0B00A0F01CA00B6900E776C4 /* XMLTools.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B00A0EF1CA00B6900E776C4 /* XMLTools.m */; };
 		0B00A0F31CA00B7D00E776C4 /* WXUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B00A0F21CA00B7D00E776C4 /* WXUtil.m */; };
+		0B0B9DD51CC0D32A00B01A39 /* SMapViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B0B9DD41CC0D32A00B01A39 /* SMapViewController.m */; };
 		0B0F89F31B8EDB9200C9DB68 /* SShareView.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B0F89F21B8EDB9200C9DB68 /* SShareView.m */; };
 		0B0F89F51B8EF0E800C9DB68 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0B0F89F41B8EF0E800C9DB68 /* CoreLocation.framework */; };
 		0B0F89FC1B8FF77300C9DB68 /* CycleScrollModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B0F89F71B8FF77300C9DB68 /* CycleScrollModel.m */; };
@@ -68,6 +69,9 @@
 		0B610BE01B735B0500B5D20B /* RootTaskListModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B610BDF1B735B0500B5D20B /* RootTaskListModel.m */; };
 		0B6250F41BD77CA400BA4684 /* SWebViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B6250F31BD77CA400BA4684 /* SWebViewController.m */; };
 		0B6A324B1C99527B006BEB61 /* MConfirmOrderViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B6A324A1C99527B006BEB61 /* MConfirmOrderViewController.m */; };
+		0B6CB2AD1CCDEEC200722B2D /* MovieOrderListModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B6CB2AC1CCDEEC200722B2D /* MovieOrderListModel.m */; };
+		0B6CB2B01CCDF21400722B2D /* MOrderListController.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B6CB2AF1CCDF21400722B2D /* MOrderListController.m */; };
+		0B6CB2B31CCF035000722B2D /* MOrderCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B6CB2B21CCF035000722B2D /* MOrderCell.m */; };
 		0B6DD5A51C32283C0031AFFA /* FriendListViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B6DD5A41C32283C0031AFFA /* FriendListViewController.m */; };
 		0B6DD5A81C322B500031AFFA /* FriendListTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B6DD5A71C322B500031AFFA /* FriendListTableViewCell.m */; };
 		0B6DD5AB1C3234560031AFFA /* FriendListModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B6DD5AA1C3234560031AFFA /* FriendListModel.m */; };
@@ -192,6 +196,8 @@
 		0B00A0EF1CA00B6900E776C4 /* XMLTools.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = XMLTools.m; sourceTree = "<group>"; };
 		0B00A0F11CA00B7D00E776C4 /* WXUtil.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WXUtil.h; sourceTree = "<group>"; };
 		0B00A0F21CA00B7D00E776C4 /* WXUtil.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WXUtil.m; sourceTree = "<group>"; };
+		0B0B9DD31CC0D32A00B01A39 /* SMapViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SMapViewController.h; sourceTree = "<group>"; };
+		0B0B9DD41CC0D32A00B01A39 /* SMapViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SMapViewController.m; sourceTree = "<group>"; };
 		0B0C27CF1C7571FB00589C12 /* Photos.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Photos.framework; path = System/Library/Frameworks/Photos.framework; sourceTree = SDKROOT; };
 		0B0F89F11B8EDB9200C9DB68 /* SShareView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SShareView.h; sourceTree = "<group>"; };
 		0B0F89F21B8EDB9200C9DB68 /* SShareView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SShareView.m; sourceTree = "<group>"; };
@@ -305,6 +311,12 @@
 		0B6250F31BD77CA400BA4684 /* SWebViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SWebViewController.m; sourceTree = "<group>"; };
 		0B6A32491C99527B006BEB61 /* MConfirmOrderViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MConfirmOrderViewController.h; sourceTree = "<group>"; };
 		0B6A324A1C99527B006BEB61 /* MConfirmOrderViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MConfirmOrderViewController.m; sourceTree = "<group>"; };
+		0B6CB2AB1CCDEEC200722B2D /* MovieOrderListModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MovieOrderListModel.h; sourceTree = "<group>"; };
+		0B6CB2AC1CCDEEC200722B2D /* MovieOrderListModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MovieOrderListModel.m; sourceTree = "<group>"; };
+		0B6CB2AE1CCDF21400722B2D /* MOrderListController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MOrderListController.h; sourceTree = "<group>"; };
+		0B6CB2AF1CCDF21400722B2D /* MOrderListController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MOrderListController.m; sourceTree = "<group>"; };
+		0B6CB2B11CCF035000722B2D /* MOrderCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MOrderCell.h; sourceTree = "<group>"; };
+		0B6CB2B21CCF035000722B2D /* MOrderCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MOrderCell.m; sourceTree = "<group>"; };
 		0B6DD5A31C32283C0031AFFA /* FriendListViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FriendListViewController.h; sourceTree = "<group>"; };
 		0B6DD5A41C32283C0031AFFA /* FriendListViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FriendListViewController.m; sourceTree = "<group>"; };
 		0B6DD5A61C322B500031AFFA /* FriendListTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FriendListTableViewCell.h; sourceTree = "<group>"; };
@@ -715,6 +727,8 @@
 				0BF650BC1C97F7F300F18D9F /* SeatModel.m */,
 				0BB5E7201CAA6E3600C262B3 /* MCardModel.h */,
 				0BB5E7211CAA6E3600C262B3 /* MCardModel.m */,
+				0B6CB2AB1CCDEEC200722B2D /* MovieOrderListModel.h */,
+				0B6CB2AC1CCDEEC200722B2D /* MovieOrderListModel.m */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -744,6 +758,8 @@
 				0BB827341CA8FEC100BC4DDD /* TopicCommentCell.m */,
 				0BB5E71D1CAA554600C262B3 /* MCardPayCell.h */,
 				0BB5E71E1CAA554600C262B3 /* MCardPayCell.m */,
+				0B6CB2B11CCF035000722B2D /* MOrderCell.h */,
+				0B6CB2B21CCF035000722B2D /* MOrderCell.m */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -783,6 +799,8 @@
 				0B4F6C0B1C9A82020099505B /* MPayViewController.m */,
 				0BDC6E571CA284810048AA3C /* MCardPayViewController.h */,
 				0BDC6E581CA284810048AA3C /* MCardPayViewController.m */,
+				0B6CB2AE1CCDF21400722B2D /* MOrderListController.h */,
+				0B6CB2AF1CCDF21400722B2D /* MOrderListController.m */,
 			);
 			path = Controllers;
 			sourceTree = "<group>";
@@ -1084,6 +1102,8 @@
 				0B5927F71B943BCC00C3416D /* SYearPickerView.m */,
 				0B6250F21BD77CA400BA4684 /* SWebViewController.h */,
 				0B6250F31BD77CA400BA4684 /* SWebViewController.m */,
+				0B0B9DD31CC0D32A00B01A39 /* SMapViewController.h */,
+				0B0B9DD41CC0D32A00B01A39 /* SMapViewController.m */,
 				0B7E679F1C86D1E100F55579 /* STableViewCell.h */,
 				0B7E67A01C86D1E100F55579 /* STableViewCell.m */,
 				0B4F6C071C9A5AEF0099505B /* SView.h */,
@@ -1399,6 +1419,7 @@
 			files = (
 				0B9613921B68A85A001DB0B0 /* SNRefreshTableView.m in Sources */,
 				0B5C07E61B799D3400077151 /* MyWebViewController.m in Sources */,
+				0B6CB2AD1CCDEEC200722B2D /* MovieOrderListModel.m in Sources */,
 				0B8F05F31C89639E00F5E89D /* TopicTableViewCell.m in Sources */,
 				0B00A0F01CA00B6900E776C4 /* XMLTools.m in Sources */,
 				0B9613BC1B69CD5A001DB0B0 /* GiftDetailViewController.m in Sources */,
@@ -1417,6 +1438,7 @@
 				0BF650BD1C97F7F300F18D9F /* SeatModel.m in Sources */,
 				0B5E50011B8C4879004C2B98 /* RankingModel.m in Sources */,
 				0BB8273B1CA9131A00BC4DDD /* SInputView.m in Sources */,
+				0B6CB2B31CCF035000722B2D /* MOrderCell.m in Sources */,
 				0B0F8A011B90051500C9DB68 /* FocusImageModel.m in Sources */,
 				0B0F89FC1B8FF77300C9DB68 /* CycleScrollModel.m in Sources */,
 				0B4F6C181C9AB56E0099505B /* WXManager.m in Sources */,
@@ -1454,6 +1476,7 @@
 				0B487F7B1B82FD9200A0BA42 /* GuideViewController.m in Sources */,
 				0B610BCF1B720CC000B5D20B /* PersonalCenterCell.m in Sources */,
 				0BF650B71C97DD8A00F18D9F /* MScreenViewController.m in Sources */,
+				0B6CB2B01CCDF21400722B2D /* MOrderListController.m in Sources */,
 				0B9613AC1B68E46A001DB0B0 /* ZAPI.m in Sources */,
 				0BD6ED121C8FD4800035BD3E /* MovieCommentsListViewController.m in Sources */,
 				0B4F6C091C9A5AEF0099505B /* SView.m in Sources */,
@@ -1504,6 +1527,7 @@
 				0BE7948B1C8D90580035AD63 /* MCinemaScheduleViewController.m in Sources */,
 				0B610BD91B73507000B5D20B /* UserTaskModel.m in Sources */,
 				0BB827351CA8FEC100BC4DDD /* TopicCommentCell.m in Sources */,
+				0B0B9DD51CC0D32A00B01A39 /* SMapViewController.m in Sources */,
 				0B487F6B1B81B26600A0BA42 /* GiftListCell.m in Sources */,
 				0B9612EE1B677776001DB0B0 /* main.m in Sources */,
 				0BB3D7061C911AB700FA9EB6 /* KyoCenterLineView.m in Sources */,

@@ -1,3 +1,5 @@
+platform :ios, '7.0' #手机的系统
+
 pod 'JSONKit', '~> 1.5pre'
 pod 'AFNetworking', '~> 2.5.4'
 pod 'MBProgressHUD', '~> 0.9.1'
@@ -18,3 +20,6 @@ pod 'UIAlertView+Blocks', '~> 0.9'
 
 #高德地图
 pod 'AMapLocation', '~> 1.2.2'
+pod 'AMap2DMap', '~> 3.3.0'
+pod 'AMapSearch', '~> 3.3.0'
+

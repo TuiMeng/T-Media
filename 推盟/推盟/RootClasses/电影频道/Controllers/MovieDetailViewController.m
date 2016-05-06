@@ -42,8 +42,9 @@
 
 @property(nonatomic,strong)SNRefreshTableView   * myTableView;
 
-@property(nonatomic,strong)NSArray              * content_array;
-
+@property(nonatomic,strong)NSArray              * dataArray;
+//总评论数
+@property(nonatomic,assign)int                  totalCount;
 @property(nonatomic,strong)MovieModel           * movieModel;
 
 @end
@@ -55,9 +56,9 @@
     
     self.title_label.numberOfLines = 0;
     self.title_label.text = _movie_list_model.movieName;
-    [self setMyViewControllerRightButtonType:MyViewControllerButtonTypeText WihtRightString:@"分享"];
+    [self setMyViewControllerRightButtonType:MyViewControllerButtonTypePhoto WihtRightString:@"movie_share_image"];
     
-    _content_array = @[@"巨大空间的拉开进度款拉斯加达拉斯就打算离开的就卡了打开了上加大了快速解答了肯德基阿拉坤的叫撒刻录机大山里的骄傲了肯德基啊快乐大脚阿斯利康手动加",@"较大时了解到拉开车那臭小子差那么差那么在新农村能吃么展现出你每次你怎么才能在每次",@"就打死了较大时来得及阿来得及阿里是看得见啊考虑到建档立卡手机打开垃圾是邓丽君阿拉丁就对啦出租车在沉默中每次在每次出门早就打打开了建档立卡圣诞节阿卡丽的长期而抛弃未破千万IE抛弃我怕"];
+    _dataArray = @[[NSMutableArray array],[NSMutableArray array]];
     
     _myTableView                    = [[SNRefreshTableView alloc] initWithFrame:CGRectMake(0, 0, DEVICE_WIDTH, DEVICE_HEIGHT-64) showLoadMore:NO];
     _myTableView.refreshDelegate    = self;
@@ -65,19 +66,27 @@
     [self.view addSubview:_myTableView];
     [_myTableView removeFooterView];
     _myTableView.tableFooterView    = [[UIView alloc]initWithFrame:CGRectZero];
-    
     _myTableView.contentInset       = UIEdgeInsetsMake(50, 0, 0, 0);
+    _myTableView.pageNum            = 0;
     
     [self loadMovieData];
-//    [self loadThreeCommentsData];
-    
+    [self loadCommentsData];
     [self createSectionView];
 }
 
 #pragma mark -------   分享
 -(void)rightButtonTap:(UIButton *)sender{
     
-    SShareView * shareView = [[SShareView alloc] initWithTitles:@[SHARE_WECHAT_FRIEND,SHARE_WECHAT_CIRCLE,SHARE_TENTCENT_QQ,SHARE_SINA_WEIBO,SHARE_QZONE,SHARE_DOUBAN] title:_movie_list_model.movieName content:_movie_list_model.releaseDate Url:WEBSITEH5 image:[UIImage imageNamed:@"Icon"] location:nil urlResource:nil presentedController:self];
+    [MobClick event:@"MovieShare"];
+    
+    SShareView * shareView = [[SShareView alloc] initWithTitles:@[SHARE_WECHAT_FRIEND,SHARE_WECHAT_CIRCLE,SHARE_TENTCENT_QQ,SHARE_SINA_WEIBO,SHARE_QZONE,SHARE_DOUBAN]
+                                                          title:_movie_list_model.movieName
+                                                        content:_movie_list_model.releaseDate
+                                                            Url:WEBSITEH5
+                                                          image:[UIImage imageNamed:@"Icon"]
+                                                       location:nil
+                                                    urlResource:nil
+                                            presentedController:self];
     [shareView showInView:self.navigationController.view];
     
     
@@ -115,17 +124,42 @@
         [wself.myTableView finishReloadigData];
     }];
 }
--(void)loadThreeCommentsData{
-    NSDictionary * dic = @{@"movieId":_movie_list_model.movieId,@"lastCommentId":@"0",@"pageRowCount":@"3"};
+-(void)loadCommentsData{
+    
+    __WeakSelf__ wself = self;
+    
+    NSDictionary * dic =@{@"movieId":_movie_list_model.movieId,
+                          @"pageId":@(_myTableView.pageNum),
+                          @"pageSize":@"10"};
     
     [[ZAPI manager] sendPost:GET_MOVIE_COMMENTS_URL myParams:dic success:^(id data) {
         
-        if (data && [data isKindOfClass:[NSDictionary class]]) {
-            [ZTools showMBProgressWithText:data[@"message"] WihtType:MBProgressHUDModeText addToView:self.view isAutoHidden:YES];
+        if (wself.myTableView.pageNum == 0) {
+            [wself.dataArray[0] removeAllObjects];
         }
         
-    } failure:^(NSError *error) {
+        if (data && [data isKindOfClass:[NSDictionary class]]) {
+            if ([data[MOVIE_ERROR_CODE] intValue] == 0) {
+                wself.totalCount = [data[@"count"] intValue];
+                NSArray * array = data[@"datas"];
+                if ([array isKindOfClass:[NSArray class]] && array.count) {
+                    
+                    int count = wself.totalCount>3?3:wself.totalCount;
+                    
+                    for (int i = 0; i < count; i++) {
+                        NSDictionary * item = array[i];
+                        MovieCommentsModel * model = [[MovieCommentsModel alloc] initWithDictionary:item];
+                        [wself.dataArray[0] addObject:model];
+                    }
+                }
+            }else{
+                [ZTools showMBProgressWithText:data[MOVIE_ERROR_INFO] WihtType:MBProgressHUDModeText addToView:wself.view isAutoHidden:YES];
+            }
+        }
         
+        [wself.myTableView finishReloadigData];
+    } failure:^(NSError *error) {
+        [wself.myTableView finishReloadigData];
     }];
 }
 
@@ -142,7 +176,7 @@
         [section_view addSubview:movie_info_background_imageView];
         //头图
         header_imageView                                        = [[UIImageView alloc] initWithFrame:CGRectMake(15, 15, 227/2.0f, 305/2.0f)];
-        [header_imageView sd_setImageWithURL:[NSURL URLWithString:[NSString stringWithFormat:@"%@%@",BASE_MOVIE_IMAGE_URL,_movie_list_model.movieImage]] placeholderImage:nil];
+        [header_imageView sd_setImageWithURL:[NSURL URLWithString:[NSString stringWithFormat:@"%@%@",BASE_MOVIE_IMAGE_URL,_movie_list_model.movieImage.length?_movie_list_model.movieImage:_movie_list_model.moviePick]] placeholderImage:[UIImage imageNamed:DEFAULT_LOADING_SMALL_IMAGE]];
         [movie_info_background_imageView addSubview:header_imageView];
         //电影名称
         UILabel * movie_name_label                              = [ZTools createLabelWithFrame:CGRectMake(header_imageView.right+10, 15, DEVICE_WIDTH-(header_imageView.right+10)-10, 18)
@@ -159,13 +193,13 @@
                                                           font:10];
         [movie_info_background_imageView addSubview:movie_engish_name_label];
         //星星
-        starRatingView = [[DJWStarRatingView alloc] initWithStarSize:CGSizeMake(13, 13)
+        starRatingView = [[DJWStarRatingView alloc] initWithStarSize:CGSizeMake(18, 18)
                                                        numberOfStars:5
                                                               rating:4.5
-                                                           fillColor:RGBCOLOR(253, 180, 90)
-                                                       unfilledColor:[UIColor clearColor]
-                                                         strokeColor:RGBCOLOR(253, 180, 90)];
-        starRatingView.padding  = 2;
+                                                           fillColor:STAR_FILL_COLOR
+                                                       unfilledColor:STAR_UNFILL_COLOR
+                                                         strokeColor:[UIColor clearColor]];
+        starRatingView.padding  = 1;
         starRatingView.top      = movie_engish_name_label.bottom+5;
         starRatingView.left     = header_imageView.right+10;
         [movie_info_background_imageView addSubview:starRatingView];
@@ -176,6 +210,7 @@
                                      textAlignment:NSTextAlignmentLeft
                                               font:15];
         [movie_info_background_imageView addSubview:score_label];
+        /*
         //评论人数
         score_people_label = [ZTools createLabelWithFrame:CGRectMake(header_imageView.right+10, score_label.bottom+5, DEVICE_WIDTH-header_imageView.right-20, 16)
                                                      text:@"(0人评分)"
@@ -183,8 +218,9 @@
                                             textAlignment:NSTextAlignmentLeft
                                                      font:15];
         [movie_info_background_imageView addSubview:score_people_label];
+         */
         //类型
-        type_label = [ZTools createLabelWithFrame:CGRectMake(header_imageView.right+10, score_people_label.bottom+5, score_people_label.width, 16)
+        type_label = [ZTools createLabelWithFrame:CGRectMake(header_imageView.right+10, score_label.bottom+15, DEVICE_WIDTH-header_imageView.right-20, 16)
                                              text:@""
                                         textColor:[UIColor whiteColor]
                                     textAlignment:NSTextAlignmentLeft
@@ -261,7 +297,7 @@
         introduction_label                  = [[SLabel alloc] initWithFrame:CGRectMake(16, 0, DEVICE_WIDTH-32, 60)
                                                       WithVerticalAlignment:VerticalAlignmentTop];
         introduction_label.font             = [ZTools returnaFontWith:14];
-        introduction_label.numberOfLines    = 0;
+        introduction_label.numberOfLines    = 3;
         [introduction_background_view addSubview:introduction_label];
         //显示介绍详情按钮
         show_detail_button                  = [ZTools createButtonWithFrame:CGRectMake(16, introduction_label.bottom+5, DEVICE_WIDTH-32, 20)
@@ -271,7 +307,7 @@
         [show_detail_button setImage:[UIImage imageNamed:@"movie_show_detail_introduce_down_image"] forState:UIControlStateNormal];
         [show_detail_button setImage:[UIImage imageNamed:@"movie_show_detail_introduce_up_image"] forState:UIControlStateSelected];
         [show_detail_button addTarget:self action:@selector(showIntroductionDetail:) forControlEvents:UIControlEventTouchUpInside];
-      //  [introduction_background_view addSubview:show_detail_button];
+        [introduction_background_view addSubview:show_detail_button];
     }
     
     
@@ -282,9 +318,9 @@
 -(void)setSectionInfo{
     
     if (_movieModel) {
-        starRatingView.rating           = _movieModel.score.intValue/10;
-        score_label.text                = _movieModel.score;
-        score_people_label.text         = [NSString stringWithFormat:@"%@人评分",_movieModel.scoreNum];
+        starRatingView.rating           = _movieModel.scoreNum.intValue/2.0f;
+        score_label.text                = _movieModel.scoreNum;
+//        score_people_label.text         = [NSString stringWithFormat:@"%@人评分",_movieModel.scoreNum];
         type_label.text                 = _movieModel.movieClass;
         play_area_time_label.text       = [NSString stringWithFormat:@"%@/%@分钟",_movieModel.movieCountry,_movieModel.duration];
         release_date_label.text         = _movieModel.releaseDate;
@@ -295,13 +331,12 @@
         introduction_label.height = introduction_size.height;
         introduction_label.text = _movieModel.movieStory;
         introduction_background_view.height = introduction_label.height;
-        /*
+        
         if (show_detail_button.selected) {
             introduction_background_view.height = introduction_label.height;
         }else{
             introduction_background_view.height = 85;
         }
-         */
         
         show_detail_button.bottom = introduction_background_view.height;
         section_view.height = introduction_background_view.bottom;
@@ -369,18 +404,20 @@
 
 #pragma mark -----------  UITableViewDelegate
 -(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
-    return 0;
+    int count = (int)[_dataArray[section] count];
+    NSLog(@"count ---   %d",count + (_totalCount<=3?_totalCount==0?1:0:1));
+    return count + (_totalCount<=3?_totalCount==0?1:0:1);
     /*
     if (section == 0) {
-        return _content_array.count+1;
+        return _dataArray.count+1;
     }else if (section == 1){
-        return _content_array.count+1;
+        return _dataArray.count+1;
     }
     return 3;
      */
 }
 -(NSInteger)numberOfSectionsInTableView:(UITableView *)tableView{
-    return 0;
+    return 1;
     /*
     return 2;
      */
@@ -389,26 +426,25 @@
     
     UITableViewCell * cell;
     
-    if (indexPath.section == 0 && indexPath.row < _content_array.count) {
+    if (indexPath.section == 0 && indexPath.row < [_dataArray[indexPath.section] count]) {
         NSString * identifier       = @"comments";
         cell = [tableView dequeueReusableCellWithIdentifier:identifier];
         if (cell == nil) {
             cell                    = [[MovieComentTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:identifier];
         }
         
-        MovieCommentsModel * model  = [[MovieCommentsModel alloc] init];
-        model.content               = _content_array[indexPath.row];
+        MovieCommentsModel * model  = _dataArray[indexPath.section][indexPath.row];
         
         [(MovieComentTableViewCell*)cell setInfomationWithMovieCommentsModel:model];
         
-    }else if(indexPath.section == 1 && indexPath.row < _content_array.count){
+    }else if(indexPath.section == 1 && indexPath.row < [_dataArray[indexPath.section] count]){
         NSString * identifier       = @"topic";
         cell = [tableView dequeueReusableCellWithIdentifier:identifier];
         if (cell == nil) {
             cell = [[TopicTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:identifier];
         }
         MovieTopicModel * model     = [[MovieTopicModel alloc] init];
-        model.content               = _content_array[indexPath.row];
+        model.content               = _dataArray[indexPath.section][indexPath.row];
         model.title                 = @"《美人鱼》票房多少了啊？";
         
         [(TopicTableViewCell*)cell setInfomationMovieTopicModel:model];
@@ -426,7 +462,7 @@
         UIButton * button       = [UIButton buttonWithType:UIButtonTypeCustom];
         button.frame            = CGRectMake(0, 0, DEVICE_WIDTH, 40);
         button.tag              = 10000 + indexPath.section;
-        [button setTitle:indexPath.section==0?@"查看全部10000条评论":@"查看全部10000条话题" forState:UIControlStateNormal];
+        [button setTitle:[_dataArray[indexPath.section] count]?(indexPath.section==0?[NSString stringWithFormat:@"查看全部%d条评论",_totalCount]:@"查看全部话题"):(indexPath.section==0?@"暂无评论，赶快去评个分吧":@"暂无话题，我要第一个发表") forState:UIControlStateNormal];
         button.titleLabel.font  = [ZTools returnaFontWith:14];
         button.userInteractionEnabled = NO;
         [button setTitleColor:RGBCOLOR(241, 51, 47) forState:UIControlStateNormal];
@@ -437,25 +473,28 @@
 }
 
 -(void)loadNewData{
+    self.myTableView.pageNum = 0;
     [self loadMovieData];
+    [self loadCommentsData];
 }
 
 - (void)loadMoreData{
-    
+    [self loadCommentsData];
 }
 - (void)didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
-    if (indexPath.section == 0 && indexPath.row < _content_array.count) {
+    if (indexPath.section == 0 && indexPath.row < [_dataArray[indexPath.section] count]) {
         
-    }else if(indexPath.section == 1 && indexPath.row < _content_array.count){
-        MovieTopicModel * model = [[MovieTopicModel alloc] init];
+    }else if(indexPath.section == 1 && indexPath.row < [_dataArray[indexPath.section] count]){
+        MovieTopicModel * model                 = [[MovieTopicModel alloc] init];
         MovieTopicDetailViewController * VC     = [[MovieTopicDetailViewController alloc] init];
         VC.topicModel                           = model;
         [self.navigationController pushViewController:VC animated:YES];
     }else{
-        if (indexPath.section == 0) {
+        if (indexPath.section == 0 && _totalCount > 3) {
             MovieCommentsListViewController * viewController = [[MovieCommentsListViewController alloc] init];
+            viewController.movieModel = _movie_list_model;
             [self.navigationController pushViewController:viewController animated:YES];
-        }else if(indexPath.section == 1){
+        }else if(indexPath.section == 1 && [_dataArray[indexPath.section] count] > 3){
             MovieTopicListViewController * viewController = [[MovieTopicListViewController alloc] init];
             [self.navigationController pushViewController:viewController animated:YES];
         }
@@ -463,18 +502,19 @@
 }
 - (CGFloat)heightForRowIndexPath:(NSIndexPath *)indexPath{
     if (indexPath.section == 0) {
-        if (indexPath.row >= _content_array.count) {
+        if (indexPath.row >= [_dataArray[indexPath.section] count]) {
             return 40;
         }else{
-            CGSize content_size = [ZTools stringHeightWithFont:[ZTools returnaFontWith:15] WithString:_content_array[indexPath.row] WithWidth:DEVICE_WIDTH-32];
+            MovieCommentsModel * model = _dataArray[indexPath.section][indexPath.row];
+            CGSize content_size = [ZTools stringHeightWithFont:[ZTools returnaFontWith:15] WithString:model.content WithWidth:DEVICE_WIDTH-32];
             return 90+content_size.height;
         }
-        
     }else if (indexPath.section == 1){
-        if (indexPath.row >= _content_array.count) {
+        if (indexPath.row >= [_dataArray[indexPath.section] count]) {
             return 40;
         }else{
-            CGSize content_size = [ZTools stringHeightWithFont:[ZTools returnaFontWith:13] WithString:_content_array[indexPath.row] WithWidth:DEVICE_WIDTH-32];
+            MovieTopicModel * model = _dataArray[indexPath.section][indexPath.row];
+            CGSize content_size = [ZTools stringHeightWithFont:[ZTools returnaFontWith:13] WithString:model.content WithWidth:DEVICE_WIDTH-32];
             return 102+content_size.height;
         }
     }
@@ -526,9 +566,20 @@
 
 #pragma mark -------  发表话题或影评
 -(void)publishButtonClicked:(UIButton*)button{
+    
+    if (![ZTools isLogIn]) {
+        UIStoryboard *storyboard        = [UIStoryboard storyboardWithName:@"Main" bundle:nil];
+        UINavigationController * login  = (UINavigationController*)[storyboard instantiateViewControllerWithIdentifier:@"LogInViewController"];
+        [self presentViewController:login animated:YES completion:nil];
+        
+        return;
+    }
+    
     switch (button.tag - 10000) {
         case 0://影评
         {
+            [MobClick event:@"MovieComments"];
+            
             MPublishCommentViewController * viewController  = [[MPublishCommentViewController alloc] init];
             viewController.movieId                          = _movie_list_model.movieId;
             UINavigationController * navc                   = [[UINavigationController alloc] initWithRootViewController:viewController];;

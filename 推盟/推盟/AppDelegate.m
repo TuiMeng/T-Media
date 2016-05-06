@@ -52,8 +52,6 @@
     
     [self registerForRemoteNotification];
     
-    //高德地图
-    [AMapLocationServices sharedServices].apiKey = @"5ec3a1c302941db6046f74f673259efa";
     
     
     //微信支付
@@ -64,12 +62,7 @@
      */
     [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent];
     
-    /**
-     *  清除七天前的图片缓存
-     */
-    [[SDImageCache sharedImageCache] cleanDiskWithCompletionBlock:^{
     
-    }];
     
     NSUserDefaults * userDefault = [NSUserDefaults standardUserDefaults];
     if (![[userDefault valueForKey:@"isNeedToShowGuildView"] isEqualToString:CURRENT_BUILD]) {
@@ -77,6 +70,17 @@
     }else{
         [self showAdvertisementView];
     }
+    
+    //内存管理
+    //网页缓存
+    NSURLCache *sharedCache = [[NSURLCache alloc] initWithMemoryCapacity:4 * 1024 * 1024 diskCapacity:20 * 1024 * 1024 diskPath:nil];
+    [NSURLCache setSharedURLCache:sharedCache];
+    /**
+     *  清除七天前的图片缓存
+     */
+    [[SDImageCache sharedImageCache] cleanDiskWithCompletionBlock:^{
+        
+    }];
     
     return YES;
 }
@@ -155,6 +159,7 @@
         
         return [UMSocialSnsService handleOpenURL:url wxApiDelegate:nil];
     }else{
+        [[NSNotificationCenter defaultCenter] postNotificationName:@"WChatPayState" object:url.absoluteString];
         return [WXApi handleOpenURL:url delegate:self];
     }
 }
@@ -195,6 +200,11 @@
     // Saves changes in the application's managed object context before the application terminates.
     [self saveContext];
     [MagicalRecord cleanUp];
+}
+
+- (void)applicationDidReceiveMemoryWarning:(UIApplication*)application
+{
+    [[NSURLCache sharedURLCache] removeAllCachedResponses];
 }
 
 #pragma mark - Core Data stack

@@ -24,9 +24,14 @@ typedef void(^movieOrderTimerBlock)(int count,NSTimer * time);
 @property(nonatomic,strong)NSTimer  * orderTimer;
 
 + (MovieNetWork *)sharedManager;
-
+/**
+ *  解锁座位
+ */
 -(void)releaseMovieSeatsWithOrderId:(NSString *)orderId;
-
+/**
+ *  查询城市id
+ */
+-(void)checkCityIdWitCityName:(NSString *)name success:(void(^)(NSString * id))success failure:(void(^)(NSString *error))failure;
 /**
  *  增加计时器
  *

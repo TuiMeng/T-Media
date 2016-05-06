@@ -70,11 +70,11 @@
             [self makeItemWithTitle:visibleItemList[i] withFrame:CGRectMake(self.btnWidth*i, 0,self.btnWidth, self.frame.size.height)];
         }
         
-        if (visibleItemList.count > 4) {
+//        if (visibleItemList.count > 4) {
             self.contentSize = CGSizeMake(self.btnWidth*visibleItemList.count-50, self.frame.size.height);
-        }else{
-            self.contentSize = CGSizeMake(0, self.frame.size.height);
-        }
+//        }else{
+//            self.contentSize = CGSizeMake(0, self.frame.size.height);
+//        }
     }
 }
 

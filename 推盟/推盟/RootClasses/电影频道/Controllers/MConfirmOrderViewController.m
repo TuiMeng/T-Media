@@ -9,11 +9,14 @@
 #import "MConfirmOrderViewController.h"
 #import "MPayViewController.h"
 #import "MovieSelectSeatViewController.h"
+#import "UIAlertView+Blocks.h"
 
 #define MTOTALPRICE     @"总价"
 #define MUSEPOINT       @"使用积分"
 #define MPONIT          @"积分"
 #define MNEEDTOPAY      @"还需支付"
+//积分支付比例
+#define PAYMENT_RATIO   0.5
 
 @interface MConfirmOrderViewController ()<UITableViewDelegate,UITableViewDataSource,UIAlertViewDelegate>{
     UILabel             * countDownLabel;
@@ -50,6 +53,9 @@
     [super viewDidLoad];
     
     self.title_label.text = @"确认订单";
+    [self setMyViewControllerLeftButtonType:MyViewControllerButtonTypeBack WihtLeftString:@"backImage"];
+    
+    
     timeCount = 900;
     titleArray = @[MTOTALPRICE,MUSEPOINT,MPONIT,MNEEDTOPAY];
     
@@ -72,21 +78,21 @@
     
     float score = 0;
     if (isUse) {
-        float movieMoney = _sequenceModel.price.floatValue;
+        float movieMoney = _sequenceModel.price.floatValue - _sequenceModel.fee.intValue;
         int restMoney = [[ZTools getRestMoney] intValue];
         //积分最高可用数
-        int scoreMaxMoney = movieMoney*_seatArray.count*0.8;
+        int scoreMaxMoney = movieMoney*_seatArray.count*PAYMENT_RATIO;
         
-        if (restMoney >= scoreMaxMoney) {
+        if (restMoney/10 >= scoreMaxMoney) {
             score = scoreMaxMoney;
         }else{
-            score = restMoney;
+            score = restMoney/10;
         }
     }
     
     _scorePrice     = score;
-    _serverPrice    = ceilf(5*(int)_seatArray.count);
-    _totalPrice     = ceilf(_seatArray.count*([_sequenceModel.price floatValue])) + _serverPrice;
+    _serverPrice    = ceilf([_sequenceModel.fee intValue]*(int)_seatArray.count);
+    _totalPrice     = ceilf(_seatArray.count*([_sequenceModel.price floatValue]));
 }
 
 -(void)setMainView{
@@ -110,6 +116,15 @@
     
     [[MovieNetWork sharedManager] orderTimerStartTimeInterval:1.0f repeats:YES TotalCount:timeCount timer:nil];
 }
+
+#pragma mark ------  网络请求
+//解锁所选中的座位
+-(void)leftButtonTap:(UIButton *)sender{
+    [[MovieNetWork sharedManager] releaseMovieSeatsWithOrderId:self.orderId];
+    [self.navigationController popViewControllerAnimated:YES];
+}
+
+
 
 -(void)timeCount:(NSNotification *)notification{
         
@@ -152,22 +167,15 @@
     [moviewTicketInfoView addSubview:cinemaNameLabel];
     //座位
     UILabel * seatInfoLabel     = [ZTools createLabelWithFrame:CGRectMake(15, cinemaNameLabel.bottom+10, DEVICE_WIDTH-30, 18) text:[NSString stringWithFormat:@"%@ %@",_sequenceModel.hallName,[self returnSeatNum]] textColor:DEFAULT_BLACK_TEXT_COLOR textAlignment:NSTextAlignmentLeft font:15];
+    seatInfoLabel.numberOfLines = 0;
+    [seatInfoLabel sizeToFit];
     [moviewTicketInfoView addSubview:seatInfoLabel];
     //日期
     UILabel * dateLabel         = [ZTools createLabelWithFrame:CGRectMake(15, seatInfoLabel.bottom+10, DEVICE_WIDTH-30, 18) text:[NSString stringWithFormat:@"%@ %@",_sequenceModel.seqDate,_sequenceModel.seqTime] textColor:DEFAULT_RED_TEXT_COLOR textAlignment:NSTextAlignmentLeft font:15];
     [moviewTicketInfoView addSubview:dateLabel];
     
-    //填写手机号码
-    UILabel * phonePromptLabel  = [ZTools createLabelWithFrame:CGRectMake(15, moviewTicketInfoView.bottom, DEVICE_WIDTH-30, 38) text:@"购票手机号" textColor:DEFAULT_BLACK_TEXT_COLOR textAlignment:NSTextAlignmentLeft font:16];
-    [headerView addSubview:phonePromptLabel];
-    
-    phoneNumTextField                   = [[STextField alloc] initWithFrame:CGRectMake(0, phonePromptLabel.bottom, DEVICE_WIDTH, 36)];
-    phoneNumTextField.placeholder       = @"请填写手机号码";
-    phoneNumTextField.font              = [ZTools returnaFontWith:14];
-    phoneNumTextField.backgroundColor   = [UIColor whiteColor];
-    phoneNumTextField.keyboardType      = UIKeyboardTypeNumberPad;
-    [headerView addSubview:phoneNumTextField];
-    
+    moviewTicketInfoView.height = dateLabel.bottom+10;
+    headerView.height = moviewTicketInfoView.bottom+20;
     _myTableView.tableHeaderView        = headerView;
 }
 
@@ -209,7 +217,7 @@
     if ([title isEqualToString:MTOTALPRICE]) {
         UILabel * totalLabel = [ZTools createLabelWithFrame:CGRectMake(DEVICE_WIDTH-165, 5, 150, 34) text:@"" textColor:DEFAULT_GRAY_TEXT_COLOR textAlignment:NSTextAlignmentRight font:12];
         totalLabel.numberOfLines = 0;
-        NSString * string = [NSString stringWithFormat:@"%.1f元\n含服务费5元/张",_totalPrice];
+        NSString * string = [NSString stringWithFormat:@"%.1f元\n含服务费%@元/张",_totalPrice,_sequenceModel.fee];
         NSMutableAttributedString *str = [[NSMutableAttributedString alloc] initWithString:string];
         [str addAttribute:NSFontAttributeName value:[ZTools returnaFontWith:16] range:[string rangeOfString:[NSString stringWithFormat:@"%.1f",_totalPrice]]];
         [str addAttribute:NSForegroundColorAttributeName value:RGBCOLOR(227, 0, 0) range:[string rangeOfString:[NSString stringWithFormat:@"%.1f元",_totalPrice]]];
@@ -226,7 +234,7 @@
         [cell.contentView addSubview:switchView];
     }else if ([title isEqualToString:MPONIT]){
         cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
-        cell.detailTextLabel.text = [NSString stringWithFormat:@"%d个积分可用，已抵消%d元",_scorePrice,_scorePrice];
+        cell.detailTextLabel.text = [NSString stringWithFormat:@"%d个积分可用，已抵消%d元",_scorePrice*10,_scorePrice];
         cell.detailTextLabel.font = [ZTools returnaFontWith:15];
         cell.detailTextLabel.textColor = DEFAULT_ORANGE_TEXT_COLOR;
     }else if ([title isEqualToString:MNEEDTOPAY]){
@@ -286,6 +294,7 @@
 
 #pragma mark -----  跳转到支付界面
 -(void)payButtonClicked:(UIButton *)button{
+    
     
 //    if (phoneNumTextField.text.length != 11) {
 //        [ZTools showMBProgressWithText:@"请填写正确的手机号码" WihtType:MBProgressHUDModeText addToView:self.view isAutoHidden:YES];

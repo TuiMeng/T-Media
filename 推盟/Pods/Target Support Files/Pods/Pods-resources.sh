@@ -58,6 +58,7 @@ install_resource()
   esac
 }
 if [[ "$CONFIGURATION" == "Debug" ]]; then
+  install_resource "AMap2DMap/MAMapKit.framework/AMap.bundle"
   install_resource "NRImagePickerController/TZImagePickerController/TZImagePickerController/Resource/MMVideoPreviewPlay@2x.png"
   install_resource "NRImagePickerController/TZImagePickerController/TZImagePickerController/Resource/MMVideoPreviewPlayHL@2x.png"
   install_resource "NRImagePickerController/TZImagePickerController/TZImagePickerController/Resource/navi_back@2x.png"
@@ -92,6 +93,7 @@ if [[ "$CONFIGURATION" == "Debug" ]]; then
   install_resource "UMengFeedback/UMFeedback_iOS_2.3.3/UMengFeedback_SDK/Resources/umeng_fb_audio_play_default@2x.png"
 fi
 if [[ "$CONFIGURATION" == "Release" ]]; then
+  install_resource "AMap2DMap/MAMapKit.framework/AMap.bundle"
   install_resource "NRImagePickerController/TZImagePickerController/TZImagePickerController/Resource/MMVideoPreviewPlay@2x.png"
   install_resource "NRImagePickerController/TZImagePickerController/TZImagePickerController/Resource/MMVideoPreviewPlayHL@2x.png"
   install_resource "NRImagePickerController/TZImagePickerController/TZImagePickerController/Resource/navi_back@2x.png"

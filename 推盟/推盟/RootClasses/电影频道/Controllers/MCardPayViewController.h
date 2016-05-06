@@ -23,6 +23,7 @@ typedef void(^MCarPaySelectedCardsBlock)(float payMoney,NSString * cardInfo,NSMu
 @property(nonatomic,strong)NSMutableDictionary  * payInfoDic;
 @property(nonatomic,assign)int                  countDown;
 @property(nonatomic,strong)NSString             * orderId;
+@property(nonatomic,strong)NSString             * sign;
 //需要支付的钱数
 @property(nonatomic,assign)float                needPayPrice;
 //之前添加的卡信息

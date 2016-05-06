@@ -16,8 +16,9 @@
 @interface MCinemaScheduleViewController : MyViewController
 
 
-@property(nonatomic,strong)MLocationCinemasModel * cinema_model;
+@property(nonatomic,strong)MLocationCinemasModel    * cinema_model;
 
-@property(nonatomic,strong)MovieListModel * movie_model;
+@property(nonatomic,strong)MovieListModel           * movie_model;
+@property(nonatomic,assign)int                        dayKind;
 
 @end

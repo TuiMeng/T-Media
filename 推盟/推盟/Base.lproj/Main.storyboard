@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="9531" systemVersion="15C50" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="vXZ-lx-hvc">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="9531" systemVersion="15D21" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="vXZ-lx-hvc">
     <dependencies>
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="9529"/>
@@ -236,22 +236,22 @@
                                 <exclude reference="Pr0-Gr-S18"/>
                             </mask>
                             <mask key="constraints">
-                                <exclude reference="vsB-aX-1wp"/>
-                                <exclude reference="y5E-oH-8Ax"/>
                                 <exclude reference="JuY-mW-OYc"/>
                                 <exclude reference="WkY-7d-kof"/>
                                 <exclude reference="hcf-4G-TYh"/>
+                                <exclude reference="vsB-aX-1wp"/>
+                                <exclude reference="y5E-oH-8Ax"/>
                                 <exclude reference="3IL-8M-PbX"/>
                                 <exclude reference="W2I-Ji-Axb"/>
                                 <exclude reference="vaB-27-9lt"/>
-                                <exclude reference="4Pa-jL-DJL"/>
-                                <exclude reference="Nxb-Nt-a3W"/>
-                                <exclude reference="kYm-X2-oCi"/>
                                 <exclude reference="JSK-Pl-vR7"/>
                                 <exclude reference="eFf-nc-kc7"/>
                                 <exclude reference="gnf-Dz-jyg"/>
                                 <exclude reference="JFB-Ri-vEu"/>
                                 <exclude reference="n01-qv-LvG"/>
+                                <exclude reference="4Pa-jL-DJL"/>
+                                <exclude reference="Nxb-Nt-a3W"/>
+                                <exclude reference="kYm-X2-oCi"/>
                             </mask>
                         </variation>
                         <variation key="widthClass=compact">
@@ -264,22 +264,22 @@
                                 <include reference="Pr0-Gr-S18"/>
                             </mask>
                             <mask key="constraints">
-                                <include reference="vsB-aX-1wp"/>
-                                <include reference="y5E-oH-8Ax"/>
                                 <include reference="JuY-mW-OYc"/>
                                 <include reference="WkY-7d-kof"/>
                                 <include reference="hcf-4G-TYh"/>
+                                <include reference="vsB-aX-1wp"/>
+                                <include reference="y5E-oH-8Ax"/>
                                 <include reference="3IL-8M-PbX"/>
                                 <include reference="W2I-Ji-Axb"/>
                                 <include reference="vaB-27-9lt"/>
-                                <include reference="4Pa-jL-DJL"/>
-                                <include reference="Nxb-Nt-a3W"/>
-                                <include reference="kYm-X2-oCi"/>
                                 <include reference="JSK-Pl-vR7"/>
                                 <include reference="eFf-nc-kc7"/>
                                 <include reference="gnf-Dz-jyg"/>
                                 <include reference="JFB-Ri-vEu"/>
                                 <include reference="n01-qv-LvG"/>
+                                <include reference="4Pa-jL-DJL"/>
+                                <include reference="Nxb-Nt-a3W"/>
+                                <include reference="kYm-X2-oCi"/>
                             </mask>
                         </variation>
                     </view>
@@ -430,7 +430,7 @@
                                                     <outlet property="delegate" destination="7u3-iw-Bu6" id="p69-j6-dqk"/>
                                                 </connections>
                                             </textField>
-                                            <label hidden="YES" opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="输入邀请码并注册成功，您和您的邀请人同时获得5元奖励。" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="JLz-Xs-Vc4">
+                                            <label hidden="YES" opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="输入邀请码并注册成功，您和您的邀请人同时获得积分奖励。" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="JLz-Xs-Vc4">
                                                 <rect key="frame" x="0.0" y="-21" width="42" height="21"/>
                                                 <constraints>
                                                     <constraint firstAttribute="height" constant="39" id="lwI-t8-6aZ"/>
@@ -2122,7 +2122,7 @@
                                                             </mask>
                                                         </variation>
                                                     </label>
-                                                    <label hidden="YES" opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="成功邀请好友注册推盟APP，即可获得5元奖励，同时您所邀请的好友也可以获得5元奖励！" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="V7c-fe-y3B">
+                                                    <label hidden="YES" opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="成功邀请好友注册推盟APP，即可获得积分奖励，同时您所邀请的好友也可以获得积分奖励！" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="V7c-fe-y3B">
                                                         <rect key="frame" x="0.0" y="-21" width="42" height="21"/>
                                                         <constraints>
                                                             <constraint firstAttribute="height" constant="39" id="gxX-Vz-W7x"/>
@@ -2273,7 +2273,7 @@
                                                     </mask>
                                                 </variation>
                                             </label>
-                                            <label hidden="YES" opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" text="点击“邀请好友”按钮，分享推盟APP下载链接、并复制“邀请码”给好友，好友下载推盟APP、注册时填入您的邀请码，您和您的好友就会同时获得5元奖励，时时打入您的推盟账户。" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="aOV-1z-RNk">
+                                            <label hidden="YES" opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" text="点击“邀请好友”按钮，分享推盟APP下载链接、并复制“邀请码”给好友，好友下载推盟APP、注册时填入您的邀请码，您和您的好友就会同时获得积分奖励，时时打入您的推盟账户。" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="aOV-1z-RNk">
                                                 <rect key="frame" x="0.0" y="-21" width="42" height="21"/>
                                                 <constraints>
                                                     <constraint firstAttribute="height" constant="68" id="cnk-KX-X2K"/>
@@ -2707,7 +2707,7 @@
                                         <view contentMode="scaleToFill" ambiguous="YES" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="GD8-QB-dku">
                                             <rect key="frame" x="-6" y="-11" width="337" height="99"/>
                                             <subviews>
-                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="账户累计金额" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Sbw-8B-gFF">
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="账户剩余积分" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Sbw-8B-gFF">
                                                     <rect key="frame" x="20" y="22" width="96" height="21"/>
                                                     <constraints>
                                                         <constraint firstAttribute="height" constant="25" id="jhN-WL-0TY"/>
@@ -2727,7 +2727,7 @@
                                                         </mask>
                                                     </variation>
                                                 </label>
-                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="￥20.80" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="5IQ-8b-5yo">
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="5IQ-8b-5yo">
                                                     <rect key="frame" x="124" y="20" width="193" height="21"/>
                                                     <constraints>
                                                         <constraint firstAttribute="height" constant="36" id="cPb-Ks-3eU"/>
@@ -3142,7 +3142,7 @@
                                                         </mask>
                                                     </variation>
                                                     <variation key="widthClass=compact" misplaced="YES">
-                                                        <rect key="frame" x="280" y="21" width="22" height="22"/>
+                                                        <rect key="frame" x="280" y="22" width="22" height="22"/>
                                                         <mask key="constraints">
                                                             <include reference="PBT-X2-kMs"/>
                                                             <include reference="fCy-fV-FGq"/>
@@ -4147,7 +4147,7 @@
                                                         </mask>
                                                     </variation>
                                                     <variation key="widthClass=compact" misplaced="YES">
-                                                        <rect key="frame" x="160" y="15" width="1" height="120"/>
+                                                        <rect key="frame" x="160" y="15.5" width="0.5" height="120"/>
                                                         <mask key="constraints">
                                                             <include reference="aem-E8-7eF"/>
                                                             <include reference="fpj-Lr-vBY"/>
@@ -4157,7 +4157,7 @@
                                                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="EHS-Ec-1T1" userLabel="View1">
                                                     <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
                                                     <subviews>
-                                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="25元" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Mld-No-ML1">
+                                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="25积分" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Mld-No-ML1">
                                                             <rect key="frame" x="0.0" y="-21" width="42" height="21"/>
                                                             <constraints>
                                                                 <constraint firstAttribute="height" constant="20" id="NDl-1g-STs"/>
@@ -4173,7 +4173,7 @@
                                                                 </mask>
                                                             </variation>
                                                             <variation key="widthClass=compact" misplaced="YES">
-                                                                <rect key="frame" x="5" y="120" width="150" height="20"/>
+                                                                <rect key="frame" x="5" y="120" width="149.5" height="20"/>
                                                                 <mask key="constraints">
                                                                     <include reference="NDl-1g-STs"/>
                                                                     <exclude reference="dBK-RP-Ubf"/>
@@ -4196,7 +4196,7 @@
                                                                 </mask>
                                                             </variation>
                                                             <variation key="widthClass=compact" misplaced="YES">
-                                                                <rect key="frame" x="5" y="5" width="150" height="26"/>
+                                                                <rect key="frame" x="5" y="5" width="149.5" height="26"/>
                                                                 <mask key="constraints">
                                                                     <exclude reference="bI3-km-Zd5"/>
                                                                     <include reference="zoU-nE-Gg0"/>
@@ -4217,7 +4217,7 @@
                                                                 </mask>
                                                             </variation>
                                                             <variation key="widthClass=compact" misplaced="YES">
-                                                                <rect key="frame" x="40" y="35" width="80" height="80"/>
+                                                                <rect key="frame" x="39.5" y="35" width="80" height="80"/>
                                                                 <mask key="constraints">
                                                                     <include reference="N6F-zr-Zme"/>
                                                                     <include reference="y35-oZ-kw1"/>
@@ -4300,7 +4300,7 @@
                                                         </mask>
                                                     </variation>
                                                     <variation key="widthClass=compact" misplaced="YES">
-                                                        <rect key="frame" x="0.0" y="0.0" width="160" height="151"/>
+                                                        <rect key="frame" x="0.0" y="0.0" width="159.5" height="150.5"/>
                                                         <mask key="subviews">
                                                             <include reference="Mld-No-ML1"/>
                                                             <include reference="qTg-qR-JbV"/>
@@ -4349,13 +4349,13 @@
                                                                 </mask>
                                                             </variation>
                                                             <variation key="widthClass=compact" misplaced="YES">
-                                                                <rect key="frame" x="5" y="5" width="148" height="26"/>
+                                                                <rect key="frame" x="5" y="5" width="148.5" height="26"/>
                                                                 <mask key="constraints">
                                                                     <include reference="bbB-2w-BUS"/>
                                                                 </mask>
                                                             </variation>
                                                         </label>
-                                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="30元" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="p6u-oY-50h">
+                                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="30积分" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="p6u-oY-50h">
                                                             <rect key="frame" x="0.0" y="-21" width="42" height="21"/>
                                                             <constraints>
                                                                 <constraint firstAttribute="height" constant="20" id="jRd-8D-KFg"/>
@@ -4369,7 +4369,7 @@
                                                                 </mask>
                                                             </variation>
                                                             <variation key="widthClass=compact" misplaced="YES">
-                                                                <rect key="frame" x="5" y="120" width="148" height="20"/>
+                                                                <rect key="frame" x="5" y="120" width="148.5" height="20"/>
                                                                 <mask key="constraints">
                                                                     <include reference="jRd-8D-KFg"/>
                                                                 </mask>
@@ -4389,7 +4389,7 @@
                                                                 </mask>
                                                             </variation>
                                                             <variation key="widthClass=compact" misplaced="YES">
-                                                                <rect key="frame" x="39" y="35" width="80" height="80"/>
+                                                                <rect key="frame" x="38.5" y="35" width="80" height="80"/>
                                                                 <mask key="constraints">
                                                                     <include reference="1So-jj-aGL"/>
                                                                     <include reference="F6d-mc-Hys"/>
@@ -4444,7 +4444,7 @@
                                                         </mask>
                                                     </variation>
                                                     <variation key="widthClass=compact" misplaced="YES">
-                                                        <rect key="frame" x="162" y="0.0" width="158" height="151"/>
+                                                        <rect key="frame" x="161.5" y="0.0" width="158.5" height="150.5"/>
                                                         <mask key="subviews">
                                                             <include reference="WnY-vp-tHc"/>
                                                             <include reference="p6u-oY-50h"/>

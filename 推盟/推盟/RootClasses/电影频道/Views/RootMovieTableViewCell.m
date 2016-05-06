@@ -44,7 +44,7 @@
         }
         
         if (!_m_score_label) {
-            _m_score_label = [ZTools createLabelWithFrame:CGRectMake(_background_view.width-40, 15, 30, 20) text:@"7.9分" textColor:RED_BACKGROUND_COLOR textAlignment:NSTextAlignmentRight font:12];
+            _m_score_label = [ZTools createLabelWithFrame:CGRectMake(_background_view.width-45, 15, 35, 20) text:@"" textColor:RED_BACKGROUND_COLOR textAlignment:NSTextAlignmentRight font:12];
             [_background_view addSubview:_m_score_label];
         }
         
@@ -125,11 +125,14 @@
 
 -(void)setInfomationWithMovieListModel:(MovieListModel *)model{
     
+    _m_score_label.text = [NSString stringWithFormat:@"%@分",model.movieScore];
+    _m_type_label.text  = model.dimensional;
+    
     CGSize name_size                        = [ZTools stringHeightWithFont:_m_name_label.font WithString:model.movieName WithWidth:_m_name_label.width];
     CGSize type_size                        = [ZTools stringHeightWithFont:_m_type_label.font WithString:@"2D" WithWidth:_m_type_label.width];
     _m_name_label.width                     = _background_view.width-_m_score_label.width-20-_m_header_imageView.width-20-type_size.width-5;
     _m_type_label.left                      = name_size.width+_m_name_label.left+3;
-    _m_type_label.width                     = type_size.width+5;
+    _m_type_label.width                     = model.dimensional.length?(type_size.width+5):0;
     
     _m_name_label.text                      = model.movieName;
     [_m_header_imageView sd_setImageWithURL:[NSURL URLWithString:[NSString stringWithFormat:@"%@%@",BASE_MOVIE_IMAGE_URL,model.moviePick]] placeholderImage:[UIImage imageNamed:DEFAULT_LOADING_SMALL_IMAGE]];

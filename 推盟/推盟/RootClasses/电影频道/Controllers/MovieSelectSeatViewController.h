@@ -16,11 +16,12 @@
 
 @interface MovieSelectSeatViewController : MyViewController
 
-@property(nonatomic,strong)MovieSequencesModel * sequenceModel;
+@property(nonatomic,strong)MovieSequencesModel      * sequenceModel;
 
-@property(nonatomic,strong)MLocationCinemasModel * cinema_model;
+@property(nonatomic,strong)MLocationCinemasModel    * cinema_model;
 
-@property(nonatomic,strong)MovieListModel * movie_model;
+@property(nonatomic,strong)MovieListModel           * movie_model;
 
+@property(nonatomic,assign)BOOL                     refreshSeatsData;
 
 @end

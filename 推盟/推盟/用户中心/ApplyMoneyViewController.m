@@ -26,6 +26,13 @@
      *  收款的银行卡类型（1：银行卡2：支付宝）
      */
     NSString * bank_type;
+    //计时器
+    NSTimer * timer;
+    int time_count;
+    //获取验证码按钮
+    UIButton * _getVericationButton;
+    //
+    UITextField * _vericationTF;
 }
 
 @property (weak, nonatomic) IBOutlet UITableView *myTableView;
@@ -118,7 +125,7 @@
     [_alipay_view addGestureRecognizer:tap1];
     
     
-    _total_money_label.text = [NSString stringWithFormat:@"￥%@",[ZTools getRestMoney]];
+    _total_money_label.text = [ZTools getRestMoney];
     
     
     [self loadApplyListData];
@@ -171,6 +178,7 @@
 #pragma mark -----  网络请求
 -(void)loadApplyListData{
     __weak typeof(self)wself = self;
+    NSLog(@"url ----  %@",[NSString stringWithFormat:@"%@&user_id=%@",APPLY_LIST_URL,[ZTools getUid]]);
     [[ZAPI manager] sendGet:[NSString stringWithFormat:@"%@&user_id=%@",APPLY_LIST_URL,[ZTools getUid]] success:^(id data) {
         
         if (data && [data isKindOfClass:[NSDictionary class]]) {
@@ -191,30 +199,77 @@
 }
 #pragma mark -----   申请提现
 -(void)applyRestMoney{
+    /*
     int apply_num = [rest_money_tf.text intValue];
     if (apply_num!= 50) {
         [ZTools showMBProgressWithText:@"每次提现限额50元" WihtType:MBProgressHUDModeText addToView:alertView isAutoHidden:YES];
         return;
     }
+     */
+    
+    if (_vericationTF.text.length == 0) {
+        [ZTools showMBProgressWithText:@"请输入验证码" WihtType:MBProgressHUDModeText addToView:alertView isAutoHidden:YES];
+        return;
+    }
+    
     
     MBProgressHUD * load_hud = [ZTools showMBProgressWithText:@"申请中..." WihtType:MBProgressHUDModeText addToView:alertView isAutoHidden:NO];
     
-    NSDictionary * dic = @{@"user_id":[ZTools getUid],@"money":rest_money_tf.text,@"type":bank_type};
-    
+    NSDictionary * dic = @{@"user_id":[ZTools getUid],@"money":@"500",@"type":bank_type,@"code_num":_vericationTF.text};
+    __weak typeof(self)wself = self;
     [[ZAPI manager] sendPost:APPLY_MONEY_URL myParams:dic success:^(id data){
         [load_hud hide:YES];
         if (data  && [data isKindOfClass:[NSDictionary class]]) {
             NSString * status = [data objectForKey:@"status"];
             if ([status intValue] == 1) {
                 [alertView removeFromSuperview];
-                [ZTools showMBProgressWithText:@"申请成功，等待后台审核" WihtType:MBProgressHUDModeText addToView:self.view isAutoHidden:YES];
+                [ZTools showMBProgressWithText:@"申请成功，等待后台审核" WihtType:MBProgressHUDModeText addToView:wself.view isAutoHidden:YES];
             }else{
-               [ZTools showErrorWithStatus:status InView:alertView isShow:YES];
+               [ZTools showMBProgressWithText:data[ERROR_INFO] WihtType:MBProgressHUDModeText addToView:wself.view isAutoHidden:YES];
             }
         }
     }failure:^(NSError *error){
         [load_hud hide:YES];
         [ZTools showMBProgressWithText:@"提取失败，请检查您当前网络状况" WihtType:MBProgressHUDModeText addToView:alertView isAutoHidden:YES];
+    }];
+}
+
+#pragma mark -----   获取验证码
+-(void)getVericationCode:(UIButton*)button{
+    
+    if (timer && timer.valid) {
+        return;
+    }
+    
+    button.userInteractionEnabled = NO;
+    button.backgroundColor = [UIColor lightGrayColor];
+    time_count      = 60;
+    timer           = [NSTimer scheduledTimerWithTimeInterval:1.0f
+                                                       target:self
+                                                     selector:@selector(timerDown)
+                                                     userInfo:nil
+                                                      repeats:YES];
+    [[NSRunLoop currentRunLoop] addTimer:timer forMode:NSRunLoopCommonModes];
+    
+    MBProgressHUD * loadHUD = [ZTools showMBProgressWithText:@"发送中..." WihtType:MBProgressHUDModeText addToView:alertView isAutoHidden:NO];
+    
+    [[ZAPI manager] sendPost:GET_APPLY_VERIFICATION_CODE_URL myParams:@{@"user_id":[ZTools getUid]} success:^(id data) {
+        [loadHUD hide:YES];
+        if (data && [data isKindOfClass:[NSDictionary class]]) {
+            if ([data[ERROR_CODE] intValue] == 1) {
+                MBProgressHUD * hud = [ZTools showMBProgressWithText:[NSString stringWithFormat:@"验证码发送到%@，请注意查收",[ZTools getPhoneNum]] WihtType:MBProgressHUDModeText addToView:alertView isAutoHidden:NO];
+                [hud hide:YES afterDelay:2.5f];
+            }else{
+                [ZTools showMBProgressWithText:data[ERROR_INFO] WihtType:MBProgressHUDModeText addToView:alertView isAutoHidden:YES];
+                [self stopTimer];
+            }
+        }else{
+            [self stopTimer];
+        }
+        
+    } failure:^(NSError *error) {
+        [loadHUD hide:YES];
+        [self stopTimer];
     }];
 }
 
@@ -229,7 +284,6 @@
     return 1;
 }
 -(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
-    NSLog(@"count ---  %lu",(unsigned long)_data_array.count);
     return _data_array.count;
 }
 
@@ -347,15 +401,58 @@
     alertView.delegate = self;
     [alertView alertShow];
     
-    UIView * content_view = [[UIView alloc] initWithFrame:CGRectMake(0, 50, alertView.contentView.width,240)];
+    UIView * content_view = [[UIView alloc] initWithFrame:CGRectMake(0, 50, alertView.contentView.width,270)];
     
-    UILabel * card_type_label = [self createLabelWithFrame:CGRectMake(20, 20, content_view.width-40, 35) text:type textColor:RGBCOLOR(49, 49, 49) textAlignment:NSTextAlignmentLeft font:14 haveBorder:YES];
+    
+    UILabel * _applyMoneyLabel = [ZTools createLabelWithFrame:CGRectMake(20, 10, content_view.width-40, 30)
+                                                         text:@"当前申请提现50元，扣除对应500积分"
+                                                    textColor:DEFAULT_RED_TEXT_COLOR
+                                                textAlignment:NSTextAlignmentCenter
+                                                         font:14];
+    _applyMoneyLabel.numberOfLines = 0;
+    [_applyMoneyLabel sizeToFit];
+    _applyMoneyLabel.center = CGPointMake(content_view.width/2.0f, _applyMoneyLabel.center.y);
+    [content_view addSubview:_applyMoneyLabel];
+    
+    
+    /*
+    UILabel * card_type_label = [self createLabelWithFrame:CGRectMake(20, _applyMoneyLabel.bottom+10, content_view.width-40, 35)
+                                                      text:type
+                                                 textColor:RGBCOLOR(49, 49, 49)
+                                             textAlignment:NSTextAlignmentLeft
+                                                      font:14
+                                                haveBorder:NO];
     [content_view addSubview:card_type_label];
+     */
     
-    UILabel * card_label = [self createLabelWithFrame:CGRectMake(50,0, card_type_label.width-80, card_type_label.height) text:num textColor:RGBCOLOR(68, 120, 205) textAlignment:NSTextAlignmentCenter font:14 haveBorder:NO];
-    [card_type_label addSubview:card_label];
+    UILabel * card_label = [self createLabelWithFrame:CGRectMake(20,_applyMoneyLabel.bottom+10, content_view.width-40, 35)
+                                                 text:[NSString stringWithFormat:@"%@:%@",type,num]
+                                            textColor:RGBCOLOR(68, 120, 205)
+                                        textAlignment:NSTextAlignmentCenter
+                                                 font:14
+                                           haveBorder:NO];
+    [content_view addSubview:card_label];
     
     
+    //验证码
+    _getVericationButton = [ZTools createButtonWithFrame:CGRectMake(content_view.width-90,card_label.bottom+10, 70, 30)
+                                                              title:@"获取验证码"
+                                                              image:nil];
+    _getVericationButton.titleLabel.font = [ZTools returnaFontWith:12];
+    
+    [_getVericationButton addTarget:self action:@selector(getVericationCode:) forControlEvents:UIControlEventTouchUpInside];
+    [content_view addSubview:_getVericationButton];
+    
+    
+    _vericationTF = [ZTools createTextFieldWithFrame:CGRectMake(20, card_label.bottom+10, _getVericationButton.left-30, 30)
+                                                              font:14
+                                                       placeHolder:@"请输入验证码"
+                                                   secureTextEntry:NO];
+    _vericationTF.keyboardType = UIKeyboardTypeNumberPad;
+    [content_view addSubview:_vericationTF];
+    
+    
+    /*
     UILabel * money_back_label = [self createLabelWithFrame:CGRectMake(20, card_type_label.bottom + 20, content_view.width-40, 35) text:@"  金额(元)" textColor:RGBCOLOR(49, 49, 49) textAlignment:NSTextAlignmentLeft font:14 haveBorder:YES];
     money_back_label.userInteractionEnabled = YES;
     [content_view addSubview:money_back_label];
@@ -364,11 +461,12 @@
     rest_money_tf.textAlignment = NSTextAlignmentCenter;
     rest_money_tf.delegate = self;
     rest_money_tf.keyboardType = UIKeyboardTypeNumberPad;
-    rest_money_tf.placeholder = [NSString stringWithFormat:@"当前账户余额%@元",[ZTools getRestMoney]];
+    rest_money_tf.placeholder = [NSString stringWithFormat:@"当前账户积分%@",[ZTools getRestMoney]];
     rest_money_tf.font = [ZTools returnaFontWith:14];
     [money_back_label addSubview:rest_money_tf];
+     */
     
-    content_view.height = money_back_label.bottom + 20;
+    content_view.height = _vericationTF.bottom + 20;
     alertView.contentView = content_view;
     
 }
@@ -376,7 +474,7 @@
 -(void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex{
     if (buttonIndex != 0) {
         [self startLoading];
-        [self performSelector:@selector(showApplyView:) withObject:[NSString stringWithFormat:@"%ld",buttonIndex] afterDelay:0.6];
+        [self performSelector:@selector(showApplyView:) withObject:[NSString stringWithFormat:@"%ld",(long)buttonIndex] afterDelay:0.6];
     }
 }
 
@@ -419,6 +517,26 @@
     return YES;
 }
 -(void)textFieldDidBeginEditing:(UITextField *)textField{
+}
+
+#pragma mark ------  计时器
+-(void)timerDown{
+    if (time_count < 1) {
+        [self stopTimer];
+        return;
+    }
+    
+    NSString * title = [NSString stringWithFormat:@"%d秒",time_count];
+    [_getVericationButton setTitle:title forState:UIControlStateNormal];
+    _getVericationButton.titleLabel.text = title;
+    time_count--;
+}
+-(void)stopTimer{
+    [timer invalidate];
+    timer = nil;
+    [_getVericationButton setTitle:@"重新获取" forState:UIControlStateNormal];
+    _getVericationButton.backgroundColor = DEFAULT_BACKGROUND_COLOR;
+    _getVericationButton.enabled = YES;
 }
 
 

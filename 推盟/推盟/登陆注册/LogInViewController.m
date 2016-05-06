@@ -7,8 +7,9 @@
 //
 
 #import "LogInViewController.h"
+#import <MessageUI/MessageUI.h>
 
-@interface LogInViewController (){
+@interface LogInViewController ()<MFMessageComposeViewControllerDelegate>{
     int time_count;
     NSTimer * timer;
 }
@@ -208,11 +209,41 @@
     [_verification_code_button setTitle:[NSString stringWithFormat:@"重新发送%ds",time_count] forState:UIControlStateNormal];
     time_count--;
 }
-
+#pragma mark ----  手动发送验证码
 -(void)sendCodeButtonTap:(UIButton*)sender{
     
-    
-    
+    if( [MFMessageComposeViewController canSendText] )
+    {
+        MFMessageComposeViewController * controller     = [[MFMessageComposeViewController alloc] init];
+        controller.recipients                           = @[@"18600755163"];
+        controller.navigationBar.tintColor              = [UIColor redColor];
+        controller.navigationItem.title                 = @"新信息";
+        controller.body                                 = @"帅呆了";
+        controller.messageComposeDelegate               = self;
+        [self presentViewController:controller animated:YES completion:nil];
+//        [[[[controller viewControllers] lastObject] navigationItem] setTitle:@"新信息"];//修改短信界面标题
+    }
+    else
+    {
+        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"提示信息"
+                                                        message:@"该设备不支持短信功能"
+                                                       delegate:nil
+                                              cancelButtonTitle:@"确定"
+                                              otherButtonTitles:nil, nil];
+        [alert show];
+    }
+}
+
+#pragma mark -----  短信代理回调
+-(void)messageComposeViewController:(MFMessageComposeViewController *)controller didFinishWithResult:(MessageComposeResult)result{
+    [controller dismissViewControllerAnimated:YES completion:nil];
+    if (result == MessageComposeResultSent) {
+        [ZTools showMBProgressWithText:@"短信发送成功" WihtType:MBProgressHUDModeText addToView:self.view isAutoHidden:YES];
+    }else if (result == MessageComposeResultCancelled){
+        [ZTools showMBProgressWithText:@"短信发送取消" WihtType:MBProgressHUDModeText addToView:self.view isAutoHidden:YES];
+    }else if (result == MessageComposeResultFailed){
+        [ZTools showMBProgressWithText:@"短信发送失败" WihtType:MBProgressHUDModeText addToView:self.view isAutoHidden:YES];
+    }
 }
 
 -(void)successLogin:(LoginSuccessBlock)block{

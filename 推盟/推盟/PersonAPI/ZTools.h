@@ -47,6 +47,11 @@
 //退出登陆
 +(void)logOut;
 +(NSString*)getDeviceToken;
+//设置默认地区
++(void)setSelectedCity:(NSString *)city cityId:(NSString *)cityId;
+//获取默认地区
++(NSString *)getSelectedCity;
++(NSString *)getSelectedCityId;
 
 ///根据高度按比例适配大小（基于iphone6大小）
 +(CGFloat)autoHeightWith:(CGFloat)aHeight;
@@ -75,7 +80,23 @@
  *  @param format 自定义返回格式（例：YYYY-MM-dd HH:mm:ss）
  */
 +(NSString *)timechangeWithTimestamp:(NSString *)placetime WithFormat:(NSString *)format;
-
+/**
+ *  判断日期是今天，昨天还是明天
+ */
+-(NSString *)compareDate:(NSDate *)date;
+/**
+ /////  和当前时间比较
+ ////   1）1分钟以内 显示        :    刚刚
+ ////   2）1小时以内 显示        :    X分钟前
+ ///    3）今天或者昨天 显示      :    今天 09:30   昨天 09:30
+ ///    4) 今年显示              :   09月12日
+ ///    5) 大于本年      显示    :    2013/09/09
+ **/
++ (NSString *)timeIntervalFromNowWithformateDate:(NSString *)dateString;
+/**
+ *  判断该日期为星期几
+ */
++(NSString*)timeWeekdayStringFromDate:(NSDate*)inputDate;
 #pragma mark - 显示提示框
 + (MBProgressHUD *)showMBProgressWithText:(NSString *)text WihtType:(MBProgressHUDMode)theModel addToView:(UIView *)aView isAutoHidden:(BOOL)hidden;
 /**

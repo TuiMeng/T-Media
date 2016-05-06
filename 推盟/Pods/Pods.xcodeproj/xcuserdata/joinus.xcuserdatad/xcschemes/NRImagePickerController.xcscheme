@@ -14,7 +14,7 @@
             buildForArchiving = "YES">
             <BuildableReference
                BuildableIdentifier = 'primary'
-               BlueprintIdentifier = '6B2FCBC0AD4A4685BAEC65AE'
+               BlueprintIdentifier = 'EFC51BF9C555AA3F528208D3'
                BlueprintName = 'NRImagePickerController'
                ReferencedContainer = 'container:Pods.xcodeproj'
                BuildableName = 'libNRImagePickerController.a'>

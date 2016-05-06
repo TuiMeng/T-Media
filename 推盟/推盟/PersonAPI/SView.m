@@ -81,6 +81,10 @@
     }
 }
 
-
+-(void)setFrame:(CGRect)frame{
+    [super setFrame:frame];
+    _rightLine.right = self.width;
+    _bottomLine.bottom = self.height;
+}
 
 @end

@@ -286,11 +286,16 @@
 
 -(void)startLoading{
     dispatch_async(dispatch_get_main_queue(), ^{
-        loading_hud = [ZTools showMBProgressWithText:@"加载中..." WihtType:MBProgressHUDModeIndeterminate addToView:self.view isAutoHidden:NO];
+        _loading_hud = [ZTools showMBProgressWithText:@"加载中..." WihtType:MBProgressHUDModeIndeterminate addToView:self.view isAutoHidden:NO];
+    });
+}
+-(void)startLoadingWithText:(NSString *)text{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        _loading_hud = [ZTools showMBProgressWithText:text.length?@"加载中...":text WihtType:MBProgressHUDModeIndeterminate addToView:self.view isAutoHidden:NO];
     });
 }
 -(void)endLoading{
-    [loading_hud hide:YES];
+    [_loading_hud hide:YES];
 }
 
 #pragma mark ----------   获取用户当前地理位置
@@ -374,6 +379,18 @@
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     
+}
+
+-(void)dealloc{
+    [self.view.layer removeAllAnimations];
+    self.left_button    = nil;
+    self.left_string    = nil;
+    self.right_button   = nil;
+    self.right_string   = nil;
+    locationManager     = nil;
+    self.title_label    = nil;
+    location_failed_block = nil;
+    location_manager_success_block = nil;
 }
 
 /*
