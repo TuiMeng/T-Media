@@ -24,6 +24,8 @@
     float                    cardMoney;
     //是否接受多扣除兑换卡次数
     BOOL                    isAcceptOverflow;
+    //判断是否显示添加新卡按钮
+    int                     isHiddenAdd[2];
 }
 
 @property(nonatomic,strong)UITableView      * myTableView;
@@ -272,7 +274,8 @@
                 [wself.dataArray[1] replaceObjectAtIndex:[wself.dataArray[1] count]-1 withObject:model];
             }
         }
-        [_myTableView reloadData];
+        [wself totalMoneyInCard];
+        [wself.myTableView reloadData];
     } failure:^(NSError *error) {
         [wself endLoading];
     }];
@@ -284,6 +287,7 @@
     }else if([_dataArray[segmentControl.selectedSegmentIndex] count] > 1){
         [_dataArray[segmentControl.selectedSegmentIndex] removeObjectAtIndex:index];
     }
+    [self totalMoneyInCard];
     [_myTableView reloadData];
 }
 
@@ -329,13 +333,13 @@
     } remove:^{
         [wself removeWithIndex:(int)indexPath.section];
     }];
-    
-    NSLog(@"aaaaa ----  %ld ----  %lu",(long)indexPath.section,(unsigned long)[_dataArray[segmentControl.selectedSegmentIndex] count]);
+
     if (indexPath.section < ([_dataArray[segmentControl.selectedSegmentIndex] count]-1)) {
         cell.doneButton.hidden = YES;
     }else{
-        cell.doneButton.hidden = NO;
+        cell.doneButton.hidden = isHiddenAdd[segmentControl.selectedSegmentIndex];
     }
+    
     
     return cell;
 }
@@ -426,27 +430,28 @@
 
 //处理储值卡
 -(NSString *)handleTicketCardWithArray:(NSMutableArray *)array{
-    float TempMoney = 0;
+    float TempMoney = _needPayPrice;
     NSMutableArray * cardInfoArray = [NSMutableArray array];
     for (id obj in array) {
         if (obj && [obj isKindOfClass:[MCardModel class]]) {
             MCardModel * model = (MCardModel *)obj;
-            TempMoney += model.curval.floatValue;
+            //消费金额
+            float consumeMoney = 0;
             NSString * string;
-            if (_needPayPrice-TempMoney > 0) {
-                string = [NSString stringWithFormat:@"%@!%@!%@!%@",model.sequenceNo,model.secretNo,[NSString stringWithFormat:@"%f",_needPayPrice-TempMoney],model.tickettypeid];
+            if (TempMoney < model.curval.floatValue) {
+                consumeMoney = TempMoney;
             }else{
-                string = [NSString stringWithFormat:@"%@!%@!%@!%@",model.sequenceNo,model.secretNo,model.curval,model.tickettypeid];
+                consumeMoney = model.curval.floatValue;
             }
             
+            cardMoney += consumeMoney;
+            
+            string = [NSString stringWithFormat:@"%@!%@!%.2f!%@",model.sequenceNo,model.secretNo,consumeMoney,model.tickettypeid];
+            
             [cardInfoArray addObject:string];
+            
+            TempMoney = TempMoney - consumeMoney;
         }
-    }
-    
-    if (TempMoney < _needPayPrice) {
-        cardMoney = TempMoney;
-    }else{
-        cardMoney = _needPayPrice;
     }
     
     NSString * cardInfoString = [cardInfoArray componentsJoinedByString:@"xxx"];
@@ -504,7 +509,7 @@
             float totalMoney    = model.curval.floatValue*model.localval.floatValue;
             if (totalMoney > temp_need_pay - TempMoney)//如果该卡的总额大于需要支付的金额，计算扣除次数
             {
-                if (index != array.count) {
+                if (index != array.count && ![array[array.count-1] isKindOfClass:[MCardModel class]]) {
                     UIAlertView * alertView = [UIAlertView showWithTitle:@"温馨提示" message:@"您所选票卡超过支付金额，请删除多余票卡" cancelButtonTitle:@"知道了" otherButtonTitles:nil tapBlock:^(UIAlertView * _Nonnull alertView, NSInteger buttonIndex) {
                         
                     }];
@@ -547,6 +552,27 @@
     [self handleCouponCardWithArray:array];
 }
 
+
+#pragma mark -------   计算所填卡总额,并判断是否需要再继续增加电影卡
+-(void)totalMoneyInCard{
+    
+    NSArray * array = _dataArray[segmentControl.selectedSegmentIndex];
+    float totalMoney = 0;
+    for (id obj in array) {
+        if ([obj isKindOfClass:[MCardModel class]]) {
+            MCardModel * model = (MCardModel *)obj;
+            if (segmentControl.selectedSegmentIndex == 0)//储值卡
+            {
+                totalMoney += model.curval.floatValue;
+            }else//兑换卡
+            {
+                totalMoney += model.curval.floatValue*model.localval.floatValue;
+            }
+        }
+    }
+
+    isHiddenAdd[segmentControl.selectedSegmentIndex] = _needPayPrice <= totalMoney?YES:NO;
+}
 
 #pragma mark -----  跳转到选座界面
 -(void)popToSeatsController{

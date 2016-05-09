@@ -29,7 +29,7 @@
     [super viewDidLoad];
     self.title_label.text = @"我的订单";
     [self setMyViewControllerRightButtonType:MyViewControllerButtonTypeText WihtRightString:@"联系客服"];
-    [self setMyViewControllerLeftButtonType:MyViewControllerButtonTypelogo WihtLeftString:BACK_DEFAULT_IMAGE];
+    [self setMyViewControllerLeftButtonType:MyViewControllerButtonTypelogo WihtLeftString:@"backImage"];
     
     
     _dataArray = [NSMutableArray array];
@@ -51,7 +51,7 @@
 
 -(void)leftButtonTap:(UIButton *)sender{
     for (UIViewController * vc in self.navigationController.childViewControllers) {
-        if ([vc isKindOfClass:[MOrderListController class]]) {
+        if ([vc isKindOfClass:[MCinemaScheduleViewController class]]) {
             [self.navigationController popToViewController:vc animated:YES];
             return;
         }
