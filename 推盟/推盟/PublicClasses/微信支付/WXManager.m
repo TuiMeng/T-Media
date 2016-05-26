@@ -198,14 +198,13 @@
     
     //随机数串
     srand( (unsigned)time(0) );
-    NSString *noncestr  = [NSString stringWithFormat:@"%d", rand()];
-    NSString *orderNO   = [NSString stringWithFormat:@"%ld",time(0)];
+//    NSString *noncestr  = [NSString stringWithFormat:@"%d", rand()];
+//    NSString *orderNO   = [NSString stringWithFormat:@"%ld",time(0)];
     
     //================================
     //预付单参数订单设置
     //================================
     NSMutableDictionary *packageParams = [NSMutableDictionary dictionary];
-    
     [packageParams setObject: self.appId                                forKey:@"appid"];       //开放平台appid
     [packageParams setObject: self.mchId                                forKey:@"mch_id"];      //商户号
     [packageParams setObject: orderDevice                               forKey:@"device_info"]; //支付设备号或门店号

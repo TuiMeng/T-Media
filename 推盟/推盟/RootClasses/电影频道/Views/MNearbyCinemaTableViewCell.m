@@ -21,17 +21,29 @@
     if (self) {
         
         if (!_distance_label) {
-            _distance_label = [ZTools createLabelWithFrame:CGRectMake(DEVICE_WIDTH-65, 15, 50, 30) text:@"2.6km" textColor:RGBCOLOR(125, 125, 125) textAlignment:NSTextAlignmentRight font:10];
+            _distance_label = [ZTools createLabelWithFrame:CGRectMake(DEVICE_WIDTH-65, 15, 30, 30)
+                                                      text:@""
+                                                 textColor:RGBCOLOR(125, 125, 125)
+                                             textAlignment:NSTextAlignmentRight
+                                                      font:10];
             [self.contentView addSubview:_distance_label];
         }
         
         if (!_cinema_name_label) {
-            _cinema_name_label = [ZTools createLabelWithFrame:CGRectMake(15, 10, DEVICE_WIDTH-30-_distance_label.width-20, 18) text:@"大地影院(西三旗物美店)" textColor:RGBCOLOR(31, 31, 31) textAlignment:NSTextAlignmentLeft font:15];
+            _cinema_name_label = [ZTools createLabelWithFrame:CGRectMake(15, 10, DEVICE_WIDTH-30-_distance_label.width-20, 18)
+                                                         text:@""
+                                                    textColor:RGBCOLOR(31, 31, 31)
+                                                textAlignment:NSTextAlignmentLeft
+                                                         font:15];
             [self.contentView addSubview:_cinema_name_label];
         }
         
         if (!_address_label) {
-            _address_label = [ZTools createLabelWithFrame:CGRectMake(15, _cinema_name_label.bottom+5, _cinema_name_label.width, 15) text:@"河北省衡水市安平县大子文乡北王宋村" textColor:RGBCOLOR(125, 125, 125) textAlignment:NSTextAlignmentLeft font:12];
+            _address_label = [ZTools createLabelWithFrame:CGRectMake(15, _cinema_name_label.bottom+5, _cinema_name_label.width, 15)
+                                                     text:@""
+                                                textColor:RGBCOLOR(125, 125, 125)
+                                            textAlignment:NSTextAlignmentLeft
+                                                     font:12];
             [self.contentView addSubview:_address_label];
         }
         
@@ -50,10 +62,16 @@
             [self.contentView addSubview:_price_label];
         }
         */
+        /*
         if (!_play_time_label) {
-            _play_time_label = [ZTools createLabelWithFrame:CGRectMake(15, _address_label.bottom+5, DEVICE_WIDTH-30-_distance_label.width-20, 16) text:@"" textColor:RGBCOLOR(125, 125, 125) textAlignment:NSTextAlignmentLeft font:12];
+            _play_time_label = [ZTools createLabelWithFrame:CGRectMake(15, _address_label.bottom+5, DEVICE_WIDTH-30-_distance_label.width-20, 16)
+                                                       text:@""
+                                                  textColor:RGBCOLOR(125, 125, 125)
+                                              textAlignment:NSTextAlignmentLeft
+                                                       font:12];
             [self.contentView addSubview:_play_time_label];
         }
+         */
         
     }
     return self;
@@ -63,8 +81,8 @@
 -(void)setInfomationWithCinemasModel:(MLocationCinemasModel *)model{
     _cinema_name_label.text     = model.cinemaName;
     _address_label.text         = model.cinemaAddr;
-    _distance_label.text        = model.distance;
-    _play_time_label.text       = [NSString stringWithFormat:@"近期场次：%@",model.plans.length?model.plans:@"当天无"];
+    _distance_label.text        = model.distance.intValue?model.distance:@"";
+//    _play_time_label.text       = [NSString stringWithFormat:@"近期场次：%@",model.plans.length?model.plans:@"当天无"];
 }
 
 

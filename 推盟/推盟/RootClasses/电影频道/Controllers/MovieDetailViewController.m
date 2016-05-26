@@ -56,7 +56,7 @@
     
     self.title_label.numberOfLines = 0;
     self.title_label.text = _movie_list_model.movieName;
-    [self setMyViewControllerRightButtonType:MyViewControllerButtonTypePhoto WihtRightString:@"movie_share_image"];
+//    [self setMyViewControllerRightButtonType:MyViewControllerButtonTypePhoto WihtRightString:@"movie_share_image"];
     
     _dataArray = @[[NSMutableArray array],[NSMutableArray array]];
     
@@ -72,6 +72,7 @@
     [self loadMovieData];
     [self loadCommentsData];
     [self createSectionView];
+        
 }
 
 #pragma mark -------   分享
@@ -80,8 +81,8 @@
     [MobClick event:@"MovieShare"];
     
     SShareView * shareView = [[SShareView alloc] initWithTitles:@[SHARE_WECHAT_FRIEND,SHARE_WECHAT_CIRCLE,SHARE_TENTCENT_QQ,SHARE_SINA_WEIBO,SHARE_QZONE,SHARE_DOUBAN]
-                                                          title:_movie_list_model.movieName
-                                                        content:_movie_list_model.releaseDate
+                                                          title:[NSString stringWithFormat:@"《%@》 %@分",_movie_list_model.movieName,_movie_list_model.movieScore]
+                                                        content:[NSString stringWithFormat:@"《%@》%@上映，%@跟您一起聊聊电影中的那些事",_movie_list_model.movieName,_movie_list_model.releaseDate,APP_NAME]
                                                             Url:WEBSITEH5
                                                           image:[UIImage imageNamed:@"Icon"]
                                                        location:nil
@@ -319,14 +320,13 @@
     
     if (_movieModel) {
         starRatingView.rating           = _movieModel.scoreNum.intValue/2.0f;
-        score_label.text                = _movieModel.scoreNum;
-//        score_people_label.text         = [NSString stringWithFormat:@"%@人评分",_movieModel.scoreNum];
+        score_label.text                = [NSString stringWithFormat:@"%@",_movieModel.scoreNum];
         type_label.text                 = _movieModel.movieClass;
         play_area_time_label.text       = [NSString stringWithFormat:@"%@/%@分钟",_movieModel.movieCountry,_movieModel.duration];
         release_date_label.text         = _movieModel.releaseDate;
         introduction_label.text         = _movieModel.movieStory;
         
-        
+        NSLog(@"duration -----   %@",_movieModel.duration);
         CGSize introduction_size = [ZTools stringHeightWithFont:introduction_label.font WithString:_movieModel.movieStory WithWidth:introduction_label.width];
         introduction_label.height = introduction_size.height;
         introduction_label.text = _movieModel.movieStory;
@@ -568,9 +568,12 @@
 -(void)publishButtonClicked:(UIButton*)button{
     
     if (![ZTools isLogIn]) {
+        /*张少南
         UIStoryboard *storyboard        = [UIStoryboard storyboardWithName:@"Main" bundle:nil];
         UINavigationController * login  = (UINavigationController*)[storyboard instantiateViewControllerWithIdentifier:@"LogInViewController"];
         [self presentViewController:login animated:YES completion:nil];
+        */
+        [[LogInView sharedInstance] loginShowWithSuccess:nil];
         
         return;
     }

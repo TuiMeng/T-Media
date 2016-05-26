@@ -7,6 +7,7 @@
 //
 
 #import "ZTools.h"
+#import "UIImage+ImageEffects.h"
 
 #define IPHONE6_HEIGHT 667.0f
 #define IPHONE6_WIDTH 375.0f
@@ -15,6 +16,13 @@
 
 +(BOOL)isLogIn{
     return [[NSUserDefaults standardUserDefaults] boolForKey:LOGIN];
+}
++(NSString *)loginTime{
+    NSString * date = [[NSUserDefaults standardUserDefaults] objectForKey:LOGIN_TIME];
+    if (date.length > 0 && ![date isKindOfClass:[NSNull class]] && [date rangeOfString:@"null"].length == 0) {
+        return date;
+    }
+    return @"";
 }
 +(NSString *)getUid
 {
@@ -588,7 +596,7 @@
     
     return area;
 }
-
+//改变图片尺寸
 +(UIImage*)OriginImage:(UIImage *)image scaleToSize:(CGSize)size
 {
     UIGraphicsBeginImageContext(size);  //size 为CGSize类型，即你所需要的图片尺寸
@@ -601,6 +609,16 @@
     
     return scaledImage;   //返回的就是已经改变的图片
 }
+//图片按比例缩放
++(UIImage *)scaleImage:(UIImage *)image toScale:(float)scaleSize
+{
+    UIGraphicsBeginImageContext(CGSizeMake(image.size.width*scaleSize,image.size.height*scaleSize));
+    [image drawInRect:CGRectMake(0, 0, image.size.width * scaleSize, image.size.height *scaleSize)];
+    UIImage *scaledImage = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    return scaledImage;
+}
+
 +(NSString*)replaceUtf8CodingWithString:(NSString*)str{
     
     if (str.length==0 || [str isKindOfClass:[NSNull class]]) {
@@ -623,6 +641,7 @@
     
     return image;
 }
+//截图
 +(UIImage *)shotScreenWithView:(UIView *)view size:(CGSize)size scale:(float)zoomScale{
     UIGraphicsBeginImageContextWithOptions(size, NO, zoomScale);
     [view.layer renderInContext:UIGraphicsGetCurrentContext()];
@@ -630,6 +649,15 @@
     UIGraphicsEndImageContext();
     return uiImage;
 }
++(UIImage *)screenShotVague{
+    UIGraphicsBeginImageContextWithOptions([UIApplication sharedApplication].keyWindow.bounds.size,YES,0.0f);
+    [[UIApplication sharedApplication].keyWindow drawViewHierarchyInRect:[UIApplication sharedApplication].keyWindow.bounds afterScreenUpdates:YES];
+    UIImage *uiImage = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    UIImage * screenShot = [uiImage applyBlurWithRadius:10 tintColor:[UIColor colorWithWhite:0.2 alpha:0.3] saturationDeltaFactor:1.0 maskImage:nil];
+    
+    return screenShot;
 
+}
 
 @end

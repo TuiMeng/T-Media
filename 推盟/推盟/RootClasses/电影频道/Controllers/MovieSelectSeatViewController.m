@@ -16,7 +16,7 @@
 #define WS(weakSelf)  __weak __typeof(&*self)weakSelf = self;
 
 
-#define MAX_SEATS_LIMIT @"一次最多选择5个座位"
+#define MAX_SEATS_LIMIT @"一次最多选择4个座位"
 
 @interface MovieSelectSeatViewController (){
     UIView          * header_view;
@@ -41,7 +41,7 @@
     [super viewWillAppear:animated];
     
     if (_refreshSeatsData) {
-        [self loadData];
+        [self loadSeatsData];
     }
 }
 
@@ -60,6 +60,8 @@
     _selectedSeatArray =   [NSMutableArray arrayWithObjects:[NSMutableArray array],[NSMutableArray array], nil];
     
     [self setMainView];
+    
+    
 }
 
 -(void)leftButtonTap:(UIButton *)sender{
@@ -71,7 +73,6 @@
                                            otherButtonTitles:@[@"继续选座"]
                                                     tapBlock:^(UIAlertView * _Nonnull alertView, NSInteger buttonIndex){
             if (buttonIndex == 0) {
-                [[MovieNetWork sharedManager] releaseMovieSeatsWithOrderId:wself.orderId];
                 [wself.navigationController popViewControllerAnimated:YES];
             }
         }];
@@ -188,13 +189,11 @@
 #pragma mark -----   更新座位信息
 -(void)reloadSeats:(NSNotification *)notification{
     
-    NSLog(@"made-=-------------");
-    
-    [self loadData];
+    [self loadSeatsData];
 }
 
 #pragma mark -----  网络请求
--(void)loadData{
+-(void)loadSeatsData{
     
     [self startLoading];
     __weak typeof(self)wself = self;
@@ -225,6 +224,22 @@
         [wself setMainView];
     } failure:^(NSError *error) {
         [wself endLoading];
+    }];
+}
+#pragma mark ------   获取用户可用积分
+-(void)getUserScore{
+    NSDictionary * dic = @{@"uid":[ZTools getUid]};
+    [[ZAPI manager] sendPost:GET_USER_SCORE_URL myParams:dic success:^(id data) {
+        if ([data[ERROR_CODE] intValue] == 1) {
+            
+            NSDictionary * dic = [[NSUserDefaults standardUserDefaults] objectForKey:@"UserInfomationData"];
+            NSMutableDictionary * userInfo = [NSMutableDictionary dictionaryWithDictionary:dic];
+            [userInfo setObject:data[@"integral"] forKey:@"rest_money"];
+            [[NSUserDefaults standardUserDefaults] setObject:userInfo forKey:@"UserInfomationData"];
+        }
+        
+    } failure:^(NSError *error) {
+        
     }];
 }
 
@@ -322,12 +337,17 @@
     [MobClick event:@"MovieSelectSeats"];
     
     if (![ZTools isLogIn]) {
+        /*张少南
         UIStoryboard *storyboard        = [UIStoryboard storyboardWithName:@"Main" bundle:nil];
         UINavigationController * login  = (UINavigationController*)[storyboard instantiateViewControllerWithIdentifier:@"LogInViewController"];
         [self presentViewController:login animated:YES completion:nil];
+         */
+        [[LogInView sharedInstance] loginShowWithSuccess:nil];
         
         return;
     }
+    //获取用户可用积分
+    [self getUserScore];
     
     BOOL isSure = YES;
     
@@ -412,7 +432,7 @@
     }
     
     //锁定座位
-    MBProgressHUD * loadHUD = [ZTools showMBProgressWithText:@"订单提交中..." WihtType:MBProgressHUDModeText addToView:self.view isAutoHidden:NO];
+    MBProgressHUD * loadHUD = [ZTools showMBProgressWithText:@"订单提交中..." WihtType:MBProgressHUDModeIndeterminate addToView:self.view isAutoHidden:NO];
     
     __weak typeof(self)wself = self;
     NSArray * seatsInfoArray = [self getTickets];

@@ -8,21 +8,10 @@
 
 #import "BaseModel.h"
 
-
-@interface SubCityModel : BaseModel
+@interface MovieCityModel : BaseModel
 
 @property(nonatomic,strong)NSString * cityId;
 @property(nonatomic,strong)NSString * cityName;
 
-@end
-
-
-@interface MovieCityModel : BaseModel
-
-@property(nonatomic,strong)NSString * province;
-
-@property(nonatomic,strong)NSMutableArray * city_array;
-
--(id)initWithDictionary:(NSDictionary *)dic;
 
 @end

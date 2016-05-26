@@ -90,8 +90,6 @@
     
     _myTableView.tableFooterView = [[UIView alloc] initWithFrame:CGRectZero];
     
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(reloadPersonalInfomation:) name:@"modifyUserInfomation" object:nil];
-    
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(successReloadUserInfomation:) name:@"SuccessReloadPersonalInfomation" object:nil];
 }
 
@@ -114,17 +112,12 @@
     }
     
     if ([ZTools getGrade] == 2) {
-        _title_array = [NSMutableArray arrayWithObjects:PHONE_NUM_STRING,USER_NAME_STRING,USER_LEVEL_STRING,PASS_WORLD_STRING,USER_SEX_STRING,USER_AGE_STRING,USER_AREA_STRING,USER_JOB_STRING,USER_HOBBY_STRING,nil];
+        _title_array = [NSMutableArray arrayWithObjects:PHONE_NUM_STRING,USER_NAME_STRING,USER_LEVEL_STRING,USER_SEX_STRING,USER_AGE_STRING,USER_AREA_STRING,USER_JOB_STRING,USER_HOBBY_STRING,nil];
     }else{
-        _title_array = [NSMutableArray arrayWithObjects:@[PHONE_NUM_STRING,USER_NAME_STRING,USER_LEVEL_STRING,PASS_WORLD_STRING],@[USER_SEX_STRING,USER_AGE_STRING,USER_AREA_STRING,USER_JOB_STRING,USER_HOBBY_STRING], nil];
+        _title_array = [NSMutableArray arrayWithObjects:@[PHONE_NUM_STRING,USER_NAME_STRING,USER_LEVEL_STRING],@[USER_SEX_STRING,USER_AGE_STRING,USER_AREA_STRING,USER_JOB_STRING,USER_HOBBY_STRING], nil];
     }
 }
 
-#pragma mark -------   用户名修改通知
--(void)reloadPersonalInfomation:(NSNotification*)sender{
-//    [self setup];
-//    [_myTableView reloadData];
-}
 -(void)leftButtonTap:(UIButton *)sender{
     
     if (self.navigationItem.rightBarButtonItem.enabled) {
@@ -712,7 +705,6 @@
 }
 
 -(void)dealloc{
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:@"modifyUserInfomation" object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:@"SuccessReloadPersonalInfomation" object:nil];
 }
 

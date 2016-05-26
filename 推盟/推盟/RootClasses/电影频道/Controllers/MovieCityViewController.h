@@ -10,7 +10,7 @@
 #import "MovieCityModel.h"
 
 
-typedef void(^MovieCityViewControllerBlock)(SubCityModel * model);
+typedef void(^MovieCityViewControllerBlock)(MovieCityModel * model);
 
 @interface MovieCityViewController : MyViewController{
     MovieCityViewControllerBlock city_block;

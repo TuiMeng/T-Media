@@ -22,8 +22,7 @@
 //CoreData
 #import <MagicalRecord/MagicalRecord.h>
 #import "DefaultConstant.h"
-#import "AFHTTPRequestOperation.h"
-#import "AFHTTPRequestOperationManager.h"
+#import "AFHTTPSessionManager.h"
 #import "JSONKit.h"
 #import "UIImageView+WebCache.h"
 #import "SDCycleScrollView.h"
@@ -45,7 +44,7 @@
 #import "SView.h"
 #import "SAlertView.h"
 #import "SShareView.h"
-#import "LogInViewController.h"
+#import "LogInView.h"
 #import "SWebViewController.h"
 #import "STableViewCell.h"
 #import "DJWStarRatingView.h"
@@ -84,6 +83,8 @@
 #define LOGIN @"login"
 #define UID @"uid"
 #define PHONE_NUMBER @"phone_number"
+//登录时间
+#define LOGIN_TIME @"loginTime"
 //ip地址
 #define IP_ADRESS @"ip_area"
 //手机号码地区

@@ -106,7 +106,7 @@
         
         if (!_getCodeButton) {
             _getCodeButton = [ZTools createButtonWithFrame:CGRectZero
-                                                     title:@"获取取票码"
+                                                     title:@"重新获取取票码"
                                                      image:nil];
             _getCodeButton.titleLabel.font = [ZTools returnaFontWith:12];
             [_getCodeButton addTarget:self action:@selector(getCodeClicked:) forControlEvents:UIControlEventTouchUpInside];
@@ -196,7 +196,7 @@
         }];
         
         [_getCodeButton mas_makeConstraints:^(MASConstraintMaker *make) {
-            make.width.equalTo(@(80));
+            make.width.equalTo(@(90));
             make.height.equalTo(@(25));
             make.right.equalTo(@(-INDENT));
             make.top.equalTo(_seatsLabel.mas_bottom).with.offset(5);
@@ -216,22 +216,22 @@
 -(void)setInfomationWithOrderModel:(MovieOrderListModel *)model{
     info = model;
     _orderIdLebel.text      = [NSString stringWithFormat:@"订单编号：%@",model.pay_no];
-    _orderDateLabel.text    = [ZTools timechangeWithTimestamp:model.order_data WithFormat:@"YYYY-MM-dd HH:mm"];
+    _orderDateLabel.text    =  model.feature_time;//[ZTools timechangeWithTimestamp:model.order_data WithFormat:@"YYYY-MM-dd HH:mm"];
     _movieNameLabel.text    = [NSString stringWithFormat:@"影片：《%@》",model.movie_name];
     _cinemaNameLabel.text   = [NSString stringWithFormat:@"影院：%@  %@",model.cinema_name,model.hall_name];
     _playDateLabel.text     = [NSString stringWithFormat:@"放映时间：%@",model.feature_time];
-    _seatsLabel.text        =[NSString stringWithFormat:@"座位：%@  共%@张",model.ticket_desc,model.tickts_amount];
+    _seatsLabel.text        = [NSString stringWithFormat:@"座位：%@  共%@张",model.ticket_desc,model.tickts_amount];
     _totalMoneyLabel.text   = [NSString stringWithFormat:@"总金额：%@元",model.all_money];
     
-    if (model.integral.intValue==0 && model.status.integerValue != 2) {
+    if (model.integral.intValue==0) {
         _scoreNumLabel.hidden = YES;
-    }else if(model.integral.intValue != 0 && model.status.intValue == 2){
+    }else if(model.integral.intValue != 0 && model.status.intValue == 1){
         _scoreNumLabel.hidden   = NO;
         _scoreNumLabel.text     = [NSString stringWithFormat:@"使用积分%d，已为您节省%@元",model.integral.intValue*10,model.integral];
     }
     
-    _orderStatusLabel.text = model.status.intValue == 2?@"交易完成":@"交易失败";
-    _getCodeButton.hidden = model.status.intValue==2?NO:YES;
+    _orderStatusLabel.text = model.status.intValue == 1?@"交易完成":@"交易失败";
+    _getCodeButton.hidden = model.status.intValue==1?NO:YES;
 }
 
 -(void)getTicketCodeClicked:(MOrderGetTicketCodeBlock)block{

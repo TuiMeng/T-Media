@@ -27,15 +27,17 @@
 #define WECHAT_MCHID        @"1319234701"
 //商户API密钥，填写相应参数
 #define PARTNER_ID          @"34EE39AE4A5262A220781A78A1DC4F6D"
-#define WECHAT_CALLBACK_URL @"http://test.twttmob.com/Test_version/include/wxpay/xmkp_notify.php"
+#define WECHAT_CALLBACK_URL [NSString stringWithFormat:@"%@/Test_version/include/wxpay/xmkp_notify.php",WEBSITE]  
 
 //高德地图key
 #define AMAP_KEY            @"5ec3a1c302941db6046f74f673259efa"
 
 
-#define WEBSITE @"http://www.twttmob.com"
+#define WEBSITE @"http://test.twttmob.com"
 
 #define WEBSITEH5 @"http://h5.twttmob.com/tuimengapp/"
+//游戏中心地址
+#define GAME_SITE @"http://gc.hgame.com/home/index/appid/100465"
 
 #pragma mark - 图片
 #define NAVIGATION_IMAGE [UIImage imageNamed:@"navigation_image"]
@@ -43,6 +45,8 @@
 //加载默认图图片
 #define DEFAULT_LOADING_BIG_IMAGE @"default_loading_big_image"
 #define DEFAULT_LOADING_SMALL_IMAGE @"default_loading_small_image"
+//图形验证码loading图片
+#define DEFAULT_VERIFY_LOADING_IMAGE @"vericationCodeLoadingImage"
 
 #define CURRENT_BUILD   [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleVersion"]
 #define CURRENT_VERSION [[[NSBundle mainBundle] infoDictionary] valueForKey:@"CFBundleShortVersionString"]
@@ -52,7 +56,6 @@
 #pragma mark 所有接口
 #pragma mark -----------域名--------------
 //#define BASE_URL          @"http://www.twttmob.com/api.php"
-//#define BASE_URL            @"http://www.twttmob.com/apinew.php"
 #define BASE_URL            @"http://test.twttmob.com/test_version.php"
 
 //#define  BASE_MOVIE_URL     @"http://www.yingmile.com/tmmobile/mobile/"
@@ -60,57 +63,8 @@
 //电影频道图片地址域名
 #define BASE_MOVIE_IMAGE_URL @"http://www.yingmile.com/yml_img"
 
-
-/*
-#pragma mark - 获取开屏广告
-#define GET_GUANGGAO_IMAGE_URL @"http://112.126.68.189/api.php?m=Ad&a=getAd"
-#pragma mark -------------  获取最新版本号 -----
-#define GET_NOW_VERSION_URL @"http://www.twttmob.com/api.php/Task/getVersion"
-
-#pragma mark - 注册登陆相关
-///获取验证码
-//#define GET_REGISTER_URL @"http://112.126.68.189/api.php?m=User&a=get_code"
-///张少南
-#define GET_REGISTER_URL @"http://www.twttmob.com/apinew.php?m=User&a=e_point_getcode"
-
-#pragma mark - 注册
-//#define ZHUCE_URL @"http://112.126.68.189/api.php?m=User&a=register"
-#define ZHUCE_URL @"http://www.twttmob.com/apinew.php?m=User&a=e_point_register"
-
-#pragma mark - 检测验证码是否正确
-#define CHECK_YANZHENGMA_URL @"http://112.126.68.189/api.php?m=User&a=VerifiCode"
-
-#pragma mark - 登陆
-#define LOGIN_URL @"http://112.126.68.189/api.php?m=User&a=login"
-
-#pragma mark - 修改密码发送验证码
-#define PASSWORD_YANZHENGMA_URL @"http://112.126.68.189/api.php?m=User&a=forget_code"
-
-#pragma mark - 修改密码接口
-#define PASSWORD_MODIFY_URL @"http://112.126.68.189/api.php?m=User&a=forget_pwd"
-
-#pragma mark - 分享接口
-#define SHARE_URL @"http://112.126.68.189/api.php?m=Task&a=share&task_id=%@&user_id=%@&share_type=%@&from_type=1"
-
-#pragma mark - 分享详情url
-#define SHARE_CONTENT_URL @"http://www.twttmob.com/api.php?m=Task&a=record&user_id=%@&task_id=%@"
-
-#pragma mark - 获取用户积分情况
-#define GET_SCORE_URL @"http://112.126.68.189/api.php?m=User&a=user_points&user_id=%@"
-
-#define GET_USER_TASKS_URL @"http://112.126.68.189/api.php?m=User&a=user_task&user_id=%@&task_status=%d"
-#pragma mark - 绑定银行卡
-#define BIND_BANK_URL @"http://www.twttmob.com/api.php/Apply/bindAccount"
-#pragma mark - 修改绑定的银行卡信息
-#define MODIFY_BANK_INFO_URL @"http://112.126.68.189/api.php?m=Apply&a=up_bank"
-
-#pragma mark - 获取任务标题
-#define GET_TASK_TITLE_URL @"http://112.126.68.189/api.php?m=Task&a=title&task_id=%@"
-#pragma mark - 用户提现
-#define APPLY_MONEY_URL @"http://112.126.68.189/api.php?m=Apply&a=sub"
-*/
-
-
+#pragma mark -----------------  图形验证码地址
+#define T_VERICATION_CODE_IMAGE_URL(dateline) [NSString stringWithFormat:@"http://test.twttmob.com/Test_version/Tpl/Public/phpyzm/code_gg.php?%@",dateline]
 
 #pragma mark --========== 新增接口 ===========
 #pragma mark -------  首页 获取所有标签接口
@@ -160,20 +114,25 @@
 
 #pragma mark **************  获取个人信息
 #define GET_USERINFOMATION_URL [NSString stringWithFormat:@"%@?m=User&a=e_point_userinfo",BASE_URL]
-
+#pragma mark --------------  获取用户可用积分接口
+#define GET_USER_SCORE_URL      [NSString stringWithFormat:@"%@?m=Task&a=find_integral",BASE_URL]
 
 #pragma mark  *******************  接口修改  ********************
 #pragma mark ------   注册登录相关  ——————————————————
-/// 获取验证码接口
+/// 获取注册验证码接口
 #define GET_REGISTER_URL [NSString stringWithFormat:@"%@?m=User&a=e_point_getcode",BASE_URL]
 /// 注册接口
 #define ZHUCE_URL [NSString stringWithFormat:@"%@?m=User&a=e_point_register",BASE_URL]
 /// 检测验证码是否正确
 #define CHECK_YANZHENGMA_URL [NSString stringWithFormat:@"%@?m=User&a=e_point_VerifiCode",BASE_URL]
+//获取登录验证码
+#define LOGIN_VERIFICATION_CODE_URL [NSString stringWithFormat:@"%@?m=User&a=login_getCode",BASE_URL]
 /// 登录接口
-#define LOGIN_URL [NSString stringWithFormat:@"%@?m=User&a=e_point_login",BASE_URL]
+#define LOGIN_URL [NSString stringWithFormat:@"%@?m=User&a=getCode",BASE_URL]
 ///退出登录接口
 #define LOG_OUT_URL [NSString stringWithFormat:@"%@?m=User&a=e_point_logout",BASE_URL]
+//增加邀请码接口
+#define LOG_ADD_INVITATION_URL [NSString stringWithFormat:@"%@?m=User&a=user_invite",BASE_URL]
 /// 修改密码获取验证码
 #define PASSWORD_YANZHENGMA_URL [NSString stringWithFormat:@"%@?m=User&a=e_point_forgetcode",BASE_URL]
 /// 修改密码接口
@@ -187,7 +146,7 @@
 
 #pragma mark  -----------  用户信息相关 -----------------
 ///绑定银行卡
-#define BIND_BANK_URL [NSString stringWithFormat:@"%@/Apply/e_point_bindAccount",BASE_URL]
+#define BIND_BANK_URL [NSString stringWithFormat:@"%@?m=Apply&a=e_point_bindAccount",BASE_URL]
 ///修改绑定银行卡信息
 #define MODIFY_BANK_INFO_URL [NSString stringWithFormat:@"%@?m=Apply&a=e_point_upbank",BASE_URL]
 ///用户提现
@@ -199,7 +158,8 @@
 #define GET_TASK_TITLE_URL [NSString stringWithFormat:@"%@?m=Task&a=e_point_title",BASE_URL]
 ///获取用户分享任务
 #define GET_USER_TASKS_URL [NSString stringWithFormat:@"%@?m=User&a=e_point_usertask",BASE_URL]
-
+//上传任务转发图片接口
+#define TASK_UPLOAD_IMAGE_URL [NSString stringWithFormat:@"%@?m=User&a=upload_forward_image",BASE_URL]
 
 #pragma mark ——————————   系统相关  ——————————————————
 ///获取开屏广告
@@ -217,7 +177,7 @@
 //发表电影评论
 #define M_PUBLISH_COMMENTS_URL [NSString stringWithFormat:@"%@addTmMovieScore?",BASE_MOVIE_URL]
 //所有地区
-#define GET_ALL_CITY_URL [NSString stringWithFormat:@"%@qrCitys",BASE_MOVIE_URL]
+#define GET_ALL_CITY_URL [NSString stringWithFormat:@"%@qrCitysByCinemas",BASE_MOVIE_URL]
 #define SEARCH_NEARBY_CINEMAS_URL [NSString stringWithFormat:@"%@qrLocalCinemas?",BASE_MOVIE_URL]
 //查看电影放映场次
 #define QUERY_MOVIE_PLAY_TIME_URL [NSString stringWithFormat:@"%@qrMovieSequences?",BASE_MOVIE_URL]

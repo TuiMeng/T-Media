@@ -46,7 +46,6 @@
 }
 -(void)viewWillDisappear:(BOOL)animated{
     [super viewWillDisappear:animated];
-    [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
 -(void)setMyViewControllerLeftButtonType:(MyViewControllerButtonType)lType WihtLeftString:(NSString *)lString{
@@ -391,6 +390,8 @@
     self.title_label    = nil;
     location_failed_block = nil;
     location_manager_success_block = nil;
+    
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
 /*

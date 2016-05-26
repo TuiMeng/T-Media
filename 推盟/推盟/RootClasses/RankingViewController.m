@@ -121,6 +121,10 @@
 #pragma mark ------   登录
 -(void)logInTap:(UITapGestureRecognizer*)sender{
     [self performSegueWithIdentifier:@"showLogInSegue" sender:@"rangking"];
+    __weak typeof(self)wself = self;
+    [[LogInView sharedInstance] loginShowWithSuccess:^{
+        [wself loadListData];
+    }];
 }
 
 - (void)didReceiveMemoryWarning {
@@ -134,18 +138,18 @@
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
     // Get the new view controller using [segue destinationViewController].
     // Pass the selected object to the new view controller.
-    if ([segue.identifier isEqualToString:@"showLogInSegue"]){
-        UINavigationController * navc = (UINavigationController*)segue.destinationViewController;
-        LogInViewController * login;
-        for (UIViewController * vc in navc.viewControllers) {
-            if ([vc isKindOfClass:[LogInViewController class]]) {
-                login = (LogInViewController*)vc;
-                [login successLogin:^(NSString *source) {
-                    [self loadListData];
-                }];
-            }
-        }
-    }
+//    if ([segue.identifier isEqualToString:@"showLogInSegue"]){
+//        UINavigationController * navc = (UINavigationController*)segue.destinationViewController;
+//        LogInViewController * login;
+//        for (UIViewController * vc in navc.viewControllers) {
+//            if ([vc isKindOfClass:[LogInViewController class]]) {
+//                login = (LogInViewController*)vc;
+//                [login successLogin:^(NSString *source) {
+//                    [self loadListData];
+//                }];
+//            }
+//        }
+//    }
 }
 
 

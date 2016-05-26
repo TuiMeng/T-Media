@@ -214,12 +214,10 @@
         [dic setObject:bankName_string forKey:@"bank"];
     }
     
-    
     __weak typeof(self)bself = self;
     [[ZAPI manager] sendPost:BIND_BANK_URL myParams:dic success:^(id data) {
         if (data && [data isKindOfClass:[NSDictionary class]]) {
-            NSLog(@"allDic ----  %@",data);
-            if ([[data objectForKey:@"status"] intValue] == 1)
+            if ([[data objectForKey:ERROR_CODE] intValue] == 1)
             {
                 hud.labelText = @"绑定成功";
                 [[NSNotificationCenter defaultCenter] postNotificationName:@"modifyUserInfomation" object:nil];
@@ -227,7 +225,7 @@
             }else
             {
                 [hud hide:YES];
-                [ZTools showErrorWithStatus:[data objectForKey:@"status"] InView:self.view isShow:YES];
+                [ZTools showMBProgressWithText:data[ERROR_INFO] WihtType:MBProgressHUDModeText addToView:bself.view isAutoHidden:YES];
             }
         }
     } failure:^(NSError *error) {

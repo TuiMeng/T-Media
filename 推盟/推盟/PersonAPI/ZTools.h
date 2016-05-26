@@ -12,6 +12,8 @@
 @interface ZTools : NSObject
 //判断是否登陆
 +(BOOL)isLogIn;
+//获取上次登录时间
++(NSString *)loginTime;
 //获取uid
 +(NSString *)getUid;
 //获取用户电话号码
@@ -165,6 +167,10 @@
  */
 +(UIImage*)OriginImage:(UIImage *)image scaleToSize:(CGSize)size;
 /**
+ *  图片按比例缩放
+ */
++(UIImage *)scaleImage:(UIImage *)image toScale:(float)scaleSize;
+/**
  *  将目标字符串转换成utf8格式
  */
 +(NSString*)replaceUtf8CodingWithString:(NSString*)str;
@@ -176,6 +182,10 @@
  *  截屏
  */
 +(UIImage *)shotScreenWithView:(UIView *)view size:(CGSize)size scale:(float)zoomScale;
+/**
+ *  截屏并模糊处理
+ */
++(UIImage *)screenShotVague;
 
 @end
 

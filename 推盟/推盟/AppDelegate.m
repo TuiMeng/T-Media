@@ -62,14 +62,15 @@
      */
     [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent];
     
-    
-    
-    NSUserDefaults * userDefault = [NSUserDefaults standardUserDefaults];
-    if (![[userDefault valueForKey:@"isNeedToShowGuildView"] isEqualToString:CURRENT_BUILD]) {
-        [self shwoIntroductionView];
-    }else{
-        [self showAdvertisementView];
-    }
+    //显示广告页面
+    [self showAdvertisementView];
+    //判断是否显示介绍页面
+//    NSUserDefaults * userDefault = [NSUserDefaults standardUserDefaults];
+//    if (![[userDefault valueForKey:@"isNeedToShowGuildView"] isEqualToString:CURRENT_BUILD]) {
+//        [self shwoIntroductionView];
+//    }else{
+//        [self showAdvertisementView];
+//    }
     
     //内存管理
     //网页缓存
@@ -81,6 +82,23 @@
     [[SDImageCache sharedImageCache] cleanDiskWithCompletionBlock:^{
         
     }];
+    
+    /**
+     *  判断上次登录时间，如果超过5天则退出登录
+     */
+    NSString * loginDate = [ZTools loginTime];
+    if (loginDate) {
+        NSString * now = [ZTools timechangeToDateline];
+        if (now.floatValue - loginDate.floatValue >= 5*24*60*60) {
+            [ZTools logOut];
+        }
+    }
+    
+    //判断该次是否显示升级高级用户提醒
+    int flag = [[[NSUserDefaults standardUserDefaults] objectForKey:@"generalUserTips"] intValue];
+    if (!flag) {
+        [[NSUserDefaults standardUserDefaults] setObject:@"0" forKey:@"updateInfoLater"];
+    }
     
     return YES;
 }

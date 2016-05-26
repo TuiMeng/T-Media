@@ -28,25 +28,44 @@
         queue.maxConcurrentOperationCount = 1;
     }
     
-    NSURL *url = [NSURL URLWithString:[MOVIE_RELEASE_SEAT_URL stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
-    // 获取参数
-    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
-    [request setHTTPMethod:@"POST"];
-    [request setHTTPBody:[self buildData:@{@"pay_no":orderId.length?orderId:@""}]];
+//    NSURL *url = [NSURL URLWithString:[MOVIE_RELEASE_SEAT_URL stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
+//    // 获取参数
+//    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
+//    [request setHTTPMethod:@"POST"];
+//    [request setHTTPBody:[self buildData:@{@"pay_no":orderId.length?orderId:@""}]];
+//
+//    AFHTTPRequestOperation *operation = [[AFHTTPRequestOperation alloc]initWithRequest:request];
+//    
+//    [operation setCompletionBlockWithSuccess:^(AFHTTPRequestOperation *operation, id responseObject) {
+//        NSString *html = operation.responseString;
+//        NSData* data=[html dataUsingEncoding:NSUTF8StringEncoding];
+//        id dict=[NSJSONSerialization  JSONObjectWithData:data options:0 error:nil];
+//        NSLog(@"获取到的数据为：%@",dict);
+//        
+//    }failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+//        NSLog(@"发生错误！%@",error);
+//    }];
+//    
+//    [queue addOperation:operation];
+    
+    
+    AFHTTPSessionManager * sessionManager = [AFHTTPSessionManager manager];
+    sessionManager.requestSerializer = [AFHTTPRequestSerializer serializer];
+    sessionManager.responseSerializer = [AFHTTPResponseSerializer serializer];
+    
+    NSURLSessionDataTask * task = [sessionManager POST:[MOVIE_RELEASE_SEAT_URL stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]
+                                            parameters:@{@"pay_no":orderId.length?orderId:@""}
+                                              progress:^(NSProgress * _Nonnull uploadProgress) {
+                                                  
+                                              } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+                                                  NSLog(@"task ----  %@",task);
+                                                  NSData* data= (NSData *)responseObject;
+                                                  id dict=[NSJSONSerialization  JSONObjectWithData:data options:0 error:nil];
+                                                  NSLog(@"获取到的数据为：%@",dict);
+                                              } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+                                                  NSLog(@"error ----  %@",error);
+                                              }];
 
-    AFHTTPRequestOperation *operation = [[AFHTTPRequestOperation alloc]initWithRequest:request];
-    
-    [operation setCompletionBlockWithSuccess:^(AFHTTPRequestOperation *operation, id responseObject) {
-        NSString *html = operation.responseString;
-        NSData* data=[html dataUsingEncoding:NSUTF8StringEncoding];
-        id dict=[NSJSONSerialization  JSONObjectWithData:data options:0 error:nil];
-        NSLog(@"获取到的数据为：%@",dict);
-        
-    }failure:^(AFHTTPRequestOperation *operation, NSError *error) {
-        NSLog(@"发生错误！%@",error);
-    }];
-    
-    [queue addOperation:operation];
 }
 
 -(void)checkCityIdWitCityName:(NSString *)name success:(void(^)(NSString * id))success failure:(void(^)(NSString *error))failure{

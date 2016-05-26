@@ -17,6 +17,8 @@
 		0B0F89FE1B8FF77300C9DB68 /* NSTimer+Addition.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B0F89FB1B8FF77300C9DB68 /* NSTimer+Addition.m */; };
 		0B0F8A011B90051500C9DB68 /* FocusImageModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B0F8A001B90051500C9DB68 /* FocusImageModel.m */; };
 		0B0F8A041B902F0F00C9DB68 /* RootTopTitleModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B0F8A031B902F0F00C9DB68 /* RootTopTitleModel.m */; };
+		0B13FC751CEC3FF5007511D1 /* LogInView.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B13FC741CEC3FF5007511D1 /* LogInView.m */; };
+		0B13FC7A1CEC4B4F007511D1 /* UIImage+ImageEffects.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B13FC791CEC4B4F007511D1 /* UIImage+ImageEffects.m */; };
 		0B1F2D1B1B8D684B002050E4 /* InvitationTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B1F2D1A1B8D684B002050E4 /* InvitationTableViewCell.m */; };
 		0B1F2D1E1B8D6868002050E4 /* InvitationModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B1F2D1D1B8D6868002050E4 /* InvitationModel.m */; };
 		0B1F2D211B8D8D01002050E4 /* ApplyRecordModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B1F2D201B8D8D01002050E4 /* ApplyRecordModel.m */; };
@@ -212,6 +214,10 @@
 		0B0F8A001B90051500C9DB68 /* FocusImageModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FocusImageModel.m; sourceTree = "<group>"; };
 		0B0F8A021B902F0F00C9DB68 /* RootTopTitleModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RootTopTitleModel.h; sourceTree = "<group>"; };
 		0B0F8A031B902F0F00C9DB68 /* RootTopTitleModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RootTopTitleModel.m; sourceTree = "<group>"; };
+		0B13FC731CEC3FF5007511D1 /* LogInView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LogInView.h; sourceTree = "<group>"; };
+		0B13FC741CEC3FF5007511D1 /* LogInView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LogInView.m; sourceTree = "<group>"; };
+		0B13FC781CEC4B4F007511D1 /* UIImage+ImageEffects.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+ImageEffects.h"; sourceTree = "<group>"; };
+		0B13FC791CEC4B4F007511D1 /* UIImage+ImageEffects.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImage+ImageEffects.m"; sourceTree = "<group>"; };
 		0B1F2D191B8D684B002050E4 /* InvitationTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = InvitationTableViewCell.h; sourceTree = "<group>"; };
 		0B1F2D1A1B8D684B002050E4 /* InvitationTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = InvitationTableViewCell.m; sourceTree = "<group>"; };
 		0B1F2D1C1B8D6868002050E4 /* InvitationModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = InvitationModel.h; sourceTree = "<group>"; };
@@ -574,6 +580,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		0B13FC771CEC4B44007511D1 /* UIImage */ = {
+			isa = PBXGroup;
+			children = (
+				0B13FC781CEC4B4F007511D1 /* UIImage+ImageEffects.h */,
+				0B13FC791CEC4B4F007511D1 /* UIImage+ImageEffects.m */,
+			);
+			path = UIImage;
+			sourceTree = "<group>";
+		};
 		0B2F6D401C2A4611002BCD80 /* UMCheckUpdate */ = {
 			isa = PBXGroup;
 			children = (
@@ -900,6 +915,7 @@
 				0B9613811B6877D3001DB0B0 /* 轮播图 */,
 				0B9613161B677F0E001DB0B0 /* 友盟 */,
 				0B9613541B677F0E001DB0B0 /* UIView+Frame */,
+				0B13FC771CEC4B44007511D1 /* UIImage */,
 			);
 			path = PublicClasses;
 			sourceTree = "<group>";
@@ -1119,6 +1135,8 @@
 			children = (
 				0B96139D1B68DA22001DB0B0 /* LogInViewController.h */,
 				0B96139E1B68DA22001DB0B0 /* LogInViewController.m */,
+				0B13FC731CEC3FF5007511D1 /* LogInView.h */,
+				0B13FC741CEC3FF5007511D1 /* LogInView.m */,
 				0B9613A01B68DBBF001DB0B0 /* RegisterViewController.h */,
 				0B9613A11B68DBBF001DB0B0 /* RegisterViewController.m */,
 				0B9613A31B68E058001DB0B0 /* FindPWViewController.h */,
@@ -1466,6 +1484,7 @@
 				0BB3D7101C92BBCB00FA9EB6 /* KyoButton.m in Sources */,
 				0BB3D6FC1C911A5800FA9EB6 /* MSelectSeatView.m in Sources */,
 				0B296A421B9C128D00E64E6C /* ProtocalViewController.m in Sources */,
+				0B13FC7A1CEC4B4F007511D1 /* UIImage+ImageEffects.m in Sources */,
 				0B87B2311C3CBC990032D981 /* UserInfoCenterViewController.m in Sources */,
 				0B5E4FF51B8B0AF1004C2B98 /* GiftRecordModel.m in Sources */,
 				0B00A0F31CA00B7D00E776C4 /* WXUtil.m in Sources */,
@@ -1529,6 +1548,7 @@
 				0BB827351CA8FEC100BC4DDD /* TopicCommentCell.m in Sources */,
 				0B0B9DD51CC0D32A00B01A39 /* SMapViewController.m in Sources */,
 				0B487F6B1B81B26600A0BA42 /* GiftListCell.m in Sources */,
+				0B13FC751CEC3FF5007511D1 /* LogInView.m in Sources */,
 				0B9612EE1B677776001DB0B0 /* main.m in Sources */,
 				0BB3D7061C911AB700FA9EB6 /* KyoCenterLineView.m in Sources */,
 				0BB5E71F1CAA554600C262B3 /* MCardPayCell.m in Sources */,

@@ -29,7 +29,7 @@
     [super viewDidLoad];
     self.title_label.text = @"我的订单";
     [self setMyViewControllerRightButtonType:MyViewControllerButtonTypeText WihtRightString:@"联系客服"];
-    [self setMyViewControllerLeftButtonType:MyViewControllerButtonTypelogo WihtLeftString:@"backImage"];
+    [self setMyViewControllerLeftButtonType:MyViewControllerButtonTypePhoto WihtLeftString:@"backImage"];
     
     
     _dataArray = [NSMutableArray array];
@@ -110,13 +110,13 @@
 -(void)sendTicketCodeWithPayno:(NSString *)pay_no{
     __WeakSelf__ wself = self;
     [self startLoading];
-    [[ZAPI manager] sendMoviePost:MOVIE_SEND_TICKERCODE_URL myParams:@{@"pay_no":pay_no,@"":[ZTools getUid]} success:^(id data) {
+    [[ZAPI manager] sendMoviePost:MOVIE_SEND_TICKERCODE_URL myParams:@{@"pay_no":pay_no} success:^(id data) {
         [wself endLoading];
         if (data && [data isKindOfClass:[NSDictionary class]]) {
             if ([data[ERROR_CODE] intValue] == 1) {
-                
-            }else{
                 [ZTools showMBProgressWithText:@"取票码已发送到您的手机上，请注意查收" WihtType:MBProgressHUDModeText addToView:wself.view isAutoHidden:YES];
+            }else{
+                [ZTools showMBProgressWithText:data[ERROR_INFO] WihtType:MBProgressHUDModeText addToView:wself.view isAutoHidden:YES];
             }
         }else{
             [ZTools showMBProgressWithText:@"请求失败" WihtType:MBProgressHUDModeText addToView:wself.view isAutoHidden:YES];

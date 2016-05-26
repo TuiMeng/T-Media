@@ -88,12 +88,15 @@
     removeBlock();
 }
 
--(void)setInfomationWithCardModel:(MCardModel *)model WithType:(int)type withPrice:(float)price{
+-(void)setInfomationWithCardModel:(id)info WithType:(int)type withPrice:(float)price{
     
-    _cardPWTextField.placeholder        = type?@"请输入票面密码":@"请输入支付密码";
-    _cardNumTextField.placeholder       = type?@"输入顺序号":@"输入序列号";
+    _cardPWTextField.placeholder        = (type==0||type==1)?@"请输入支付密码":@"请输入票面密码";
+    _cardNumTextField.placeholder       = (type==0||type==1)?@"请输入顺序号":@"请输入序列号";
     
-    BOOL isTure = model && [model isKindOfClass:[MCardModel class]];
+    
+    MCardModel * model = (MCardModel *)info;
+    
+    BOOL isTure = (model && [model isKindOfClass:[MCardModel class]]);
     _cardNumTextField.text      = isTure?model.sequenceNo:@"";
     _cardPWTextField.text       = isTure?model.secretNo:@"";
     _cardInfoLabel.hidden       = !isTure;
@@ -102,19 +105,22 @@
     _removeButton.top           = _doneButton.top;
     [_doneButton setTitle:isTure?@"添加":@"确定" forState:UIControlStateNormal];
     _backView.height            = isTure?170:140;
-
     
-    if (type)//兑换券
+    if (type == 2)//兑换券
     {
         _cardInfoLabel.text         = isTure?[NSString stringWithFormat:@"卡状态：%@          剩余次数：%@          单次金额：%@",model.status,model.curval,model.localval]:@"";
         //判断钱数够得话，隐藏添加按钮
         _doneButton.hidden          = isTure?([model.curval intValue]*[model.localval intValue] > price?YES:NO):NO;
-    }else//储值卡
+    }else if(type == 0)//储值卡
     {
-        _cardInfoLabel.text         = isTure?[NSString stringWithFormat:@"卡状态：%@          余额：%@",model.status,model.curval]:@"";
-        
-        //判断钱数够得话，隐藏添加按钮
-        _doneButton.hidden          = isTure?([model.curval floatValue] > price?YES:NO):NO;
+        _cardInfoLabel.text         = isTure?[NSString stringWithFormat:@"卡状态：%@                余额：%@",model.status,model.curval]:@"";
+        //只允许使用一张储值卡
+        _doneButton.hidden          = isTure;
+    }else if(type == 1)//计次卡
+    {
+        _cardInfoLabel.text         = isTure?[NSString stringWithFormat:@"卡状态：%@          剩余次数：%@          单次金额：%@",model.status,model.curval,model.localval]:@"";
+        //只允许使用一张计次卡
+        _doneButton.hidden          = isTure;
     }
 }
 

@@ -55,9 +55,9 @@
     
     _data_array = [NSMutableArray arrayWithObjects:[NSMutableArray array],[NSMutableArray array],nil];
     
-    _myTableView.refreshDelegate = self;
-    _myTableView.dataSource = self;
-    _myTableView.tableFooterView = nil;
+    _myTableView.isHaveMoreData     = NO;
+    _myTableView.refreshDelegate    = self;
+    _myTableView.dataSource         = self;
     _myTableView.tableHeaderView.frame = CGRectMake(0,0,0,300);
     
     current_index = 0;
@@ -258,7 +258,7 @@
     }else if(_info.grade.intValue == 1){
         [user_level_button setTitle:@"普通用户" forState:UIControlStateNormal];
         
-        int flag = [[[NSUserDefaults standardUserDefaults] objectForKey:@"generalUserTips"] intValue];
+        int flag = ([[[NSUserDefaults standardUserDefaults] objectForKey:@"generalUserTips"] intValue] || [[[NSUserDefaults standardUserDefaults] objectForKey:@"updateInfoLater"] intValue]);
         if (!flag) {
             UIAlertView * alertView = [[UIAlertView alloc] initWithTitle:@"温馨提示" message:@"您现在是普通用户，升级为高级用户获取更高的单次点击价格" delegate:self cancelButtonTitle:@"不再提示" otherButtonTitles:@"立即升级",@"稍后提示", nil];
             alertView.tag = 417;
@@ -293,7 +293,7 @@
     
     __weak typeof(self)wself = self;
     NSLog(@"nihoadasod  ----  %@",[NSString stringWithFormat:@"%@&user_id=%@",GET_USERINFOMATION_URL,[ZTools getUid]]);
-    [[ZAPI manager] sendGet:[NSString stringWithFormat:@"%@&user_id=%@",GET_USERINFOMATION_URL,[ZTools getUid]] success:^(id data) {
+    NSURLSessionDataTask * task = [[ZAPI manager] sendGet:[NSString stringWithFormat:@"%@&user_id=%@",GET_USERINFOMATION_URL,[ZTools getUid]] success:^(id data) {
         if (data && [data isKindOfClass:[NSDictionary class]]) {
             wself.info = [[UserInfoModel alloc] initWithDictionary:[data objectForKey:@"user_info"]];
             [[NSUserDefaults standardUserDefaults] setObject:[NSDictionary dictionaryWithDictionary:[data objectForKey:@"user_info"]] forKey:@"UserInfomationData"];
@@ -305,6 +305,8 @@
     } failure:^(NSError *error) {
         
     }];
+    
+    [[ZAPI manager] cancel];
 }
 /**
  *  获取抢单任务列表数据
@@ -437,7 +439,8 @@
                 break;
             case 2://稍后提示
             {
-                
+                //下次重新打开app提示
+                [[NSUserDefaults standardUserDefaults] setObject:@"1" forKey:@"updateInfoLater"];
             }
                 break;
                 

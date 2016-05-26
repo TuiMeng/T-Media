@@ -20,6 +20,8 @@
     float              locationLat;
     //经度
     float              locationLng;
+    //判断所选城市跟定位城市是否一样（-1：一样 -2：不一样）
+    int                 isLocal;
     
     AMapLocationManager * locationManager;
     //重新定位
@@ -41,6 +43,8 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    
+    isLocal = -1;
     
     self.title_label.text = _movieModel.movieName;
     [self setMyViewControllerRightButtonType:MyViewControllerButtonTypeText WihtRightString:@"我的订单"];
@@ -119,14 +123,15 @@
         _data_array = [NSMutableArray arrayWithObjects:[NSMutableArray array],[NSMutableArray array],[NSMutableArray array],nil];
     }
 
-    NSLog(@"url--------  %@",[NSString stringWithFormat:@"%@qrLocalCinemas?Lon=%f&Lat=%f&movieId=%@&dayKind=%d",BASE_MOVIE_URL,locationLng?locationLng:116.3972282409668,locationLat?locationLat:39.90960456049752,_movieModel.movieId,currentDate]);
+    NSLog(@"url--------  %@",[NSString stringWithFormat:@"%@qrLocalCinemas?Lon=%f&Lat=%f&movieId=%@&dayKind=%d&cityId=%@&isLocal=%@",BASE_MOVIE_URL,locationLng,locationLat,_movieModel.movieId,currentDate,[ZTools getSelectedCityId],@(isLocal)]);
     
     NSMutableDictionary * dic = [NSMutableDictionary dictionary];
-    [dic setObject:_movieModel.movieId forKey:@"movieId"];
-    [dic setObject:@(currentDate) forKey:@"dayKind"];
-    [dic setObject:[ZTools getSelectedCityId] forKey:@"cityId"];
-    [dic setObject:@(locationLng) forKey:@"Lon"];
-    [dic setObject:@(locationLat) forKey:@"Lat"];
+    [dic setObject:_movieModel.movieId          forKey:@"movieId"];
+    [dic setObject:@(currentDate)               forKey:@"dayKind"];
+    [dic setObject:[ZTools getSelectedCityId]   forKey:@"cityId"];
+    [dic setObject:@(locationLng)               forKey:@"Lon"];
+    [dic setObject:@(locationLat)               forKey:@"Lat"];
+    [dic setObject:@(isLocal)                   forKey:@"isLocal"];
     
     __weak typeof(self)wself = self;
     
@@ -134,6 +139,11 @@
     [[ZAPI manager] sendMoviePost:GET_NEAR_CINEMA_URL myParams:dic success:^(id data) {
         [wself endLoading];
         if (data && [data isKindOfClass:[NSArray class]]) {
+            
+            if (wself.myTableView.pageNum == 1) {
+                [wself.data_array[currentDate] removeAllObjects];
+            }
+            
             for (NSDictionary * item in data) {
                 MLocationCinemasModel * model   = [[MLocationCinemasModel alloc] initWithDictionary:item];
                 [wself.data_array[currentDate] addObject:model];
@@ -144,7 +154,7 @@
                 [ZTools showMBProgressWithText:data[MOVIE_ERROR_INFO] WihtType:MBProgressHUDModeText addToView:wself.view isAutoHidden:YES];
             }
         }
-
+        
         [wself.myTableView finishReloadigData];
     } failure:^(NSError *error) {
         [wself endLoading];
@@ -184,7 +194,7 @@
     
 }
 - (CGFloat)heightForRowIndexPath:(NSIndexPath *)indexPath{
-    return 80;
+    return 60;
     //return 90;
 }
 
@@ -216,7 +226,12 @@
         NSString * tempString = addressLabel.text;
         if (regeocode)
         {
-            addressLabel.text = [NSString stringWithFormat:@"%@附近",regeocode.AOIName];
+            if ([regeocode.formattedAddress rangeOfString:[ZTools getSelectedCity]].length) {
+                isLocal = -1;
+            }else{
+                isLocal = -2;
+            }
+            addressLabel.text = regeocode.AOIName?[NSString stringWithFormat:@"%@附近",regeocode.AOIName]:@"暂无定位";
             
         }else{
             addressLabel.text = @"未能获取您的位置，点击重试";

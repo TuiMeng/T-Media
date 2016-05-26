@@ -18,7 +18,10 @@
 @property(nonatomic,strong)NSString * chuangtime;
 @property(nonatomic,strong)NSString * status;
 @property(nonatomic,strong)NSString * r_status;
-
+/**
+ *  是否显示轮播图
+ */
+@property(nonatomic,strong)NSString * is_show;
 
 
 @end

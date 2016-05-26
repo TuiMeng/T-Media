@@ -32,24 +32,38 @@
         }
         
         if (!_m_name_label) {
-            _m_name_label = [ZTools createLabelWithFrame:CGRectMake(_m_header_imageView.right+10, 10, 200, 30) text:@"美人鱼" textColor:RGBCOLOR(31, 31, 31) textAlignment:NSTextAlignmentLeft font:15];
+            _m_name_label = [ZTools createLabelWithFrame:CGRectMake(_m_header_imageView.right+10, 10, 200, 30)
+                                                    text:@""
+                                               textColor:RGBCOLOR(31, 31, 31)
+                                           textAlignment:NSTextAlignmentLeft
+                                                    font:15];
             [_background_view addSubview:_m_name_label];
         }
         
         if (!_m_type_label) {
-            _m_type_label = [ZTools createLabelWithFrame:CGRectMake(_m_name_label.right+5, 10, 20, 12) text:@"3D" textColor:[UIColor whiteColor] textAlignment:NSTextAlignmentCenter font:8];
+            _m_type_label = [ZTools createLabelWithFrame:CGRectMake(_m_name_label.right+5, 10, 20, 12)
+                                                    text:@""
+                                               textColor:[UIColor whiteColor]
+                                           textAlignment:NSTextAlignmentCenter
+                                                    font:8];
             _m_type_label.backgroundColor = RGBCOLOR(0, 183, 238);
             _m_type_label.center = CGPointMake(_m_type_label.center.x, _m_name_label.center.y);
             [_background_view addSubview:_m_type_label];
         }
         
         if (!_m_score_label) {
-            _m_score_label = [ZTools createLabelWithFrame:CGRectMake(_background_view.width-45, 15, 35, 20) text:@"" textColor:RED_BACKGROUND_COLOR textAlignment:NSTextAlignmentRight font:12];
+            _m_score_label = [ZTools createLabelWithFrame:CGRectMake(_background_view.width-45, 15, 35, 20)
+                                                     text:@""
+                                                textColor:RED_BACKGROUND_COLOR
+                                            textAlignment:NSTextAlignmentRight
+                                                     font:12];
             [_background_view addSubview:_m_score_label];
         }
         
         if (!_m_ticket_button) {
-            _m_ticket_button = [ZTools createButtonWithFrame:CGRectMake(_background_view.width-50, _m_score_label.bottom+20, 40, 25) title:@"购票" image:nil];
+            _m_ticket_button = [ZTools createButtonWithFrame:CGRectMake(_background_view.width-50, _m_score_label.bottom+20, 40, 25)
+                                                       title:@"购票"
+                                                       image:nil];
             _m_ticket_button.layer.cornerRadius = 3;
             _m_ticket_button.titleLabel.font = [ZTools returnaFontWith:12];
             [_m_ticket_button setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
@@ -59,7 +73,11 @@
         }
         
         if (!_m_introduction_label) {
-            _m_introduction_label = [ZTools createLabelWithFrame:CGRectMake(_m_header_imageView.right+10, _m_name_label.bottom+10, _background_view.width-80-_m_ticket_button.width-20, 30) text:@"" textColor:RGBCOLOR(125, 125, 125) textAlignment:NSTextAlignmentLeft font:12];
+            _m_introduction_label = [ZTools createLabelWithFrame:CGRectMake(_m_header_imageView.right+10, _m_name_label.bottom+10, _background_view.width-80-_m_ticket_button.width-20, 30)
+                                                            text:@""
+                                                       textColor:RGBCOLOR(125, 125, 125)
+                                                   textAlignment:NSTextAlignmentLeft
+                                                            font:12];
             _m_introduction_label.numberOfLines = 0;
             [_background_view addSubview:_m_introduction_label];
         }
@@ -126,15 +144,23 @@
 -(void)setInfomationWithMovieListModel:(MovieListModel *)model{
     
     _m_score_label.text = [NSString stringWithFormat:@"%@分",model.movieScore];
+    _m_name_label.text  = model.movieName;
     _m_type_label.text  = model.dimensional;
     
-    CGSize name_size                        = [ZTools stringHeightWithFont:_m_name_label.font WithString:model.movieName WithWidth:_m_name_label.width];
-    CGSize type_size                        = [ZTools stringHeightWithFont:_m_type_label.font WithString:@"2D" WithWidth:_m_type_label.width];
-    _m_name_label.width                     = _background_view.width-_m_score_label.width-20-_m_header_imageView.width-20-type_size.width-5;
-    _m_type_label.left                      = name_size.width+_m_name_label.left+3;
+    CGSize type_size                        = [ZTools stringHeightWithFont:_m_type_label.font WithString:model.dimensional.length?model.dimensional:@"" WithWidth:_m_type_label.width];
+    
+    float max_name_width                    = _m_score_label.left - _m_header_imageView.right - type_size.width - 20;
+    
+    CGSize name_size                        = [ZTools stringHeightWithFont:_m_name_label.font WithString:model.movieName WithWidth:max_name_width];
+    
+    if (name_size.width < max_name_width) {
+        max_name_width = name_size.width;
+    }
+    _m_name_label.width                     = max_name_width;
+    _m_type_label.left                      = _m_name_label.right + 3;
     _m_type_label.width                     = model.dimensional.length?(type_size.width+5):0;
     
-    _m_name_label.text                      = model.movieName;
+    
     [_m_header_imageView sd_setImageWithURL:[NSURL URLWithString:[NSString stringWithFormat:@"%@%@",BASE_MOVIE_IMAGE_URL,model.moviePick]] placeholderImage:[UIImage imageNamed:DEFAULT_LOADING_SMALL_IMAGE]];
     _m_introduction_label.text              = model.movieStarring;
     

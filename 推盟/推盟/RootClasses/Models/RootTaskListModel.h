@@ -55,5 +55,34 @@
  *  任务上线时间
  */
 @property(nonatomic,strong)NSString * online_time;
+/**
+ *  是否上传过截图（1：上传过 2：未上传过）
+ */
+@property(nonatomic,strong)NSString * is_upload;
+/**
+ *  是否能上传转发截图(1:可以上传 2：不可上传)
+ */
+@property(nonatomic,strong)NSString * canUploadImage;
+/**
+ *  需要收集转发截图的数量
+ */
+@property(nonatomic,strong)NSString * img_num;
+/**
+ *  上传转发截图价格
+ */
+@property(nonatomic,strong)NSString * img_price;
+/**
+ *  被拒绝原因
+ */
+@property(nonatomic,strong)NSString * refuse;
+/**
+ *  收集转发截图活动结束时间
+ */
+@property(nonatomic,strong)NSString * imgover_time;
+/**
+ *  活动状态（1：审核中  2：审核完毕）
+ */
+@property(nonatomic,strong)NSString * RAStatus;
+
 
 @end

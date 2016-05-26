@@ -30,6 +30,30 @@
        success:(void (^)(NSDictionary *data))success
        failure:(void (^)(NSError *error))failure{
     
+    
+    
+    AFHTTPSessionManager * sessionManager = [AFHTTPSessionManager manager];
+    sessionManager.requestSerializer = [AFHTTPRequestSerializer serializer];
+    sessionManager.responseSerializer = [AFHTTPResponseSerializer serializer];
+    
+    [sessionManager GET:rawURL parameters:params progress:^(NSProgress * _Nonnull downloadProgress) {
+        
+    } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+        NSLog(@"obj ----  %@",responseObject);
+        [self handleReceivedData:responseObject JSONDecode:NO];
+        if (success) {
+            success(self.responseResult);
+        }
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+        NSLog(@"error ----  %@",error);
+        //处理网络错误
+        NSLog(@"%@",error);    [self requireNetworkConnection:NO];
+        if (failure) {
+            failure(error);
+        }
+    }];
+
+    /*
     //实例化AF对象
     AFHTTPRequestOperationManager *manager = [AFHTTPRequestOperationManager manager];
     
@@ -49,6 +73,7 @@
              failure(error);
          }
      }];
+     */
     
 }
 -(void)handleReceivedData:(id)received JSONDecode:(BOOL)JSONDecode{
@@ -91,77 +116,174 @@
     NSMutableDictionary * dic = [NSMutableDictionary dictionaryWithDictionary:params];
     [dic setObject:CURRENT_VERSION forKey:@"appversion"];
     [dic setObject:@"1" forKey:@"from_type"];
+
+//    NSURL *url = [NSURL URLWithString:[rawURL stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
+//    //    NSURLRequest *request = [NSURLRequest requestWithURL:url];
+//    // 获取参数
+//    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
+//    [request setHTTPMethod:@"POST"];
+//    [request setHTTPBody:[self buildData:dic]];
+//    
+//    [self afHttpRequestWith:request success:success failure:failure];
     
-    NSURL *url = [NSURL URLWithString:[rawURL stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
-    //    NSURLRequest *request = [NSURLRequest requestWithURL:url];
-    // 获取参数
-    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
-    [request setHTTPMethod:@"POST"];
-    [request setHTTPBody:[self buildData:dic]];
     
-    [self afHttpRequestWith:request success:success failure:failure];
+    AFHTTPSessionManager * sessionManager = [AFHTTPSessionManager manager];
+    sessionManager.requestSerializer = [AFHTTPRequestSerializer serializer];
+    sessionManager.responseSerializer = [AFHTTPResponseSerializer serializer];
+
+    NSURLSessionDataTask * task = [sessionManager POST:rawURL
+                                            parameters:dic
+                                              progress:^(NSProgress * _Nonnull uploadProgress) {
+                                                  
+                                              } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+                                                  NSData* data= (NSData *)responseObject;
+                                                  NSString * string = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+                                                  NSLog(@"string -----  %@",string);
+                                                  id dict=[NSJSONSerialization  JSONObjectWithData:data options:0 error:nil];
+                                                  NSLog(@"获取到的数据为：%@",dict);
+                                                  if (success) {
+                                                      success(dict);
+                                                  }
+                                              } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+                                                  NSLog(@"error ----  %@",error);
+                                                  if (failure) {
+                                                      failure(error);
+                                                  }
+                                              }];
+
     
 }
 //电影数据不需要提供平台版本号
--(void)sendMoviePost:(NSString *)rawURL myParams:(NSDictionary *)params
+-(NSURLSessionDataTask *)sendMoviePost:(NSString *)rawURL myParams:(NSDictionary *)params
         success:(void (^)(id data))success
         failure:(void (^)(NSError *error))failure
 {
     
     NSMutableDictionary * dic = [NSMutableDictionary dictionaryWithDictionary:params];
     
-    NSURL *url = [NSURL URLWithString:[rawURL stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
-    //    NSURLRequest *request = [NSURLRequest requestWithURL:url];
-    // 获取参数
-    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
-    [request setHTTPMethod:@"POST"];
-    [request setHTTPBody:[self buildData:dic]];
+//    NSURL *url = [NSURL URLWithString:[rawURL stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
+//    //    NSURLRequest *request = [NSURLRequest requestWithURL:url];
+//    // 获取参数
+//    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
+//    [request setHTTPMethod:@"POST"];
+//    [request setHTTPBody:[self buildData:dic]];
+//    
+//    [self afHttpRequestWith:request success:success failure:failure];
     
-    [self afHttpRequestWith:request success:success failure:failure];
+    
+    AFHTTPSessionManager * sessionManager = [AFHTTPSessionManager manager];
+    sessionManager.requestSerializer = [AFHTTPRequestSerializer serializer];
+    sessionManager.responseSerializer = [AFHTTPResponseSerializer serializer];
+    
+    NSURLSessionDataTask * task = [sessionManager POST:rawURL
+                                            parameters:dic
+                                              progress:^(NSProgress * _Nonnull uploadProgress) {
+                                                  
+                                              } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+                                                  NSLog(@"task ----  %@",task);
+                                                  NSData* data= (NSData *)responseObject;
+                                                  id dict=[NSJSONSerialization  JSONObjectWithData:data options:0 error:nil];
+                                                  NSLog(@"获取到的数据为：%@",dict);
+                                                  if (success) {
+                                                      success(dict);
+                                                  }
+                                              } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+                                                  NSLog(@"error ----  %@",error);
+                                                  if (failure) {
+                                                      failure(error);
+                                                  }
+                                              }];
+    return task;
     
 }
 
--(void)sendGet:(NSString *)rawURL success:(void (^)(id))success failure:(void (^)(NSError *))failure{
+-(NSURLSessionDataTask *)sendGet:(NSString *)rawURL success:(void (^)(id))success failure:(void (^)(NSError *))failure{
     
     rawURL = [NSString stringWithFormat:@"%@&appversion=%@&from_type=1",rawURL,CURRENT_VERSION];
-    NSURL * url = [NSURL URLWithString:[rawURL stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
-    NSURLRequest * request = [NSURLRequest requestWithURL:url];
-    [self afHttpRequestWith:request success:success failure:failure];
-}
-//电影数据不需要提供平台版本号
--(void)sendMovieGet:(NSString *)rawURL success:(void (^)(id))success failure:(void (^)(NSError *))failure{
-    NSURL * url = [NSURL URLWithString:[rawURL stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
-    NSURLRequest * request = [NSURLRequest requestWithURL:url];
-    [self afHttpRequestWith:request success:success failure:failure];
-}
-
-
--(void)afHttpRequestWith:(NSURLRequest *)request success:(void (^)(id data))success
-                 failure:(void (^)(NSError *error))failure{
-    AFHTTPRequestOperation *operation = [[AFHTTPRequestOperation alloc]initWithRequest:request];
+//    NSURL * url = [NSURL URLWithString:[rawURL stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
+//    NSURLRequest * request = [NSURLRequest requestWithURL:url];
+//    [self afHttpRequestWith:request success:success failure:failure];
     
-    [operation setCompletionBlockWithSuccess:^(AFHTTPRequestOperation *operation, id responseObject) {
-        NSString *html = operation.responseString;
-        NSData* data=[html dataUsingEncoding:NSUTF8StringEncoding];
+    
+    AFHTTPSessionManager * sessionManager = [AFHTTPSessionManager manager];
+    sessionManager.requestSerializer = [AFHTTPRequestSerializer serializer];
+    sessionManager.responseSerializer = [AFHTTPResponseSerializer serializer];
+    
+    NSURLSessionDataTask * task = [sessionManager GET:rawURL parameters:nil progress:^(NSProgress * _Nonnull downloadProgress) {
+        
+    } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+        NSLog(@"task ----  %@",task);
+        NSData* data= (NSData *)responseObject;
         id dict=[NSJSONSerialization  JSONObjectWithData:data options:0 error:nil];
         NSLog(@"获取到的数据为：%@",dict);
-        
         if (success) {
             success(dict);
         }
-    }failure:^(AFHTTPRequestOperation *operation, NSError *error) {
-        NSLog(@"发生错误！%@",error);
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+        NSLog(@"error ----  %@",error);
         if (failure) {
             failure(error);
         }
     }];
     
-    if (!_queue) {
-        _queue = [[NSOperationQueue alloc] init];
-    }
-    
-    [_queue addOperation:operation];
+    return task;
 }
+//电影数据不需要提供平台版本号
+-(void)sendMovieGet:(NSString *)rawURL success:(void (^)(id))success failure:(void (^)(NSError *))failure{
+//    NSURL * url = [NSURL URLWithString:[rawURL stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
+//    NSURLRequest * request = [NSURLRequest requestWithURL:url];
+//    [self afHttpRequestWith:request success:success failure:failure];
+    
+    
+    AFHTTPSessionManager * sessionManager = [AFHTTPSessionManager manager];
+    sessionManager.requestSerializer = [AFHTTPRequestSerializer serializer];
+    sessionManager.responseSerializer = [AFHTTPResponseSerializer serializer];
+    
+    [sessionManager GET:rawURL parameters:nil progress:^(NSProgress * _Nonnull downloadProgress) {
+        
+    } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+        NSLog(@"task ----  %@",task);
+        NSData* data= (NSData *)responseObject;
+        id dict=[NSJSONSerialization  JSONObjectWithData:data options:0 error:nil];
+        NSLog(@"获取到的数据为：%@",dict);
+        if (success) {
+            success(dict);
+        }
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+        NSLog(@"error ----  %@",error);
+        if (failure) {
+            failure(error);
+        }
+    }];
+}
+
+
+//-(void)afHttpRequestWith:(NSURLRequest *)request success:(void (^)(id data))success
+//                 failure:(void (^)(NSError *error))failure{
+//    AFHTTPRequestOperation *operation = [[AFHTTPRequestOperation alloc]initWithRequest:request];
+//    
+//    [operation setCompletionBlockWithSuccess:^(AFHTTPRequestOperation *operation, id responseObject) {
+//        NSString *html = operation.responseString;
+//        NSData* data=[html dataUsingEncoding:NSUTF8StringEncoding];
+//        id dict=[NSJSONSerialization  JSONObjectWithData:data options:0 error:nil];
+//        NSLog(@"获取到的数据为：%@",dict);
+//        
+//        if (success) {
+//            success(dict);
+//        }
+//    }failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+//        NSLog(@"发生错误！%@",error);
+//        if (failure) {
+//            failure(error);
+//        }
+//    }];
+//    
+//    if (!_queue) {
+//        _queue = [[NSOperationQueue alloc] init];
+//    }
+//    
+//    [_queue addOperation:operation];
+//}
 
 -(BOOL)is_array:(id)target{
     
@@ -192,8 +314,12 @@
 #pragma mark ---------  取消网络请求
 -(void)cancel{
     [_queue cancelAllOperations];
+    [[[AFHTTPSessionManager manager] operationQueue] cancelAllOperations];
 }
 
+-(void)dealloc{
+    [[[AFHTTPSessionManager manager] operationQueue] cancelAllOperations];
+}
 
 
 @end

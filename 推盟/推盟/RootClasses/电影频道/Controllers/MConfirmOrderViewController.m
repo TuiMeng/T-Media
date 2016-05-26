@@ -29,7 +29,7 @@
 
 @property(nonatomic,strong)UITableView      * myTableView;
 //积分抵消费用
-@property(nonatomic,assign)int              scorePrice;
+@property(nonatomic,assign)float              scorePrice;
 //全部服务费用
 @property(nonatomic,assign)float            serverPrice;
 //总共需要支付的费用
@@ -79,14 +79,14 @@
     float score = 0;
     if (isUse) {
         float movieMoney = _sequenceModel.price.floatValue - _sequenceModel.fee.intValue;
-        int restMoney = [[ZTools getRestMoney] intValue];
+        int restMoney = [[ZTools getRestMoney] intValue]>0?[[ZTools getRestMoney] intValue]:0;
         //积分最高可用数
         int scoreMaxMoney = movieMoney*_seatArray.count*PAYMENT_RATIO;
         
-        if (restMoney/10 >= scoreMaxMoney) {
+        if (restMoney/10.0f >= scoreMaxMoney) {
             score = scoreMaxMoney;
         }else{
-            score = restMoney/10;
+            score = restMoney/10.0f;
         }
     }
     
@@ -124,8 +124,6 @@
     [self.navigationController popViewControllerAnimated:YES];
 }
 
-
-
 -(void)timeCount:(NSNotification *)notification{
         
     int count = [notification.object intValue];
@@ -160,18 +158,34 @@
     moviewTicketInfoView.isShowBottomLine   = YES;
     [headerView addSubview:moviewTicketInfoView];
     //电影名称
-    UILabel * movieNameLabel    = [ZTools createLabelWithFrame:CGRectMake(15, 15, DEVICE_WIDTH-30, 18) text:_movie_model.movieName textColor:DEFAULT_BLACK_TEXT_COLOR textAlignment:NSTextAlignmentLeft font:15];
+    UILabel * movieNameLabel    = [ZTools createLabelWithFrame:CGRectMake(15, 15, DEVICE_WIDTH-30, 18)
+                                                          text:_movie_model.movieName
+                                                     textColor:DEFAULT_BLACK_TEXT_COLOR
+                                                 textAlignment:NSTextAlignmentLeft
+                                                          font:15];
     [moviewTicketInfoView addSubview:movieNameLabel];
     //影院名称
-    UILabel * cinemaNameLabel   = [ZTools createLabelWithFrame:CGRectMake(15, movieNameLabel.bottom+10, DEVICE_WIDTH-30, 18) text:_cinema_model.cinemaName textColor:DEFAULT_BLACK_TEXT_COLOR textAlignment:NSTextAlignmentLeft font:15];
+    UILabel * cinemaNameLabel   = [ZTools createLabelWithFrame:CGRectMake(15, movieNameLabel.bottom+10, DEVICE_WIDTH-30, 18)
+                                                          text:_cinema_model.cinemaName
+                                                     textColor:DEFAULT_BLACK_TEXT_COLOR
+                                                 textAlignment:NSTextAlignmentLeft
+                                                          font:15];
     [moviewTicketInfoView addSubview:cinemaNameLabel];
     //座位
-    UILabel * seatInfoLabel     = [ZTools createLabelWithFrame:CGRectMake(15, cinemaNameLabel.bottom+10, DEVICE_WIDTH-30, 18) text:[NSString stringWithFormat:@"%@ %@",_sequenceModel.hallName,[self returnSeatNum]] textColor:DEFAULT_BLACK_TEXT_COLOR textAlignment:NSTextAlignmentLeft font:15];
+    UILabel * seatInfoLabel     = [ZTools createLabelWithFrame:CGRectMake(15, cinemaNameLabel.bottom+10, DEVICE_WIDTH-30, 18)
+                                                          text:[NSString stringWithFormat:@"%@ %@",_sequenceModel.hallName,[self returnSeatNum]]
+                                                     textColor:DEFAULT_BLACK_TEXT_COLOR
+                                                 textAlignment:NSTextAlignmentLeft
+                                                          font:15];
     seatInfoLabel.numberOfLines = 0;
     [seatInfoLabel sizeToFit];
     [moviewTicketInfoView addSubview:seatInfoLabel];
     //日期
-    UILabel * dateLabel         = [ZTools createLabelWithFrame:CGRectMake(15, seatInfoLabel.bottom+10, DEVICE_WIDTH-30, 18) text:[NSString stringWithFormat:@"%@ %@",_sequenceModel.seqDate,_sequenceModel.seqTime] textColor:DEFAULT_RED_TEXT_COLOR textAlignment:NSTextAlignmentLeft font:15];
+    UILabel * dateLabel         = [ZTools createLabelWithFrame:CGRectMake(15, seatInfoLabel.bottom+10, DEVICE_WIDTH-30, 18)
+                                                          text:[NSString stringWithFormat:@"%@ %@",_sequenceModel.seqDate,_sequenceModel.seqTime]
+                                                     textColor:DEFAULT_RED_TEXT_COLOR
+                                                 textAlignment:NSTextAlignmentLeft
+                                                          font:15];
     [moviewTicketInfoView addSubview:dateLabel];
     
     moviewTicketInfoView.height = dateLabel.bottom+10;
@@ -227,14 +241,14 @@
     }else if ([title isEqualToString:MUSEPOINT]){
         if (!switchView) {
             switchView = [[UISwitch alloc] initWithFrame:CGRectMake(DEVICE_WIDTH-55, 9.5, 40, 25)];
-            switchView.on = [titleArray containsObject:MPONIT];
+            switchView.on = ([titleArray containsObject:MPONIT] && _scorePrice);
             [switchView addTarget:self action:@selector(switchOn:) forControlEvents:UIControlEventValueChanged];
         }
         
         [cell.contentView addSubview:switchView];
     }else if ([title isEqualToString:MPONIT]){
         cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
-        cell.detailTextLabel.text = [NSString stringWithFormat:@"%d个积分可用，已抵消%d元",_scorePrice*10,_scorePrice];
+        cell.detailTextLabel.text = [NSString stringWithFormat:@"%.0f个积分可用，已抵消%.1f元",_scorePrice*10,_scorePrice];
         cell.detailTextLabel.font = [ZTools returnaFontWith:15];
         cell.detailTextLabel.textColor = DEFAULT_ORANGE_TEXT_COLOR;
     }else if ([title isEqualToString:MNEEDTOPAY]){

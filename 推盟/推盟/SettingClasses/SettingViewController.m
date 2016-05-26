@@ -134,16 +134,13 @@
     
     MBProgressHUD * hud = [ZTools showMBProgressWithText:@"正在退出..." WihtType:MBProgressHUDModeIndeterminate addToView:self.view isAutoHidden:NO];
     __weak typeof(self)wself = self;
-    [[ZAPI manager] sendPost:LOG_OUT_URL myParams:@{@"user_id":[ZTools getUid]} success:^(id data) {
+    NSLog(@"user_id ----   %@",[ZTools getUid]);
+    [[ZAPI manager] sendPost:LOG_OUT_URL myParams:@{@"user_id":[[ZTools getUid] length]?[ZTools getUid]:@""} success:^(id data) {
         [hud hide:YES];
         if (data && [data isKindOfClass:[NSDictionary class]]) {
-            if ([[data objectForKey:@"status"] intValue] == 1) {
-                [ZTools showMBProgressWithText:@"退出登录成功" WihtType:MBProgressHUDModeText addToView:wself.view isAutoHidden:YES];
-                [ZTools logOut];
-                [wself.navigationController popToRootViewControllerAnimated:YES];
-            }else{
-                [ZTools showMBProgressWithText:[data objectForKey:@"errorinfo"] WihtType:MBProgressHUDModeText addToView:wself.view isAutoHidden:YES];
-            }
+            [ZTools showMBProgressWithText:@"退出登录成功" WihtType:MBProgressHUDModeText addToView:wself.view isAutoHidden:YES];
+            [ZTools logOut];
+            [wself.navigationController popToRootViewControllerAnimated:YES];
         }
     } failure:^(NSError *error) {
         [hud hide:YES];
@@ -154,18 +151,10 @@
 #pragma mark -----   登录
 -(void)logInTap{
     
-    UIStoryboard * storyboard = [UIStoryboard storyboardWithName:@"Main" bundle:nil];
-    UINavigationController * login = (UINavigationController*)[storyboard instantiateViewControllerWithIdentifier:@"LogInViewController"];
-    [self presentViewController:login animated:YES completion:nil];
-    
-    for (UIViewController * vc in login.viewControllers) {
-        if ([vc isKindOfClass:[LogInViewController class]]) {
-            [(LogInViewController*)vc successLogin:^(NSString *source) {
-                [data_array replaceObjectAtIndex:data_array.count-1 withObject:TITLE_LOGOUT];
-                [self.myTableView reloadRowsAtIndexPaths:@[[NSIndexPath indexPathForRow:4 inSection:0]] withRowAnimation:UITableViewRowAnimationNone];
-            }];
-        }
-    }
+    [[LogInView sharedInstance] loginShowWithSuccess:^{
+        [data_array replaceObjectAtIndex:data_array.count-1 withObject:TITLE_LOGOUT];
+        [self.myTableView reloadRowsAtIndexPaths:@[[NSIndexPath indexPathForRow:4 inSection:0]] withRowAnimation:UITableViewRowAnimationNone];
+    }];
 }
 
 

@@ -25,7 +25,7 @@
     //是否接受多扣除兑换卡次数
     BOOL                    isAcceptOverflow;
     //判断是否显示添加新卡按钮
-    int                     isHiddenAdd[2];
+    int                     hiddenAddCoupon;
 }
 
 @property(nonatomic,strong)UITableView      * myTableView;
@@ -45,7 +45,9 @@
 
 -(void)viewWillDisappear:(BOOL)animated{
     [super viewWillDisappear:animated];
-    [[NSNotificationCenter defaultCenter] removeObserver:self];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:NOTIFICATION_TIME_STRING object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardWillShowNotification object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardWillHideNotification object:nil];
 }
 
 -(void)viewEndEditing:(UITapGestureRecognizer *)sender{
@@ -59,7 +61,7 @@
     if (_cardInfoArray) {
         _dataArray  = _cardInfoArray;
     }else{
-        _dataArray              = [NSMutableArray arrayWithObjects:[NSMutableArray arrayWithObjects:@"",nil],[NSMutableArray arrayWithObjects:@"",nil], nil];
+        _dataArray              = [NSMutableArray arrayWithObjects:[NSMutableArray arrayWithObjects:@"",nil],[NSMutableArray arrayWithObjects:@"",nil],[NSMutableArray arrayWithObjects:@"",nil], nil];
     }
     
     UITapGestureRecognizer * tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(viewEndEditing:)];
@@ -72,7 +74,7 @@
     
 
 }
-
+#pragma mark ------- 创建主视图
 -(void)createMainView{
     
     _myTableView                = [[UITableView alloc] initWithFrame:CGRectMake(0, 0, DEVICE_WIDTH, DEVICE_HEIGHT-64) style:UITableViewStylePlain];
@@ -135,7 +137,7 @@
     [orderIdLabel sizeToFit];
     [orderView addSubview:orderIdLabel];
     
-    segmentControl                          = [[UISegmentedControl alloc] initWithItems:@[@"新影联票卡支付",@"新影联电影兑换券"]];
+    segmentControl                          = [[UISegmentedControl alloc] initWithItems:@[@"新影联储值卡",@"新影联计次卡",@"新影联兑换券"]];
     segmentControl.frame                    = CGRectMake(15, orderView.bottom+10, DEVICE_WIDTH-30, 35);
     segmentControl.tintColor                = DEFAULT_BACKGROUND_COLOR;
     segmentControl.selectedSegmentIndex     = 0;
@@ -195,23 +197,31 @@
     MBProgressHUD * hud = [ZTools showMBProgressWithText:@"订单提交中..." WihtType:MBProgressHUDModeIndeterminate addToView:self.view isAutoHidden:YES];
     [[ZAPI manager] sendMoviePost:MOVIE_PAY_ORDER_URL myParams:_payInfoDic success:^(id data) {
         [hud hide:YES];
+        [[MovieNetWork sharedManager] endTimer];
         if (data && [data isKindOfClass:[NSDictionary class]]) {
             NSString * status = data[ERROR_CODE];
             if (status.intValue == 1) {
                 UIAlertView * alertView = [UIAlertView showWithTitle:@"您已支付成功，正在获取取票码，如果15分钟之后未收到通知短信，请您拨打400-666-9696与客服联系" message:nil cancelButtonTitle:@"知道了" otherButtonTitles:nil tapBlock:^(UIAlertView * _Nonnull alertView, NSInteger buttonIndex) {
-                    
+            
+                }];
+                [alertView show];
+                
+                MOrderListController * orderList = [[MOrderListController alloc] init];
+                [wself.navigationController pushViewController:orderList animated:YES];
+            }else{
+                [[MovieNetWork sharedManager] releaseMovieSeatsWithOrderId:self.orderId];
+                UIAlertView * alertView = [UIAlertView showWithTitle:data[ERROR_INFO] message:@"支付失败，您可以拨打400-666-9696与客服联系" cancelButtonTitle:@"知道了" otherButtonTitles:nil tapBlock:^(UIAlertView * _Nonnull alertView, NSInteger buttonIndex) {
                     
                     MOrderListController * orderList = [[MOrderListController alloc] init];
                     [wself.navigationController pushViewController:orderList animated:YES];
                 }];
                 [alertView show];
-            }else{
-                [ZTools showMBProgressWithText:data[ERROR_INFO] WihtType:MBProgressHUDModeText addToView:wself.view isAutoHidden:YES];
             }
         }
         
     } failure:^(NSError *error) {
         [hud hide:YES];
+        [ZTools showMBProgressWithText:@"订单提交失败，请检查当前网络状况" WihtType:MBProgressHUDModeText addToView:wself.view isAutoHidden:YES];
     }];
 }
 
@@ -233,6 +243,7 @@
         return;
     }
     
+
     for (id obj in _dataArray[segmentControl.selectedSegmentIndex]) {
         if (obj && [obj isKindOfClass:[MCardModel class]]) {
             MCardModel * model = (MCardModel *)obj;
@@ -270,11 +281,15 @@
                 segmentControl.selectedSegmentIndex = 0;
                 [wself.dataArray[0] replaceObjectAtIndex:[wself.dataArray[0] count]-1 withObject:model];
             }else if ([model.parentType isEqualToString:@"电影券"]){
+                [wself totalMoneyInCard];
+                segmentControl.selectedSegmentIndex = 2;
+                [wself.dataArray[2] replaceObjectAtIndex:[wself.dataArray[2] count]-1 withObject:model];
+            }else if ([model.parentType isEqualToString:@"计次卡"]){
                 segmentControl.selectedSegmentIndex = 1;
                 [wself.dataArray[1] replaceObjectAtIndex:[wself.dataArray[1] count]-1 withObject:model];
             }
         }
-        [wself totalMoneyInCard];
+        
         [wself.myTableView reloadData];
     } failure:^(NSError *error) {
         [wself endLoading];
@@ -334,10 +349,8 @@
         [wself removeWithIndex:(int)indexPath.section];
     }];
 
-    if (indexPath.section < ([_dataArray[segmentControl.selectedSegmentIndex] count]-1)) {
+    if ((indexPath.section < ([_dataArray[segmentControl.selectedSegmentIndex] count]-1) && segmentControl.selectedSegmentIndex == 2) || hiddenAddCoupon) {
         cell.doneButton.hidden = YES;
-    }else{
-        cell.doneButton.hidden = isHiddenAdd[segmentControl.selectedSegmentIndex];
     }
     
     
@@ -364,8 +377,8 @@
     sectionView.lineColor           = RGBCOLOR(224, 224, 224);
     sectionView.isShowBottomLine    = YES;
     sectionView.isShowTopLine       = YES;
-    
-    UILabel * label                 = [ZTools createLabelWithFrame:CGRectMake(15, 0, DEVICE_WIDTH-100, sectionView.height) text:[NSString stringWithFormat:@"%@",segmentControl.selectedSegmentIndex==0?@"添加票卡":@"添加兑换券"] textColor:[UIColor whiteColor] textAlignment:NSTextAlignmentLeft font:14];
+    int segmentIndex                = (int)segmentControl.selectedSegmentIndex;
+    UILabel * label                 = [ZTools createLabelWithFrame:CGRectMake(15, 0, DEVICE_WIDTH-100, sectionView.height) text:[NSString stringWithFormat:@"%@",segmentIndex==0?@"添加票卡":segmentIndex==1?@"添加计次卡":@"添加兑换券"] textColor:[UIColor whiteColor] textAlignment:NSTextAlignmentLeft font:14];
     [sectionView addSubview:label];
     
     return sectionView;
@@ -377,16 +390,13 @@
 }
 -(BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string{
     
-    CGPoint origin = textField.frame.origin;
-    CGPoint point = [textField.superview convertPoint:origin toView:_myTableView];
-    if (point.y > DEVICE_HEIGHT-keyboardHeight-64) {
-        float navBarHeight = self.navigationController.navigationBar.frame.size.height;
+    CGRect frame = [textField.superview convertRect:textField.frame toView:self.view];
+    if (textField.height + frame.origin.y + keyboardHeight > DEVICE_HEIGHT-64) {
         CGPoint offset = _myTableView.contentOffset;
-        // Adjust the below value as you need
-        offset.y = (point.y - navBarHeight-40);
+        offset.y = offset.y + (frame.origin.y + frame.size.height + keyboardHeight + 64 + 40 - DEVICE_HEIGHT);
         [self.myTableView setContentOffset:offset animated:YES];
     }
-   
+    
     return YES;
 }
 #pragma mark -------- UIAlertViewDelegate
@@ -406,13 +416,17 @@
         [ZTools showMBProgressWithText:@"还未添加票卡" WihtType:MBProgressHUDModeText addToView:self.view isAutoHidden:YES];
     }else{
         NSString * cardInfo = @"";
-        if (segmentControl.selectedSegmentIndex == 0) {
+        if (segmentControl.selectedSegmentIndex == 0)//储值卡
+        {
             cardInfo    = [self handleTicketCardWithArray:cardArray];
             [self judgePopWithCardInfo:cardInfo];
-        }else if (segmentControl.selectedSegmentIndex == 1){
+        }else if (segmentControl.selectedSegmentIndex == 2)//兑换券
+        {
             [self judgeOverflowWithArray:cardArray];
+        }else if (segmentControl.selectedSegmentIndex == 1)//计次卡
+        {
+            [self judgeMeterOverflowWithModel:cardArray[0]];
         }
-        
     }
 }
 
@@ -421,135 +435,157 @@
     if (cardMoney >= _needPayPrice && cardMoney) {
         [self uploadOrderWithCardInfoString:cardInfo];
     }else if(cardMoney < _needPayPrice && cardMoney){
-        if (cardBlock) {
-            cardBlock(cardMoney,cardInfo,_dataArray);
-        }
-        [self.navigationController popViewControllerAnimated:YES];
+        
+        __weak typeof(self)wself = self;
+        UIAlertView * alertView = [UIAlertView showWithTitle:[NSString stringWithFormat:@"您还需支付%.1f元，剩余票款是否使用在线支付",_needPayPrice-cardMoney] message:nil cancelButtonTitle:@"取消" otherButtonTitles:@[@"在线支付"] tapBlock:^(UIAlertView * _Nonnull alertView, NSInteger buttonIndex) {
+            if (buttonIndex == 1) {
+                if (cardBlock) {
+                    cardBlock(cardMoney,cardInfo,wself.dataArray);
+                }
+                [wself.navigationController popViewControllerAnimated:YES];
+            }
+        }];
+        [alertView show];
     }
 }
-
-//处理储值卡
+#pragma mark ---------  处理储值卡
 -(NSString *)handleTicketCardWithArray:(NSMutableArray *)array{
-    float TempMoney = _needPayPrice;
+    
+    id obj = array[0];
+    if (obj && [obj isKindOfClass:[MCardModel class]]) {
+        MCardModel * model = (MCardModel *)obj;
+        
+        if (_needPayPrice < model.curval.floatValue) {
+            cardMoney = _needPayPrice;
+        }else{
+            cardMoney = model.curval.floatValue;
+        }
+        
+        NSString * string = [NSString stringWithFormat:@"%@!%@!%.2f!%@",model.sequenceNo,model.secretNo,cardMoney,model.tickettypeid];
+        
+         return string;
+    }else{
+        return @"";
+    }
+}
+#pragma mark ---------  处理计次卡信息
+-(void)handleMeterCard:(MCardModel *)model{
+    
+    NSString * string = [NSString stringWithFormat:@"%@!%@!%d!%@",model.sequenceNo,model.secretNo,model.useCount,model.tickettypeid];
+    cardMoney   = model.useCount*model.localval.floatValue;
+    [self judgePopWithCardInfo:string];
+}
+//计算计次卡扣除次数
+-(void)judgeMeterOverflowWithModel:(id)obj{
+    
+    if (obj && [obj isKindOfClass:[MCardModel class]]) {
+        __weak typeof(self)wself = self;
+        MCardModel * model = (MCardModel *)obj;
+        
+        //判断需要扣除的次数
+        int count = _needPayPrice/model.localval.intValue;
+        if (model.localval.intValue*model.curval.floatValue > _needPayPrice && model.localval.intValue*count != _needPayPrice) {
+            count += 1;
+            
+            NSArray * titles = count>1?@[@"确认使用",[NSString stringWithFormat:@"使用%d次",count-1]]:@[@"确认使用"];
+            
+            UIAlertView * alertView = [UIAlertView showWithTitle:@"温馨提示"
+                                                         message:[NSString stringWithFormat:@"卡号为%@将扣除%d次共%.1f元，多扣除的%.1f元不退还",model.sequenceNo,count,count*model.localval.floatValue,count*model.localval.floatValue-_needPayPrice]
+                                               cancelButtonTitle:@"取消"
+                                               otherButtonTitles:titles
+                                                        tapBlock:^(UIAlertView * _Nonnull alertView, NSInteger buttonIndex) {
+                                                            
+                                                            if (buttonIndex == 1) {
+                                                                model.useCount = count;
+                                                            }else if (buttonIndex ==2){
+                                                                model.useCount = count-1;
+                                                            }else{
+                                                                return ;
+                                                            }
+                                                            
+                                                            [wself handleMeterCard:model];
+                                                        }];
+            
+            [alertView show];
+            return;
+        }else{
+            
+           
+            count = MIN(count, model.curval.intValue);
+            
+            UIAlertView * alertView = [UIAlertView showWithTitle:@"温馨提示"
+                                                         message:[NSString stringWithFormat:@"卡号为%@将扣除%d次共%.1f元",model.sequenceNo,count,count*model.localval.floatValue]
+                                               cancelButtonTitle:@"取消"
+                                               otherButtonTitles:@[@"确认"]
+                                                        tapBlock:^(UIAlertView * _Nonnull alertView, NSInteger buttonIndex) {
+                
+                                                            if (buttonIndex == 1) {
+                                                                model.useCount = count;
+                                                                [wself handleMeterCard:model];
+                                                            }
+                
+            }];
+            
+            [alertView show];
+            
+        }
+    }
+}
+#pragma mark ---------  处理兑换券
+-(void)handleCouponCardWithArray:(NSMutableArray *)array{
+    cardMoney = 0;
     NSMutableArray * cardInfoArray = [NSMutableArray array];
     for (id obj in array) {
         if (obj && [obj isKindOfClass:[MCardModel class]]) {
             MCardModel * model = (MCardModel *)obj;
-            //消费金额
-            float consumeMoney = 0;
-            NSString * string;
-            if (TempMoney < model.curval.floatValue) {
-                consumeMoney = TempMoney;
-            }else{
-                consumeMoney = model.curval.floatValue;
-            }
             
-            cardMoney += consumeMoney;
-            
-            string = [NSString stringWithFormat:@"%@!%@!%.2f!%@",model.sequenceNo,model.secretNo,consumeMoney,model.tickettypeid];
-            
+            NSString * string = [NSString stringWithFormat:@"%@!%@!%@!%@",model.sequenceNo,model.secretNo,model.curval,model.tickettypeid];
             [cardInfoArray addObject:string];
             
-            TempMoney = TempMoney - consumeMoney;
-        }
-    }
-    
-    NSString * cardInfoString = [cardInfoArray componentsJoinedByString:@"xxx"];
-    
-    return cardInfoString;
-}
-//处理兑换券
--(void)handleCouponCardWithArray:(NSMutableArray *)array{
-    float TempMoney = 0;
-    NSMutableArray * cardInfoArray = [NSMutableArray array];
-    for (id obj in array) {
-        if (obj && [obj isKindOfClass:[MCardModel class]]) {
-            MCardModel * model = (MCardModel *)obj;
+            cardMoney += model.localval.floatValue;
             
-            float totalMoney    = model.curval.floatValue*model.localval.floatValue;
-            if (totalMoney > _needPayPrice - TempMoney)//如果改卡的总额大于需要支付的金额，计算扣除次数
-            {
-                //判断需要扣除的次数
-                int count = (_needPayPrice-TempMoney)/model.localval.intValue;
-                
-                if (model.localval.intValue*model.curval.floatValue > (_needPayPrice-TempMoney) && isAcceptOverflow) {
-                    count += 1;
-                }
-                
-                if (count != 0) {
-                    TempMoney = _needPayPrice;
-                    NSString * string = [NSString stringWithFormat:@"%@!%@!%@!%@",model.sequenceNo,model.secretNo,@(count),model.tickettypeid];
-                    [cardInfoArray addObject:string];
-                }
-            }else
-            {
-                TempMoney += totalMoney;
-                NSString * string = [NSString stringWithFormat:@"%@!%@!%@!%@",model.sequenceNo,model.secretNo,model.curval,model.tickettypeid];
-                [cardInfoArray addObject:string];
-            }
         }
     }
-    
-    cardMoney = TempMoney;
-    
     NSString * cardInfoString = [cardInfoArray componentsJoinedByString:@"xxx"];
     
     [self judgePopWithCardInfo:cardInfoString];
 }
 
 -(void)judgeOverflowWithArray:(NSMutableArray *)array{
-    float TempMoney = 0;
+    
     float temp_need_pay = _needPayPrice;
-    int index = 0;
+    //兑换券只能兑换一次
     for (id obj in array) {
-        
         if (obj && [obj isKindOfClass:[MCardModel class]]) {
-            index++;
             MCardModel * model = (MCardModel *)obj;
-            float totalMoney    = model.curval.floatValue*model.localval.floatValue;
-            if (totalMoney > temp_need_pay - TempMoney)//如果该卡的总额大于需要支付的金额，计算扣除次数
-            {
-                if (index != array.count && ![array[array.count-1] isKindOfClass:[MCardModel class]]) {
-                    UIAlertView * alertView = [UIAlertView showWithTitle:@"温馨提示" message:@"您所选票卡超过支付金额，请删除多余票卡" cancelButtonTitle:@"知道了" otherButtonTitles:nil tapBlock:^(UIAlertView * _Nonnull alertView, NSInteger buttonIndex) {
-                        
-                    }];
-                    [alertView show];
-                    return;
-                }
-                
-                //判断需要扣除的次数
-                int count = (temp_need_pay-TempMoney)/model.localval.intValue;
-                if (model.localval.intValue*model.curval.floatValue > (temp_need_pay-TempMoney)) {
-                    count += 1;
-                    
-                    NSArray * titles = count>1?@[@"确认使用",[NSString stringWithFormat:@"使用%d次",count-1]]:@[@"确认使用"];
-                    
-                    UIAlertView * alertView = [UIAlertView showWithTitle:@"温馨提示"
-                                                                 message:[NSString stringWithFormat:@"卡号为%@将扣除%d次，多余的金额不退",model.sequenceNo,count]
-                                                       cancelButtonTitle:@"取消"
-                                                       otherButtonTitles:titles
-                                                                tapBlock:^(UIAlertView * _Nonnull alertView, NSInteger buttonIndex) {
-                                                                    
-                                                                    if (buttonIndex == 1) {
-                                                                        isAcceptOverflow = YES;
-                                                                    }else if (buttonIndex ==2){
-                                                                        isAcceptOverflow = NO;
-                                                                    }else{
-                                                                        return ;
-                                                                    }
-                                                                    [self handleCouponCardWithArray:array];
-                        }];
-                    
-                    [alertView show];
-                    return;
-                }
-            }else{
-                temp_need_pay = temp_need_pay - totalMoney;
+            
+            if (model.localval.floatValue > temp_need_pay) {
+                __weak typeof(self)wself = self;
+                UIAlertView * alertView = [UIAlertView showWithTitle:@"温馨提示"
+                                                             message:[NSString stringWithFormat:@"卡号为%@将扣除%@元，多扣除的%.1f元不退还",model.sequenceNo,model.localval,model.localval.floatValue-temp_need_pay]
+                                                   cancelButtonTitle:@"取消"
+                                                   otherButtonTitles:@[@"确认使用",@"移除改卡"]
+                                                            tapBlock:^(UIAlertView * _Nonnull alertView, NSInteger buttonIndex) {
+                                                                
+                                                                if (buttonIndex == 1) {
+                                                                    [wself handleCouponCardWithArray:array];
+                                                                }else if (buttonIndex ==2){
+                                                                    [wself.dataArray[segmentControl.selectedSegmentIndex] removeObject:model];
+                                                                    [wself.myTableView reloadData];
+                                                                }else{
+                                                                    return ;
+                                                                }
+                                                            }];
+                [alertView show];
+                return;
             }
+            temp_need_pay -= model.localval.floatValue;
         }
     }
     
+    
     [self handleCouponCardWithArray:array];
+    
 }
 
 
@@ -571,7 +607,7 @@
         }
     }
 
-    isHiddenAdd[segmentControl.selectedSegmentIndex] = _needPayPrice <= totalMoney?YES:NO;
+    hiddenAddCoupon = _needPayPrice <= totalMoney?YES:NO;
 }
 
 #pragma mark -----  跳转到选座界面

@@ -71,6 +71,10 @@ typedef void(^SNLocationManagerFailedBlock)(void);
  *  右侧按钮点击方法
  */
 -(void)rightButtonTap:(UIButton *)sender;
+/**
+ *  键盘弹出提醒
+ */
+- (void)keyboardWillShow:(NSNotification *)notification;
 
 
 /**

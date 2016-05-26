@@ -14,6 +14,10 @@
 @property (nonatomic) CGFloat right;
 @property (nonatomic) CGFloat left;
 
+@property (nonatomic) CGFloat centerX;
+
+@property (nonatomic) CGFloat centerY;
+
 @property (nonatomic) CGFloat width;
 @property (nonatomic) CGFloat height;
 

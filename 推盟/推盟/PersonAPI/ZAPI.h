@@ -31,7 +31,7 @@
         success:(void (^)(id data))success
         failure:(void (^)(NSError *error))failure;
 //电影数据不需要传平台版本号
--(void)sendMoviePost:(NSString *)rawURL myParams:(NSDictionary *)params
+-(NSURLSessionDataTask *)sendMoviePost:(NSString *)rawURL myParams:(NSDictionary *)params
         success:(void (^)(id data))success
         failure:(void (^)(NSError *error))failure;
 
@@ -42,7 +42,7 @@
  *  @param success 成功回调
  *  @param failure 失败回调
  */
--(void)sendGet:(NSString *)rawURL success:(void (^)(id data))success failure:(void (^)(NSError*error))failure;
+-(NSURLSessionDataTask *)sendGet:(NSString *)rawURL success:(void (^)(id data))success failure:(void (^)(NSError*error))failure;
 //电影数据不需要传平台版本号
 -(void)sendMovieGet:(NSString *)rawURL success:(void (^)(id data))success failure:(void (^)(NSError*error))failure;
 /**

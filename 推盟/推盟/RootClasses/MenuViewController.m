@@ -243,6 +243,7 @@
     }
     
     if (![ZTools isLogIn]) {
+        
         [self showLoginViewController];
         return;
     }
@@ -291,9 +292,14 @@
 #pragma mark -----   跳转到登录界面
 -(void)showLoginViewController{
     
+    [[LogInView sharedInstance] loginShowWithSuccess:^{
+        
+    }];
+    /*
     UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"Main" bundle:nil];
     UINavigationController * login = (UINavigationController*)[storyboard instantiateViewControllerWithIdentifier:@"LogInViewController"];
     [self presentViewController:login animated:YES completion:nil];
+     */
 }
 
 #pragma mark -----   设置

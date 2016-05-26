@@ -22,6 +22,10 @@
 #import "WXUtil.h"
 #import "UIAlertView+Blocks.h"
 
+#define ROOT_TASK_ID @"1"
+#define ROOT_GAME_ID @"4"
+#define ROOT_MOVIE_ID @"2"
+
 @interface RootViewController ()<SNRefreshDelegate,UITableViewDataSource,SDCycleScrollViewDelegate>{
     BOOL                isShowCycleView;
     /**
@@ -33,7 +37,6 @@
      */
     int                 currentPage;
     
-//    CLLocationManager   * locationManager;
     AMapLocationManager * locationManager;
     //记录取到数据库第几条数据
     int                 get_sql_index;
@@ -107,7 +110,7 @@
     [self presentViewController:navc animated:YES completion:nil];
     
     __WeakSelf__ wself = self;
-    [viewController selectedCityWithCityBlock:^(SubCityModel *model) {
+    [viewController selectedCityWithCityBlock:^(MovieCityModel *model) {
         [ZTools setSelectedCity:model.cityName cityId:model.cityId];
         currentArea = model.cityName;
         [wself createLeftItem];
@@ -117,7 +120,9 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-    [UIApplication sharedApplication].statusBarHidden = NO;
+    [[UIApplication sharedApplication] setStatusBarHidden:NO];
+    
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardWillShowNotification object:nil];
     
     [self setMyViewControllerRightButtonType:MyViewControllerButtonTypePhoto WihtRightString:@"root_personal_center_image"];
     //侧边栏，暂时隐藏
@@ -191,7 +196,12 @@
 #pragma mark ------   个人中心
 -(void)rightButtonTap:(UIButton *)sender{
     if (![ZTools isLogIn]) {
-        [self performSegueWithIdentifier:@"showLoginSegue" sender:@"personal"];
+//        [self performSegueWithIdentifier:@"showLoginSegue" sender:@"personal"];
+        __weak typeof(self)wself = self;
+        [[LogInView sharedInstance] loginShowWithSuccess:^{
+            [wself performSegueWithIdentifier:@"showPersonalCenterSegue" sender:nil];
+        }];
+        
     }else{
         [self performSegueWithIdentifier:@"showPersonalCenterSegue" sender:nil];
     }
@@ -209,62 +219,6 @@
     [self loadTitlesData];
 }
 #pragma mark --------------  网络请求  -----------------
-/*
-//获取在线数据
--(void)loadOnLineTaskListData{
-
-    __weak typeof(self)wself = self;
-    RootTopTitleModel*model = _top_array[currentPage];
-    SNRefreshTableView * tableView = _contentViews[currentPage];
-    int page = currentPage;
-    if (currentPage != 0) {
-        [_online_task_array removeAllObjects];
-        NSArray * array = [TaskInfo MR_findByAttribute:@"column_name" withValue:model.column_name];
-        
-        for (TaskInfo * info in array) {
-            NSLog(@"info.name -----   %@",info.column_name);
-            [_online_task_array addObject:info];
-        }
-        
-        [tableView finishReloadigData];
-        
-    }else{
-        [_online_task_array removeAllObjects];
-        NSArray * array = [TaskInfo MR_findAll];
-        
-        for (TaskInfo * info in array) {
-            [_online_task_array addObject:info];
-        }
-        
-        [tableView finishReloadigData];
-    }
-    
-    NSLog(@"url ---  %@",[NSString stringWithFormat:@"%@&user_id=%@&column_id=%@&city=%@&page=1",GET_ALL_ONLINE_TASK_URL,[ZTools getUid],model.id,location_city]);
-    [[ZAPI manager] sendGet:[NSString stringWithFormat:@"%@&user_id=%@&column_id=%@&city=%@&page=1",GET_ALL_ONLINE_TASK_URL,[ZTools getUid],model.id,location_city] success:^(id data) {
-        if (data && [data isKindOfClass:[NSDictionary class]]) {
-            tableView.isHaveMoreData = YES;
-            if ([[data objectForKey:@"status"] intValue] == 1) {
-                NSArray * array = [data objectForKey:@"task_list"];
-                
-                if (array && [array isKindOfClass:[NSArray class]]) {
-                    
-//                    [wself taskDataCacheWithArray:array];
-//                    [wself handleOnlineTaskDataWithDictionary:array WithTableView:tableView WithTitleModel:model WithPage:page];
-//                    for (NSDictionary * aDic in array) {
-//                        //[wself handleOnlineTaskDataWithDictionary:aDic WithTableView:tableView];
-//                    }
-                }
-            }
-        }
-        
-        [tableView finishReloadigData];
-        
-    } failure:^(NSError *error) {
-        [ZTools showMBProgressWithText:@"请求超时..." WihtType:MBProgressHUDModeText addToView:wself.view isAutoHidden:YES];
-        [(SNRefreshTableView*)[wself.contentViews objectAtIndex:currentPage] finishReloadigData];
-    }];
-}
- */
 //获取已结束任务数据
 -(void)loadOffLineTaskListData{
     
@@ -314,85 +268,62 @@
         [tableView finishReloadigData];
     }];
 }
-/*
-//从数据库拿数据
--(void)loadTaskEndDataFromSQLiteWithTableView:(SNRefreshTableView*)tableView
-                               WithColumnName:(NSString *)name
-                                     withPage:(int)page{
-    NSFetchRequest *request = [[NSFetchRequest alloc] init];
-    NSEntityDescription *entity = [NSEntityDescription entityForName:@"TaskInfo" inManagedObjectContext:[NSManagedObjectContext MR_defaultContext]];
-    [request setEntity:entity];
-    NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc] initWithKey:@"create_time" ascending:NO];
-    NSArray *sortDescriptors = [[NSArray alloc] initWithObjects:sortDescriptor, nil];
-    [request setSortDescriptors:sortDescriptors];
-    [request setFetchLimit:20];
-    [request setFetchOffset:get_sql_index];
-    if (name.length != 0) {
-        [request setPredicate:[NSPredicate predicateWithFormat:@"column_name=%@",name]];
-    }
-    NSArray *rssTemp = [[NSManagedObjectContext MR_defaultContext] executeFetchRequest:request error:nil];
-    
-    if (rssTemp.count == 0) {
-        get_sql_index = 0;
-        [self loadOffLineTaskListData];
-    }else{
-        for (TaskInfo * info in rssTemp) {
-            [_data_array[page] addObject:info];
-        }
-        [tableView finishReloadigData];
-    }
-}
-*/
+#pragma mark ------  下载任务列表文件
 -(void)loadRootTaskListFile{
     int page = currentPage;
     SNRefreshTableView * tableView = _contentViews[page];
-    //沙盒路径
+    
+    
+    NSURLRequest * request = [NSURLRequest requestWithURL:[NSURL URLWithString:[NSString stringWithFormat:@"%@/Test_version/include/index_lista.txt?%@",WEBSITE,[ZTools timechangeToDateline]]]];
+    
+    AFURLSessionManager * manager = [[AFURLSessionManager alloc] init];
     NSString *savedPath = [NSHomeDirectory() stringByAppendingString:@"/Documents/task.txt"];
     NSString *copy_path = [NSHomeDirectory() stringByAppendingString:@"/Documents/task_copy.txt"];
+
+    NSURLSessionDownloadTask * task = [manager downloadTaskWithRequest:request progress:^(NSProgress * _Nonnull downloadProgress) {
+        
+    } destination:^NSURL * _Nonnull(NSURL * _Nonnull targetPath, NSURLResponse * _Nonnull response)
+                                       {
+                                           
+                                           // URLWithString返回的是网络的URL,如果使用本地URL,需要注意
+                                           NSURL *fileURL = [NSURL fileURLWithPath:copy_path];
+                                           
+                                           return fileURL;
+                                       }completionHandler:^(NSURLResponse * _Nonnull response, NSURL * _Nullable filePath, NSError * _Nullable error) {
+                                           if (error) {
+                                               [ZTools showMBProgressWithText:@"请求超时..." WihtType:MBProgressHUDModeText addToView:self.view isAutoHidden:YES];
+                                               [tableView finishReloadigData];
+                                           }else{
+                                               NSLog(@"下载成功");
+                                               NSData *data = [[NSMutableData alloc] initWithContentsOfFile:copy_path];
+                                               id json = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
+                                               NSLog(@"json:%@",json);
+                                               if (json && [json isKindOfClass:[NSArray class]]) {
+                                                   [self.data_array[page] removeAllObjects];
+                                                   tableView.isHaveMoreData = YES;
+                                                   [self handleTaskDataWithDictionary:json WithTableView:tableView WithPage:page];
+                                                   
+                                                   //把数据写入到task.txt
+                                                   [json writeToFile:savedPath atomically:NO];
+                                                   
+                                                   //删除下载的文件，避免下次下载不替换原文件
+                                                   NSFileManager * fileManager = [NSFileManager defaultManager];
+                                                   if ([fileManager fileExistsAtPath:copy_path]) {
+                                                       [fileManager removeItemAtPath:copy_path error:nil];
+                                                   }
+                                               }else{
+                                                   [ZTools showMBProgressWithText:@"加载失败，请重试" WihtType:MBProgressHUDModeText addToView:self.view isAutoHidden:YES];
+                                               }
+                                               [tableView finishReloadigData];
+
+                                           }
+                                       }];
     
-    AFHTTPRequestSerializer *serializer = [AFHTTPRequestSerializer serializer];
-    NSMutableURLRequest *request =[serializer requestWithMethod:@"GET" URLString:[NSString stringWithFormat:@"http://test.twttmob.com/Test_version/include/index_list.txt?%@",[ZTools timechangeToDateline]] parameters:nil error:nil];
-    
-    AFHTTPRequestOperation *operation = [[AFHTTPRequestOperation alloc]initWithRequest:request];
-    [operation setOutputStream:[NSOutputStream outputStreamToFileAtPath:savedPath append:NO]];
-    
-    __weak typeof(self)wself = self;
-    [operation setCompletionBlockWithSuccess:^(AFHTTPRequestOperation *operation, id responseObject) {
-        NSLog(@"下载成功");
-        NSData *data = [[NSMutableData alloc] initWithContentsOfFile:savedPath];
-        id json = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
-        NSLog(@"json:%@",json);
-        if (json && [json isKindOfClass:[NSArray class]]) {
-            [wself.data_array[page] removeAllObjects];
-            tableView.isHaveMoreData = YES;
-            [wself handleTaskDataWithDictionary:json WithTableView:tableView WithPage:page];
-            //拷贝一份
-            NSFileManager * fileManager = [NSFileManager defaultManager];
-            if ([fileManager fileExistsAtPath:copy_path]) {
-                [fileManager removeItemAtPath:copy_path error:nil];
-            }
-            BOOL result = [fileManager copyItemAtPath:savedPath toPath:copy_path error:nil];
-            NSLog(@"copy_result ---  %d",result);
-        }else{
-            [ZTools showMBProgressWithText:@"加载失败，请重试" WihtType:MBProgressHUDModeText addToView:wself.view isAutoHidden:YES];
-        }
-        [tableView finishReloadigData];
-    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
-        NSLog(@"下载失败---- %@",error);
-        [ZTools showMBProgressWithText:@"请求超时..." WihtType:MBProgressHUDModeText addToView:wself.view isAutoHidden:YES];
-        [tableView finishReloadigData];
-    }];
-    
-    [operation start];
+    [task resume];
+
 }
 
 -(void)loadFocusData{
-    
-    if (!_c_array) {
-        _c_array            = [NSMutableArray array];
-        _focus_image_array  = [NSMutableArray array];
-        _focus_title_array  = [NSMutableArray array];
-    }
     
     __weak typeof(self)wself = self;
     [[ZAPI manager] sendGet:[NSString stringWithFormat:@"%@&type=%@",GIFT_FOCUS_IMAGES_URL,@"root"] success:^(id data) {
@@ -428,7 +359,7 @@
     __weak typeof(self)wself = self;
     [[ZAPI manager] sendGet:ROOT_TITLES_URL success:^(id data) {
         if ( data && [data isKindOfClass:[NSDictionary class]]) {
-            NSString * status = [data objectForKey:@"status"];
+            NSString * status = [data objectForKey:ERROR_CODE];
             NSArray * array;
             if (status.intValue == 1) {
                 array = [data objectForKey:@"column"];
@@ -478,174 +409,6 @@
     }
 }
 
-
-/*
-#pragma mark ----  处理首页任务文件数据（并缓存到数据库）
--(void)handleOnlineTaskDataWithDictionary:(NSArray*)array
-                            WithTableView:(SNRefreshTableView *)tableView
-                           WithTitleModel:(RootTopTitleModel*)title_model
-                                 WithPage:(int)page{
-    
-    [_online_task_array removeAllObjects];
-    
-    tableView.isHaveMoreData = YES;
-    
-    for (NSDictionary * item in array) {
-        
-        NSMutableDictionary * aDic = [[NSMutableDictionary alloc] initWithDictionary:item];
-        
-        //数据添加到数组
-        TaskInfo * model = [TaskInfo MR_createEntityInContext:nil];
-        [model setValueWithDictionary:aDic];
-        
-        if (![model.area isEqualToString:@"全国"] || [[ZTools replaceNullString:model.area WithReplaceString:@""] length] == 0) {
-            
-            if ([model.area rangeOfString:[ZTools getIPAddress]].length == 0 && [model.area rangeOfString:[ZTools getIPAddress]].length == 0 && [model.area rangeOfString:[ZTools getIPAddress]].length == 0) {
-                continue;
-            }
-        }
-        
-        NSArray * task = [TaskInfo MR_findByAttribute:@"encrypt_id" withValue:[aDic objectForKey:@"encrypt_id"]];
-        if (model.task_status.intValue != 1)//把已结束的并且数据库不存在的任务存到数据库
-        {
-            if (!task || task.count == 0) {
-                TaskInfo * model = [TaskInfo MR_createEntity];
-                [model setValueWithDictionary:aDic];
-                [[NSManagedObjectContext MR_defaultContext] MR_saveToPersistentStoreAndWait];
-            }
-            sqlite_index[page]++;
-            [_data_array[page] addObject:model];
-        }else//在线的任务，看看数据库有没有相同的任务，如果有表示重新上线的，从数据库删除
-        {
-            if (task && task.count > 0) {
-                for (TaskInfo * obj in task) {
-                    [obj MR_deleteEntity];
-                }
-                [[NSManagedObjectContext MR_defaultContext] MR_saveToPersistentStoreAndWait];
-            }
-            
-            [_online_task_array addObject:model];
-            [_data_array[page] addObject:model];
-        }
-    }
-    
-    [tableView finishReloadigData];
-    
-    
-}
-//处理已结束任务数据
--(void)handleOfflineTaskDataWithArray:(NSArray*)array
-                      WithCurrentPage:(int)page
-                        WithTableView:(SNRefreshTableView*)tableView
-                WithRootTopTitleModel:(RootTopTitleModel*)model{
-    
-    //如果是其他的栏目，并且请求第一页数据，如果没有数据，去数据库查找
-    if (page != 0 && tableView.pageNum == 1 && array.count == 0) {
-        
-        NSArray * task_list = [TaskInfo MR_findAllSortedBy:@"create_time" ascending:YES withPredicate:[NSPredicate predicateWithFormat:@"column_name=%@",model.column_name]];
-        if (!task_list || task_list.count == 0) {
-            tableView.isHaveMoreData = NO;
-        }else{
-            for (TaskInfo * obj in task_list) {
-                [_data_array[page] addObject:obj];
-            }
-        }
-        return;
-    }
-    
-    for (NSDictionary * item in array) {
-        NSArray * task = [TaskInfo MR_findByAttribute:@"encrypt_id" withValue:[item objectForKey:@"encrypt_id"]];
-        
-        if ((!task || task.count == 0)) {
-            if (page == 0) {
-                NSLog(@"-------   %@",[item objectForKey:@"encrypt_id"]);
-                TaskInfo * info = [TaskInfo MR_createEntity];
-                [info setValueWithDictionary:item];
-                [[NSManagedObjectContext MR_defaultContext] MR_saveToPersistentStoreAndWait];
-                
-                info = nil;
-                sqlite_index[page]++;
-            }
-        }else{
-            sqlite_index[page]++;
-        }
-        
-        TaskInfo * model = [TaskInfo MR_createEntityInContext:nil];
-        [model setValueWithDictionary:item];
-        [_data_array[page] addObject:model];
-    }
-}
-
-
-#pragma mark ---  任务数据缓存
--(void)taskDataCacheWithArray:(NSArray*)array{
-
-    
-    for (NSDictionary * item in array) {
-        NSArray * task = [TaskInfo MR_findByAttribute:@"encrypt_id" withValue:[item objectForKey:@"encrypt_id"]];
-        if (!task || task.count == 0) {
-            if ([item[@"task_status"] intValue] != 1) {
-                TaskInfo * info = [TaskInfo MR_createEntity];
-                [info setValueWithDictionary:item];
-                [[NSManagedObjectContext MR_defaultContext] MR_saveToPersistentStoreAndWait];
-            }
-        }
-    }
-    
-    NSArray * task_array = [TaskInfo MR_findAll];
-    NSLog(@"task_array -------  %d",(int)task_array.count);
-    
-    for (TaskInfo * item in task_array) {
-        NSLog(@"item.name ----   %@",item.task_name);
-    }
-    
-    
-    TaskInfo * object = [TaskInfo MR_findFirstOrderedByAttribute:@"task_name" ascending:NO];
-    
-    NSArray * column_array = [TaskInfo MR_findAllSortedBy:@"task_name" ascending:YES withPredicate:[NSPredicate predicateWithFormat:@"column_name=%@",@"电影"]];
-    
-    for (TaskInfo * item in task_array) {
-        NSLog(@"item.name ----   %@",item.task_name);
-    }
-    
-    
-    NSFetchRequest *request = [[NSFetchRequest alloc] init];
-    NSEntityDescription *entity = [NSEntityDescription entityForName:@"TaskInfo" inManagedObjectContext:[NSManagedObjectContext MR_defaultContext]];
-    [request setEntity:entity];
-    NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc] initWithKey:@"task_name" ascending:NO];
-    NSArray *sortDescriptors = [[NSArray alloc] initWithObjects:sortDescriptor, nil];
-    [request setSortDescriptors:sortDescriptors];
-    [request setFetchLimit:10];
-    [request setFetchOffset:10];
-    NSArray *rssTemp = [[NSManagedObjectContext MR_defaultContext] executeFetchRequest:request error:nil];
-    
-    for (TaskInfo * info in rssTemp) {
-        NSLog(@"name -=-=-==-=-=   %@",info.task_name);
-    }
-    
-    [TaskInfo MR_findFirstWithPredicate:[NSPredicate predicateWithFormat:@"column_name=%@",@"电影"] sortedBy:@"encrypt_id" ascending:YES];
-    NSLog(@"id ------------   %@",object.encrypt_id);
- 
-}
-
-#pragma mark ----  加载更多时，先判断有没有本地数据
--(void)loadMoreTaskListData{
-    RootTopTitleModel*model = _top_array[currentPage];
-    SNRefreshTableView * tableView = _contentViews[currentPage];
-    
-    if (currentPage == 0) {
-        if (sqlite_index[currentPage]) {
-            [self loadTaskEndDataFromSQLiteWithTableView:tableView
-                                          WithColumnName:currentPage?model.column_name:@""
-                                                withPage:currentPage];
-        }else{
-            [self loadOffLineTaskListData];
-        }
-    }else{
-        [self loadOffLineTaskListData];
-    }
-}
-*/
 #pragma mark ----  任务读取缓存数据
 -(void)ReadCacheTaskListDataWithTableView:(SNRefreshTableView*)tableView WithPage:(int)page{
     NSString *savedPath = [NSHomeDirectory() stringByAppendingString:@"/Documents/task.txt"];
@@ -673,12 +436,21 @@
 
 #pragma mark - 处理标题数据
 -(void)columnDataWith:(NSArray*)array{
-    
+
+    if (!_c_array) {
+        _c_array            = [NSMutableArray array];
+        _focus_image_array  = [NSMutableArray array];
+        _focus_title_array  = [NSMutableArray array];
+    }
     for (NSDictionary * dic in array) {
         
         RootTopTitleModel * model = [[RootTopTitleModel alloc] initWithDictionary:dic];
         [self.top_array addObject:model];
         [self.top_title_array addObject:model.column_name];
+        
+        [_c_array           addObject:model.is_show.intValue?[NSMutableArray array]:@""];
+        [_focus_image_array addObject:model.is_show.intValue?[NSMutableArray array]:@""];
+        [_focus_title_array addObject:model.is_show.intValue?[NSMutableArray array]:@""];
     }
     [self createMainViews];
     [self createTopTitleView];
@@ -689,8 +461,12 @@
     _topScrollView = [[SListTopBarScrollView alloc] initWithFrame:CGRectMake(0,0,DEVICE_WIDTH,45)];
     __weak typeof(self)wself = self;
     _topScrollView.scrollsToTop = NO;
-    _topScrollView.btnWidth                 = DEVICE_WIDTH/4.0f-10;
-    _topScrollView.lineWidth                = (DEVICE_WIDTH/4.0f-10)-20;
+    float titleWidth = DEVICE_WIDTH/4.0f-10;
+    if (_top_title_array.count*titleWidth < DEVICE_WIDTH) {
+        titleWidth = DEVICE_WIDTH/_top_title_array.count;
+    }
+    _topScrollView.btnWidth                 = titleWidth;
+    _topScrollView.lineWidth                = titleWidth-20;
     _topScrollView.titleNormalColor         = [UIColor whiteColor];
     _topScrollView.titleSelectedColor       = DEFAULT_BACKGROUND_COLOR;
     _topScrollView.titleFont                = [ZTools returnaFontWith:15];
@@ -714,12 +490,16 @@
      } completion:^(BOOL finished) {
          
          if ([tableView isKindOfClass:[RootMovieView class]]) {
-             [(RootMovieView*)tableView loadMoiveData];
+             RootMovieView * movieView = (RootMovieView *)tableView;
+             //判断如果是第一次则加载数据
+             if (movieView.data_array.count == 0) {
+                 [(RootMovieView*)tableView loadMoiveData];
+             }
          }else if ([tableView isKindOfClass:[UIWebView class]]){
              UIWebView * webView = (UIWebView *)tableView;
              [MobClick event:@"RootGame"];
              if (!webView.request.URL) {
-                 [webView loadRequest:[[NSURLRequest alloc] initWithURL:[NSURL URLWithString:@"http://gc.hgame.com/home/index/appid/100465"]]];
+                 [webView loadRequest:[[NSURLRequest alloc] initWithURL:[NSURL URLWithString:GAME_SITE]]];
              }
          }else{
              [(SNRefreshTableView*)pre_tableView setScrollsToTop:NO];
@@ -731,47 +511,26 @@
              }
          }
      }];
-    
-    /*向下滑动隐藏导航栏
-    if (page != 2) {
-        [self.navigationController setNavigationBarHidden:NO animated:YES];
-        [[UIApplication sharedApplication] setStatusBarHidden:NO withAnimation:UIStatusBarAnimationSlide];
-        _myScrollView.height = DEVICE_HEIGHT-_topScrollView.height-64;
-    }
-     */
 }
 #pragma mark -----  创建所有tableview
 -(void)createMainViews{
     for (int i = 0; i < self.top_array.count; i++) {
-        
-        NSString * title = [_top_title_array objectAtIndex:i];
+        RootTopTitleModel * model = _top_array[i];
         [_data_array addObject:[NSMutableArray array]];
-        if ([title isEqualToString:@"电影"]) {
+        if ([model.id isEqualToString:ROOT_MOVIE_ID])//电影频道
+        {
             RootMovieView * movie_view = [[RootMovieView alloc] initWithFrame:CGRectMake(DEVICE_WIDTH*i, 0, DEVICE_WIDTH, self.myScrollView.height)];
             movie_view.viewController = self;
             [_myScrollView addSubview:movie_view];
             [_contentViews addObject:movie_view];
             
-            /*
-            __weak typeof(movie_view) wMovieView = movie_view;
-            [movie_view setNavigationViewShow:^(BOOL isShow) {
-                if (currentPage == 2) {
-                    [self.navigationController setNavigationBarHidden:!isShow animated:YES];
-                    [[UIApplication sharedApplication] setStatusBarHidden:!isShow withAnimation:UIStatusBarAnimationSlide];
-                    _myScrollView.height = DEVICE_HEIGHT-_topScrollView.height;
-                    wMovieView.height = DEVICE_HEIGHT - _topScrollView.height;
-                    wMovieView.myTableView.height = wMovieView.height - wMovieView.top_view.height;
-                }
-            }];
-             */
-            
-        }else if ([title rangeOfString:@"游戏"].length){
+        }else if ([model.id isEqualToString:ROOT_GAME_ID]){
             
             UIWebView * webView = [[UIWebView alloc] initWithFrame:CGRectMake(DEVICE_WIDTH*i,0,DEVICE_WIDTH,self.myScrollView.height)];
             webView.scalesPageToFit = YES;
             [_myScrollView addSubview:webView];
             [_contentViews addObject:webView];
-        }else
+        }else if([model.id isEqualToString:ROOT_TASK_ID])
         {
             SNRefreshTableView * tableView  = [[SNRefreshTableView alloc] initWithFrame:CGRectMake(DEVICE_WIDTH*i,0,DEVICE_WIDTH,self.myScrollView.height) showLoadMore:YES];
             tableView.separatorStyle        = UITableViewCellSeparatorStyleNone;
@@ -812,15 +571,16 @@
 }
 #pragma mark ------------------   Refresh delegate methods
 - (void)loadNewData{
-    if (currentPage == 0) {
+    RootTopTitleModel * model = _top_array[currentPage];
+    if ([model.id isEqualToString:ROOT_TASK_ID]) {
+
         [self loadFocusData];
         [self loadRootTaskListFile];
-    }else{
-        [self loadOffLineTaskListData];
     }
 }
 - (void)loadMoreData{
-    if ([_data_array[currentPage] count] != 0) {
+    RootTopTitleModel * model = _top_array[currentPage];
+    if ([_data_array[currentPage] count] != 0 && [model.id isEqualToString:ROOT_TASK_ID]) {
         [self loadOffLineTaskListData];
     }
 }
@@ -851,7 +611,7 @@
         BOOL isLogIn = [[NSUserDefaults standardUserDefaults] boolForKey:LOGIN];
         
         if (!isLogIn) {
-            [self performSegueWithIdentifier:@"showLoginSegue" sender:@"share"];
+            [[LogInView sharedInstance] loginShowWithSuccess:nil];
         }else{
             [self performSegueWithIdentifier:@"ShowSharePageSegue" sender:model.encrypt_id];
         }
@@ -912,6 +672,9 @@
 
 #pragma mark ----  处理定位信息
 -(void)handleLocationManagerDataWithCity:(NSString *)city{
+    if (city.length == 0) {
+        return;
+    }
     location_city = [ZTools CutAreaString:city];
     
     NSRange range = [city rangeOfString:@"市"];
@@ -975,7 +738,7 @@
             if ([vc isKindOfClass:[LogInViewController class]]) {
                 login = (LogInViewController*)vc;
                 [login successLogin:^(NSString *source) {
-                    if (_contentViews.count>1) {
+                    if (_contentViews.count>1 && currentPage == 0) {
                         SNRefreshTableView * tableView = _contentViews[0];
                         [tableView showRefreshHeader:YES];
                     }

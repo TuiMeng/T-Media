@@ -44,20 +44,20 @@
     // searchResultsDelegate 就是 UITableViewDelegate
     searchDisplayController.searchResultsDelegate = self;
     
-    id cityDate = [[NSUserDefaults standardUserDefaults] objectForKey:@"createCityDataTime"];
-
-    if (cityDate && [cityDate isKindOfClass:[NSDate class]]) {
-        NSDate * now = [NSDate date];
-        double interval = [now timeIntervalSinceDate:cityDate];
-        if (interval >= 7*24*60*60) {
-            [self loadCityData];
-        }else{
-            id citys = [[NSUserDefaults standardUserDefaults] objectForKey:@"cityData"];
-            [self handleCityData:citys];
-        }
-    }else{
+//    id cityDate = [[NSUserDefaults standardUserDefaults] objectForKey:@"createCityDataTime"];
+//
+//    if (cityDate && [cityDate isKindOfClass:[NSDate class]]) {
+//        NSDate * now = [NSDate date];
+//        double interval = [now timeIntervalSinceDate:cityDate];
+//        if (interval >= 7*24*60*60) {
+//            [self loadCityData];
+//        }else{
+//            id citys = [[NSUserDefaults standardUserDefaults] objectForKey:@"cityData"];
+//            [self handleCityData:citys];
+//        }
+//    }else{
         [self loadCityData];
-    }
+//    }
 }
 
 -(void)leftButtonTap:(UIButton *)sender{
@@ -65,8 +65,12 @@
 }
 #pragma mark ----- 网络请求
 -(void)loadCityData{
+    
+    [self startLoading];
+    
     __weak typeof(self)wself = self;
     [[ZAPI manager] sendMovieGet:GET_ALL_CITY_URL success:^(id data) {
+        [wself endLoading];
         if (data && [data isKindOfClass:[NSArray class]]) {
             [[NSUserDefaults standardUserDefaults] setObject:data forKey:@"cityData"];
             [[NSUserDefaults standardUserDefaults] setObject:[NSDate date] forKey:@"createCityDataTime"];
@@ -75,7 +79,9 @@
         }
         
     } failure:^(NSError *error) {
-        
+        [wself endLoading];
+        id citys = [[NSUserDefaults standardUserDefaults] objectForKey:@"cityData"];
+        [self handleCityData:citys];
     }];
 }
 
@@ -84,13 +90,8 @@
     NSArray * array = (NSArray *)data;
     
     for (NSDictionary * dic in array) {
-        id citys = dic[@"citys"];
-        if ([citys isKindOfClass:[NSArray class]] && ![citys isKindOfClass:[NSNull class]]) {
-            if ([(NSArray*)citys count]) {
-                MovieCityModel * model = [[MovieCityModel alloc] initWithDictionary:dic];
-                [self.city_array addObject:model];
-            }
-        }
+        MovieCityModel * model = [[MovieCityModel alloc] initWithDictionary:dic];
+        [self.city_array addObject:model];
     }
     
     [self.myTableView reloadData];
@@ -100,9 +101,7 @@
 -(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
     
     if (tableView == self.myTableView) {
-        MovieCityModel * province_model = [_city_array objectAtIndex:section];
-        
-        return province_model.city_array.count;
+        return _city_array.count;
     }else{
         if (!_searchArray) {
             _searchArray = [NSMutableArray array];
@@ -111,10 +110,8 @@
         }
         
         for (MovieCityModel * model in _city_array) {
-            for (SubCityModel * city in model.city_array) {
-                if ([city.cityName rangeOfString:searchDisplayController.searchBar.text].length) {
-                    [_searchArray addObject:city];
-                }
+            if ([model.cityName rangeOfString:searchDisplayController.searchBar.text].length) {
+                [_searchArray addObject:model];
             }
         }
         
@@ -122,12 +119,7 @@
     }
 }
 -(NSInteger)numberOfSectionsInTableView:(UITableView *)tableView{
-    
-    if (tableView == self.myTableView) {
-        return _city_array.count;
-    }else{
-        return 1;
-    }
+    return 1;
 }
 
 -(UITableViewCell*)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
@@ -138,11 +130,10 @@
     }
     
     if (tableView == self.myTableView) {
-        MovieCityModel * province_model = [_city_array objectAtIndex:indexPath.section];
-        SubCityModel * city_model = [province_model.city_array objectAtIndex:indexPath.row];
-        cell.textLabel.text = city_model.cityName;
+        MovieCityModel * cityModel = [_city_array objectAtIndex:indexPath.row];
+        cell.textLabel.text = cityModel.cityName;
     }else{
-        SubCityModel * city_model = [_searchArray objectAtIndex:indexPath.row];
+        MovieCityModel * city_model = [_searchArray objectAtIndex:indexPath.row];
         cell.textLabel.text = city_model.cityName;
     }
     cell.textLabel.font = [ZTools returnaFontWith:16];
@@ -150,36 +141,35 @@
     return cell;
 }
 
--(UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section{
-    if (tableView == self.myTableView) {
-        MovieCityModel * model = [_city_array objectAtIndex:section];
-        
-        UIView * section_view = [[UIView alloc] initWithFrame:CGRectMake(0, 0, DEVICE_WIDTH, 30)];
-        section_view.backgroundColor = [UIColor lightGrayColor];
-        
-        UILabel * province_label = [ZTools createLabelWithFrame:CGRectMake(15, 0, DEVICE_WIDTH-30, section_view.height) text:model.province textColor:[UIColor blackColor] textAlignment:NSTextAlignmentLeft font:15];
-        [section_view addSubview:province_label];
-        
-        return section_view;
-    }
-    
-    return nil;
-    
-}
--(CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section{
-    
-    return tableView==self.myTableView?30:0;
-}
+//-(UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section{
+//    if (tableView == self.myTableView) {
+//        MovieCityModel * model = [_city_array objectAtIndex:section];
+//        
+//        UIView * section_view = [[UIView alloc] initWithFrame:CGRectMake(0, 0, DEVICE_WIDTH, 30)];
+//        section_view.backgroundColor = [UIColor lightGrayColor];
+//        
+//        UILabel * province_label = [ZTools createLabelWithFrame:CGRectMake(15, 0, DEVICE_WIDTH-30, section_view.height) text:model.province textColor:[UIColor blackColor] textAlignment:NSTextAlignmentLeft font:15];
+//        [section_view addSubview:province_label];
+//        
+//        return section_view;
+//    }
+//    
+//    return nil;
+//    
+//}
+//-(CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section{
+//    
+//    return tableView==self.myTableView?30:0;
+//}
 
 -(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
     
     if (tableView == self.myTableView) {
-        MovieCityModel * province_model = [_city_array objectAtIndex:indexPath.section];
-        SubCityModel * city_model = [province_model.city_array objectAtIndex:indexPath.row];
+        MovieCityModel * city_model = [_city_array objectAtIndex:indexPath.row];
         city_block(city_model);
     }else{
-        SubCityModel * city_model = [_searchArray objectAtIndex:indexPath.row];
+        MovieCityModel * city_model = [_searchArray objectAtIndex:indexPath.row];
         city_block(city_model);
     }
     

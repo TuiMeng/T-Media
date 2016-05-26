@@ -8,6 +8,7 @@
 
 #import "LogInViewController.h"
 #import <MessageUI/MessageUI.h>
+#import "WXUtil.h"
 
 @interface LogInViewController ()<MFMessageComposeViewControllerDelegate>{
     int time_count;
@@ -20,12 +21,22 @@
 @property (weak, nonatomic) IBOutlet STextField *password_textField;
 ///登陆按钮
 @property (weak, nonatomic) IBOutlet UIButton *login_button;
-///忘记密码
-@property (weak, nonatomic) IBOutlet UIButton *forgot_button;
 /**
  *  验证码
  */
 @property (strong, nonatomic) IBOutlet UIButton *verification_code_button;
+/**
+ *  图片验证码输入框
+ */
+@property (strong, nonatomic) IBOutlet STextField *verificationImageCodeTF;
+/**
+ *  图片验证码
+ */
+@property (strong, nonatomic) IBOutlet UIImageView *verificationImageView;
+/**
+ *  更换图片验证码按钮
+ */
+@property (strong, nonatomic) IBOutlet UIButton *verificationChangeButton;
 /**
  *  邀请码
  */
@@ -38,8 +49,12 @@
 
 ///确认
 - (IBAction)doneButton:(id)sender;
-///忘记密码
-- (IBAction)findPassWordClicked:(id)sender;
+/**
+ *  更换图形验证码
+ */
+- (IBAction)verificationExchange:(id)sender;
+
+
 
 @end
 
@@ -58,7 +73,7 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     self.title_label.text = @"登 录";
-    [self setMyViewControllerRightButtonType:MyViewControllerButtonTypePhoto WihtRightString:@"login_register_image"];
+//    [self setMyViewControllerRightButtonType:MyViewControllerButtonTypePhoto WihtRightString:@"login_register_image"];
     [self setMyViewControllerLeftButtonType:MyViewControllerButtonTypePhoto WihtLeftString:@"system_close_image"];
     [self setup];
 }
@@ -73,6 +88,10 @@
     self.phone_num_textField.layer.cornerRadius = 5;
     self.password_textField.layer.borderWidth = 0.5;
     self.password_textField.layer.cornerRadius = 5;
+    self.verificationImageCodeTF.layer.borderWidth = 0.5;
+    self.verificationImageCodeTF.layer.cornerRadius = 5;
+    self.verification_code_button.layer.borderColor = DEFAULT_BACKGROUND_COLOR.CGColor;
+    
     self.phone_num_textField.left_image = [UIImage imageNamed:@"logIn_phone_image"];
     
     self.invitation_tf.layer.borderColor = DEFAULT_BACKGROUND_COLOR.CGColor;
@@ -81,13 +100,12 @@
     self.verification_code_button.layer.cornerRadius = 5;
     self.verification_code_button.backgroundColor = DEFAULT_BACKGROUND_COLOR;
 
-    
-    _phone_num_textField.font = [ZTools returnaFontWith:15];
-    _password_textField.font = [ZTools returnaFontWith:15];
-    _login_button.titleLabel.font = [ZTools returnaFontWith:15];
-    _forgot_button.titleLabel.font = [ZTools returnaFontWith:15];
+    _phone_num_textField.font       = [ZTools returnaFontWith:15];
+    _password_textField.font        = [ZTools returnaFontWith:15];
+    _login_button.titleLabel.font   = [ZTools returnaFontWith:15];
     _verification_code_button.titleLabel.font = [ZTools returnaFontWith:13];
-    _invitation_tf.font = [ZTools returnaFontWith:15];
+    _invitation_tf.font             = [ZTools returnaFontWith:15];
+    _verificationChangeButton.titleLabel.font = [ZTools returnaFontWith:12];
     
     
     //收不到验证码？手动发送按钮
@@ -97,6 +115,9 @@
     _send_code_button.titleLabel.font = [ZTools returnaFontWith:12];
     [_send_code_button addTarget:self action:@selector(sendCodeButtonTap:) forControlEvents:UIControlEventTouchUpInside];
     [_password_textField addSubview:_send_code_button];
+    
+    
+    [self verificationExchange:nil];
 }
 
 - (void)didReceiveMemoryWarning {
@@ -124,19 +145,22 @@
     
     if (self.password_textField.text.length == 0)
     {
-        [ZTools showMBProgressWithText:@"请输入正确的手机号" WihtType:MBProgressHUDModeText addToView:self.view isAutoHidden:YES];
+        [ZTools showMBProgressWithText:@"请输入验证码" WihtType:MBProgressHUDModeText addToView:self.view isAutoHidden:YES];
         return;
     }
     
     MBProgressHUD * hud = [ZTools showMBProgressWithText:@"登录中..." WihtType:MBProgressHUDModeText addToView:self.view isAutoHidden:NO];
     
-    NSDictionary * aDic = @{@"user":self.phone_num_textField.text,@"user_pwd":self.password_textField.text,@"deviceToken":[ZTools getDeviceToken]};
+    NSDictionary * aDic = @{@"user_mobile":self.phone_num_textField.text,
+                            @"Code_num":self.password_textField.text,
+                            @"invite_code":_invitation_tf.text.length?_invitation_tf.text:@"",
+                            @"deviceToken":[ZTools getDeviceToken]};
     
     __weak typeof(self)wslef = self;
     [[ZAPI manager] sendPost:LOGIN_URL myParams:aDic success:^(id data) {
         [hud hide:YES];
         if (data && [data isKindOfClass:[NSDictionary class]]) {
-            if ([[data objectForKey:@"status"] intValue]==1)
+            if ([[data objectForKey:ERROR_CODE] intValue]==1)
             {
                 [ZTools showMBProgressWithText:@"登录成功" WihtType:MBProgressHUDModeText addToView:self.view isAutoHidden:YES];
 
@@ -146,6 +170,8 @@
                 [user setBool:YES forKey:LOGIN];
                 [user setObject:[ZTools CutAreaString:[data objectForKey:@"mobile_area"]] forKey:PHONE_ADDRESS];
                 [user setObject:[ZTools CutAreaString:[data objectForKey:@"ip_area"]] forKey:IP_ADRESS];
+                //登录时间
+                [user setObject:[ZTools timechangeToDateline] forKey:LOGIN_TIME];
                 [[NSNotificationCenter defaultCenter] postNotificationName:@"successLogin" object:nil userInfo:nil];
                 [wslef dismissViewControllerAnimated:YES completion:^{
                     if (login_block) {
@@ -154,7 +180,7 @@
                 }];
             }else
             {
-                [ZTools showErrorWithStatus:[data objectForKey:@"status"] InView:self.view isShow:YES];
+                [ZTools showMBProgressWithText:data[ERROR_INFO] WihtType:MBProgressHUDModeText addToView:wslef.view isAutoHidden:YES];
             }
         }
         
@@ -162,6 +188,11 @@
         [hud hide:YES];
         [ZTools showMBProgressWithText:@"登录失败，请检查您当前网络" WihtType:MBProgressHUDModeText addToView:self.view isAutoHidden:YES];
     }];
+}
+#pragma mark ------  更换图形验证码
+- (IBAction)verificationExchange:(id)sender {
+    
+    [_verificationImageView sd_setImageWithURL:[NSURL URLWithString:T_VERICATION_CODE_IMAGE_URL([ZTools timechangeToDateline])] placeholderImage:[UIImage imageNamed:DEFAULT_VERIFY_LOADING_IMAGE]];
 }
 
 -(void)leftButtonTap:(UIButton *)sender{
@@ -176,9 +207,43 @@
 }
 #pragma mark ------  获取验证码
 - (IBAction)VerificationButtonClicked:(id)sender {
-    _verification_code_button.userInteractionEnabled = NO;
-    _verification_code_button.backgroundColor = [UIColor lightGrayColor];
-    [self addTimer];
+    
+    if (_phone_num_textField.text.length != 11)
+    {
+        [ZTools showMBProgressWithText:@"请输入正确的手机号" WihtType:MBProgressHUDModeText addToView:self.view isAutoHidden:YES];
+        return;
+    }
+    
+    MBProgressHUD * hud = [ZTools showMBProgressWithText:@"发送中..." WihtType:MBProgressHUDModeIndeterminate addToView:self.view isAutoHidden:NO];
+    NSString * time = [ZTools timechangeToDateline];
+    NSDictionary * dic = @{@"user_mobile":_phone_num_textField.text,
+                           @"sendtime":time,
+                           @"sign":[self buildSignWithDateLine:time]};
+    __weak typeof(self)wself = self;
+    [[ZAPI manager] sendPost:LOGIN_VERIFICATION_CODE_URL myParams:dic success:^(id data) {
+        [hud hide:YES];
+        
+        wself.verification_code_button.userInteractionEnabled = NO;
+        wself.verification_code_button.backgroundColor = [UIColor lightGrayColor];
+        [wself addTimer];
+        
+        if (data && [data isKindOfClass:[NSDictionary class]]) {
+            NSString * status = [data objectForKey:ERROR_CODE];
+            if ([status intValue] == 1)
+            {
+                [ZTools showMBProgressWithText:@"验证码已发送到您的手机上" WihtType:MBProgressHUDModeText addToView:wself.view isAutoHidden:YES];
+            }else
+            {
+                [wself removeTimer];
+                [ZTools showMBProgressWithText:data[ERROR_INFO] WihtType:MBProgressHUDModeText addToView:wself.view isAutoHidden:YES];
+            }
+        }
+    } failure:^(NSError *error) {
+        [wself removeTimer];
+        [hud hide:YES];
+        [ZTools showMBProgressWithText:@"发送失败，请检查当前网络" WihtType:MBProgressHUDModeText addToView:wself.view isAutoHidden:YES];
+    }];
+
 }
 
 #pragma mark -----  增加计时器
@@ -232,6 +297,15 @@
                                               otherButtonTitles:nil, nil];
         [alert show];
     }
+}
+
+-(NSString *)buildSignWithDateLine:(NSString *)dateline{
+    if (dateline && dateline.length > 6) {
+        dateline = [[dateline substringToIndex:dateline.length] substringFromIndex:dateline.length-6];
+    }
+    NSString * sign = [NSString stringWithFormat:@"%@%@%@",_phone_num_textField.text,dateline,@"tuimeng2016edf"];
+    
+    return [WXUtil md5:sign];
 }
 
 #pragma mark -----  短信代理回调

@@ -27,10 +27,10 @@ typedef void(^MCardPayRemoveBlock)(void);
 
 /**
  *  @param model 卡信息
- *  @param type  类型（0：票卡  1：兑换券）
+ *  @param type  类型（0：票卡  1：计次卡 2：兑换券）
  *  @param price 需要支付的钱数
  */
--(void)setInfomationWithCardModel:(MCardModel *)model WithType:(int)type withPrice:(float)price;
+-(void)setInfomationWithCardModel:(id)info WithType:(int)type withPrice:(float)price;
 
 -(void)setPayDoneBlock:(MCardPayDoneBlock)dBlock remove:(MCardPayRemoveBlock)rBlock;
 

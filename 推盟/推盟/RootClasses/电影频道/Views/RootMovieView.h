@@ -26,6 +26,8 @@ typedef void(^RootMovieShowNavigationViewBlock)(BOOL isShow);
 
 @property(nonatomic,strong)SView               * top_view;
 
+@property(nonatomic,strong)NSMutableArray   * data_array;
+
 -(void)loadMoiveData;
 
 -(void)setNavigationViewShow:(RootMovieShowNavigationViewBlock)block;

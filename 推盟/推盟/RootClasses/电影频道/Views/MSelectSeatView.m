@@ -17,6 +17,7 @@
 #define kRowIndexViewDefaultColor   [RGBCOLOR(162,162,162) colorWithAlphaComponent:0.5]
 #define kCenterLineViewTail 6.0
 
+#define TICKET_NUM_LIMIT 4
 
 @interface MSelectSeatView ()<SMCinameSeatScrollViewDelegate,UIScrollViewDelegate>{
     //预览图显示时间
@@ -453,8 +454,8 @@
 
 -(void)buttonSeatClicked:(KyoButton*)button{
     
-    if (_selectedArray.count >= 5 && button.currentState != KyoCinameSeatStateSelected) {
-        [ZTools showMBProgressWithText:@"一次最多购买5张票" WihtType:MBProgressHUDModeText addToView:[UIApplication sharedApplication].keyWindow isAutoHidden:YES];
+    if (_selectedArray.count >= TICKET_NUM_LIMIT && button.currentState != KyoCinameSeatStateSelected) {
+        [ZTools showMBProgressWithText:[NSString stringWithFormat:@"一次最多购买%d张票",TICKET_NUM_LIMIT] WihtType:MBProgressHUDModeText addToView:[UIApplication sharedApplication].keyWindow isAutoHidden:YES];
         return;
     }
     

@@ -9,6 +9,8 @@
 #import "ShareViewController.h"
 #import "LogInViewController.h"
 #import <AssetsLibrary/AssetsLibrary.h>
+#import "WXUtil.h"
+#import "UIAlertView+Blocks.h"
 
 @interface ShareViewController ()<UIActionSheetDelegate,UITableViewDataSource,UITableViewDelegate,CLLocationManagerDelegate,UIImagePickerControllerDelegate,UINavigationControllerDelegate>{
     /**
@@ -52,13 +54,14 @@
     
     
     current = 1000;
-    _data_array = [NSMutableArray array];
-    self.task_model = [[RootTaskListModel alloc] init];
+    _data_array                 = [NSMutableArray array];
+    self.task_model             = [[RootTaskListModel alloc] init];
     
-    _myTableView.delegate = self;
-    _myTableView.dataSource = self;
+    _myTableView.delegate       = self;
+    _myTableView.dataSource     = self;
     _myTableView.separatorStyle = UITableViewCellSeparatorStyleNone;
-    _myTableView.bounces = NO;
+    _myTableView.bounces        = NO;
+    _myTableView.showsVerticalScrollIndicator = NO;
     
     [self startLoading];
     [self loadTaskDetailData];
@@ -67,15 +70,16 @@
     
     share_date = [NSDate date];
     
-  //  [self reloadImagesFromLibrary];
-    
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(applicationWillEnterForeground:) name:@"applicationWillEnterForeground" object:nil];
 }
 
 -(void)viewWillAppear:(BOOL)animated{
     [super viewWillAppear:animated];
 //    [self userDidTakeScreenshot:nil];
 //    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(userDidTakeScreenshot:) name:UIApplicationUserDidTakeScreenshotNotification object:nil];
+    
+    if (shareView) {
+        [shareView ShareViewRemoveFromSuperview];
+    }
 }
 -(void)applicationWillEnterForeground:(NSNotification*)notification{
 //    [self userDidTakeScreenshot:nil];
@@ -110,14 +114,22 @@
                 NSArray * array = [data objectForKey:@"title_list"];
                 [wself.data_array addObjectsFromArray:array];
                 
-                NSDictionary * dic = [data objectForKey:@"task"];
-                wself.task_model.encrypt_id = [dic objectForKey:@"task_id"];
-                wself.task_model.content = [dic objectForKey:@"content"];
-                wself.task_model.task_img = [dic objectForKey:@"task_img"];
-                wself.task_model.task_status = [dic objectForKey:@"task_status"];
-                wself.task_model.task_price = [dic objectForKey:@"task_price"];
-                wself.task_model.gao_click_price = [dic objectForKey:@"gao_click_price"];
-                wself.task_model.spread_type = [dic objectForKey:@"spread_type"];
+                NSDictionary * dic                  = [data objectForKey:@"task"];
+                wself.task_model.encrypt_id         = [dic objectForKey:@"task_id"];
+                wself.task_model.content            = [dic objectForKey:@"content"];
+                wself.task_model.task_img           = [dic objectForKey:@"task_img"];
+                wself.task_model.task_status        = [dic objectForKey:@"task_status"];
+                wself.task_model.task_price         = [dic objectForKey:@"task_price"];
+                wself.task_model.gao_click_price    = [dic objectForKey:@"gao_click_price"];
+                wself.task_model.spread_type        = [dic objectForKey:@"spread_type"];
+                
+                wself.task_model.canUploadImage     = [dic objectForKey:@"canUploadImage"];
+                wself.task_model.img_num            = [dic objectForKey:@"img_num"];
+                wself.task_model.is_upload          = [dic objectForKey:@"is_upload"];
+                wself.task_model.refuse             = [dic objectForKey:@"refuse"];
+                wself.task_model.imgover_time       = [dic objectForKey:@"imgover_time"];
+                wself.task_model.RAStatus           = [dic objectForKey:@"RAStatus"];
+                wself.task_model.img_price          = [dic objectForKey:@"img_price"];
                 
                 [wself createFooterView];
             }
@@ -220,7 +232,7 @@
     [footer_view addSubview:label];
     
     if ([ZTools getGrade] == 2) {
-        label.text = [NSString stringWithFormat:@"您是高级用户，该任务每次转发点击收益为：￥%@/次",_task_model.gao_click_price];
+        label.text = [NSString stringWithFormat:@"您是高级用户，该任务每次转发点击收益为：%@积分/次",_task_model.gao_click_price];
     }else if([ZTools getGrade] == 1){
         label.userInteractionEnabled = YES;
         UITapGestureRecognizer * tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(showPersonalInfomation)];
@@ -248,10 +260,9 @@
         share_button.userInteractionEnabled = NO;
         [share_button setTitle:@"已结束" forState:UIControlStateNormal];
     }
-
     
-    //张少南   这里应该判断如果还可以再上传图片
-    if (_task_model.task_status.intValue == 1) {
+    //判断是否可以上传转发截图
+    if (_task_model.canUploadImage.intValue == 1 && _task_model.is_upload.intValue == 2) {
         
         UIView * share_screenshot_background_view = [[UIView alloc] initWithFrame:CGRectMake(0, share_button.bottom+20, DEVICE_WIDTH, 300)];
         share_screenshot_background_view.backgroundColor = RGBCOLOR(239, 239, 239);
@@ -261,42 +272,68 @@
         share_selected_image_background_view.backgroundColor = [UIColor whiteColor];
         [share_screenshot_background_view addSubview:share_selected_image_background_view];
         
-        UILabel * prompt_label = [ZTools createLabelWithFrame:CGRectMake(10, 10, DEVICE_WIDTH-20, 20) tag:10 text:@"上传转发截图，有机会获取额外奖金" textColor:RGBCOLOR(251, 75, 78) textAlignment:NSTextAlignmentCenter font:15];
-        [share_selected_image_background_view addSubview:prompt_label];
+        float imageViewTop = 10;
         
-        selected_photo_imageView = [[UIImageView alloc] initWithFrame:CGRectMake((DEVICE_WIDTH-200)/2.0f, prompt_label.bottom+20, 200, 200)];
-        selected_photo_imageView.clipsToBounds = YES;
-        selected_photo_imageView.contentMode = UIViewContentModeScaleAspectFit;
-        selected_photo_imageView.image = [UIImage imageNamed:@"share_photo_background_image"];
+        if (_task_model.img_price.intValue != 0) {
+            imageViewTop += 40;
+            UILabel * prompt_label = [ZTools createLabelWithFrame:CGRectMake(10, 10, DEVICE_WIDTH-20, 40)
+                                                             text:[NSString stringWithFormat:@"上传转发截图，有机会获取%@积分奖励,共%@个名额，%@活动截止",_task_model.img_price,_task_model.img_num,[ZTools timechangeWithTimestamp:_task_model.imgover_time WithFormat:@"YYYY-MM-dd"]]
+                                                        textColor:RGBCOLOR(251, 75, 78)
+                                                    textAlignment:NSTextAlignmentCenter
+                                                             font:15];
+            prompt_label.numberOfLines = 0;
+            [share_selected_image_background_view addSubview:prompt_label];
+        }
+        
+        selected_photo_imageView                = [[UIImageView alloc] initWithFrame:CGRectMake((DEVICE_WIDTH-200)/2.0f, imageViewTop+10, 200, 200)];
+        selected_photo_imageView.userInteractionEnabled = YES;
+        selected_photo_imageView.clipsToBounds  = YES;
+        selected_photo_imageView.contentMode    = UIViewContentModeScaleAspectFit;
+        selected_photo_imageView.image          = [UIImage imageNamed:@"share_photo_background_image"];
         [share_selected_image_background_view addSubview:selected_photo_imageView];
         
-        UIButton * choose_button = [UIButton buttonWithType:UIButtonTypeCustom];
-        choose_button.frame = CGRectMake(0, 0, 43, 43);
-        choose_button.center = CGPointMake(selected_photo_imageView.width/2.0f, selected_photo_imageView.height/2.0f);
-        [choose_button setImage:[UIImage imageNamed:@"share_choose_photo_image"] forState:UIControlStateNormal];
-        [selected_photo_imageView addSubview:choose_button];
+        UITapGestureRecognizer * choosePhotoTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(choosePhoto)];
+        [selected_photo_imageView addGestureRecognizer:choosePhotoTap];
         
         //重新选取图片+上传
-        NSArray * title_array = @[@"重新选择",@"上 传"];
+        NSArray * title_array = @[@"选择图片",@"上 传"];
         for (int i = 0; i < 2; i++) {
             
-            UIButton * button = [ZTools createButtonWithFrame:CGRectMake(0, selected_photo_imageView.bottom+30, 70, 30) tag:100+i title:title_array[i] image:nil];
+            UIButton * button = [ZTools createButtonWithFrame:CGRectMake(0, selected_photo_imageView.bottom+30, 70, 30)
+                                                          tag:100+i
+                                                        title:title_array[i]
+                                                        image:nil];
             button.center = CGPointMake(DEVICE_WIDTH/2.0f/2.0f + (DEVICE_WIDTH/2.0f)*i, button.center.y);
             button.titleLabel.font = [ZTools returnaFontWith:15];
             [button addTarget:self action:@selector(choosePhotoButtonTap:) forControlEvents:UIControlEventTouchUpInside];
             [share_selected_image_background_view addSubview:button];
         }
         
-        share_screenshot_background_view.height = selected_photo_imageView.bottom + 120;
-        share_selected_image_background_view.height = share_screenshot_background_view.height-20;
-        footer_view.height = share_screenshot_background_view.bottom;
-
-        
-    
-        
-        [self reloadImagesFromLibrary];
+        share_screenshot_background_view.height         = selected_photo_imageView.bottom + 120;
+        share_selected_image_background_view.height     = share_screenshot_background_view.height-20;
+        footer_view.height                              = share_screenshot_background_view.bottom;
     }
-
+    
+    if (_task_model.is_upload.intValue == 1 && _task_model.img_price.integerValue != 0) {
+        UILabel * prompt_label = [ZTools createLabelWithFrame:CGRectMake(10, share_button.bottom+20, DEVICE_WIDTH-20, 60)
+                                                         text:@""
+                                                    textColor:RGBCOLOR(251, 75, 78)
+                                                textAlignment:NSTextAlignmentCenter
+                                                         font:15];
+        prompt_label.backgroundColor = [UIColor whiteColor];
+        prompt_label.numberOfLines = 0;
+        [footer_view addSubview:prompt_label];
+        
+        footer_view.height = prompt_label.bottom;
+        
+        if (_task_model.RAStatus.intValue == 1) {       //正在审核中
+            prompt_label.text = [NSString stringWithFormat:@"已收到您上传的截图，%@活动结束后，后台工作人员审核完毕后，我们会截取前%@名发放奖励",[ZTools timechangeWithTimestamp:_task_model.imgover_time WithFormat:@"MM-dd"],_task_model.img_num];
+        }else if (_task_model.RAStatus.intValue == 2){  //审核通过
+            prompt_label.text = [NSString stringWithFormat:@"恭喜您通过审核，%@积分奖励已经发放到您的账户",_task_model.img_price];
+        }else if (_task_model.RAStatus.intValue == 3){  //被拒绝
+            prompt_label.text = _task_model.refuse.length?[NSString stringWithFormat:@"审核未通过：%@",_task_model.refuse]:@"您的截图未通过审核";
+        }
+    }
 
     _myTableView.tableFooterView = footer_view;
 }
@@ -319,17 +356,25 @@
     UMSocialUrlResource * url_resource = [[UMSocialUrlResource alloc] initWithSnsResourceType:UMSocialUrlResourceTypeImage url:_task_model.task_img];
     __weak typeof(self)wself = self;
     
-    //分享到第三方平台的链接地址
-    NSLog(@"share_content_url ------   %@",[NSString stringWithFormat:@"%@&user_id=%@&task_id=%@",SHARE_CONTENT_URL,[ZTools getUid],_task_id]);
+    
     NSArray * spread_type;
+    NSString * userId = [ZTools getUid];
+    NSString * dateline = [ZTools timechangeToDateline];
+    //加密字符串
+    NSString * sign = [[WXUtil md5:[NSString stringWithFormat:@"%@%@%@%@",[ZTools getPhoneNum],userId,_task_id,dateline]] lowercaseString];
+    
+    //分享到第三方平台的链接地址
+    NSLog(@"share_content_url ------   %@",[NSString stringWithFormat:@"%@&user_id=%@&task_id=%@&sign=%@",SHARE_CONTENT_URL,[ZTools getUid],_task_id,sign]);
+    
     if ([[ZTools replaceNullString:_task_model.spread_type WithReplaceString:@""] length] == 0) {
         spread_type = @[SHARE_WECHAT_FRIEND,SHARE_WECHAT_CIRCLE];
     }else{
         spread_type = [_task_model.spread_type componentsSeparatedByString:@"|"];
     }
     shareView = [[SShareView alloc] initWithTitles:spread_type
-                                             title:nil content:title_string
-                                               Url:[NSString stringWithFormat:@"%@&user_id=%@&task_id=%@",SHARE_CONTENT_URL,[ZTools getUid],_task_id]
+                                             title:nil
+                                           content:title_string
+                                               Url:[NSString stringWithFormat:@"%@&user_id=%@&task_id=%@&sign=%@",SHARE_CONTENT_URL,[ZTools getUid],_task_id,sign]
                                              image:shareImage
                                           location:nil
                                        urlResource:url_resource
@@ -340,14 +385,13 @@
     
     __weak typeof(shareView)wShareView = shareView;
     [shareView shareButtonClicked:^(NSString *snsName, NSString *shareType) {
-        [wself shareTaskRequestWithType:shareType WithSns:snsName];
+        [wself shareToThirdPartyWithSNS:snsName Type:shareType];
     }];
     
     
     [shareView setShareSuccess:^(NSString *type) {
         [wShareView ShareViewRemoveFromSuperview];
-        [ZTools showMBProgressWithText:@"分享成功" WihtType:MBProgressHUDModeText addToView:wself.view isAutoHidden:YES];
-        
+        [wself shareTaskRequestWithType:type sign:sign dateline:dateline];
     } failed:^{
         [wShareView ShareViewRemoveFromSuperview];
         [ZTools showMBProgressWithText:@"分享失败" WihtType:MBProgressHUDModeText addToView:wself.view isAutoHidden:YES];
@@ -359,6 +403,14 @@
     [editActionSheet showInView:self.view];
      */
     
+}
+
+-(void)shareToThirdPartyWithSNS:(NSString *)snsName Type:(NSString *)type{
+    [shareView ShareViewRemoveFromSuperview];
+    UIAlertView * alertView = [UIAlertView showWithTitle:[NSString stringWithFormat:@"为确保正常的统计，分享完成后必须返回%@",APP_NAME] message:nil cancelButtonTitle:@"知道了" otherButtonTitles:nil tapBlock:^(UIAlertView * _Nonnull alertView, NSInteger buttonIndex) {
+        [shareView shareWithSNS:snsName WithShareType:type];
+    }];
+    [alertView show];
 }
 
 /*
@@ -416,30 +468,36 @@
 }
  */
 
--(void)shareTaskRequestWithType:(NSString*)type WithSns:(NSString *)snsName
+-(void)shareTaskRequestWithType:(NSString*)type sign:(NSString *)sign dateline:(NSString *)dateline
 {
-    if (shareView) {
-        [shareView removeFromSuperview];
-    }
-    MBProgressHUD * load_hud = [ZTools showMBProgressWithText:@"准备分享..." WihtType:MBProgressHUDModeIndeterminate addToView:[UIApplication sharedApplication].keyWindow isAutoHidden:NO];
     __weak typeof(self)wself = self;
-    NSLog(@"dadasd ----  %@",[NSString stringWithFormat:@"%@&task_id=%@&user_id=%@&share_type=%@&gps_city=%@&mobile_city=%@&ip_city=%@",SHARE_URL,_task_id,[ZTools getUid],type,location_city,[ZTools getPhoneNumAddress],[ZTools getIPAddress]]);
-    [[ZAPI manager] sendGet:[NSString stringWithFormat:@"%@&task_id=%@&user_id=%@&share_type=%@&gps_city=%@&mobile_city=%@&ip_city=%@",SHARE_URL,_task_id,[ZTools getUid],type,location_city,[ZTools getPhoneNumAddress],[ZTools getIPAddress]] success:^(id data) {
+    NSString * ip = [ZTools getIPAddress];
+    
+    NSDictionary * dic = @{@"task_id":_task_id,
+                           @"user_id":[ZTools getUid],
+                           @"share_type":type,
+                           @"gps_city":location_city.length?location_city:@"",
+                           @"mobile_city":[ZTools getPhoneNumAddress],
+                           @"ip_city":ip.length?ip:@"",
+                           @"sign":sign,
+                           @"dateline":dateline
+                           };
+    
+    NSLog(@"dic -----  %@",dic);
+    
+    
+    [[ZAPI manager] sendPost:SHARE_URL myParams:dic success:^(id data) {
         if (data && [data isKindOfClass:[NSDictionary class]]) {
-            [load_hud hide:YES];
-            NSString * status = [data objectForKey:@"status"];
+            NSString * status = [data objectForKey:ERROR_CODE];
             if ([status intValue] == 1)
             {
-                [ZTools showMBProgressWithText:@"开始分享" WihtType:MBProgressHUDModeText addToView:wself.view isAutoHidden:YES];
-                [shareView shareWithSNS:snsName WithShareType:type];
-                
+                [ZTools showMBProgressWithText:@"分享成功" WihtType:MBProgressHUDModeText addToView:wself.view isAutoHidden:YES];
             }else
             {
-                [ZTools showErrorWithStatus:status InView:wself.view isShow:YES];
+                [ZTools showMBProgressWithText:data[ERROR_INFO] WihtType:MBProgressHUDModeText addToView:wself.view isAutoHidden:YES];
             }
         }
     } failure:^(NSError *error) {
-        [load_hud hide:YES];
         [ZTools showMBProgressWithText:@"分享失败，请检查您当前网络" WihtType:MBProgressHUDModeText addToView:wself.view isAutoHidden:YES];
     }];
 }
@@ -504,9 +562,11 @@
 #pragma mark --------  UIImagePickerViewDelegate
 - (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary<NSString *,id> *)info{
     [picker dismissViewControllerAnimated:YES completion:nil];
-    
+
     UIImage * image = [info objectForKey:UIImagePickerControllerOriginalImage];
-    UIImage * newImage = [ZTools OriginImage:image scaleToSize:CGSizeMake(320, 580)];
+    UIImage * newImage = [ZTools scaleImage:[ZTools OriginImage:image scaleToSize:CGSizeMake(image.size.width*0.75, image.size.height*0.75)] toScale:0.5];
+    
+    image = nil;
     
     if (newImage) {
         selected_photo_imageView.image = newImage;
@@ -590,51 +650,78 @@
     
     if (sender.tag == 100)//重新选择图片
     {
-        UIImagePickerController *pickerImage = [[UIImagePickerController alloc] init];
-        if([UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypePhotoLibrary]) {
-            pickerImage.sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
-            //pickerImage.sourceType = UIImagePickerControllerSourceTypeSavedPhotosAlbum;
-            pickerImage.mediaTypes = [UIImagePickerController availableMediaTypesForSourceType:pickerImage.sourceType];
-            
-        }
-        pickerImage.delegate = self;
-        pickerImage.allowsEditing = NO;
-        pickerImage.navigationBar.barTintColor = DEFAULT_BACKGROUND_COLOR;
-        pickerImage.navigationBar.tintColor = [UIColor whiteColor];
-
-        [self presentViewController:pickerImage animated:YES completion:nil];
+        [self choosePhoto];
     }else if (sender.tag == 101)//上传图片
     {
         [self uploadImageData];
     }
 }
 
+-(void)choosePhoto{
+    UIImagePickerController *pickerImage = [[UIImagePickerController alloc] init];
+    if([UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypePhotoLibrary]) {
+        pickerImage.sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
+        //pickerImage.sourceType = UIImagePickerControllerSourceTypeSavedPhotosAlbum;
+        pickerImage.mediaTypes = [UIImagePickerController availableMediaTypesForSourceType:pickerImage.sourceType];
+        
+    }
+    pickerImage.delegate = self;
+    pickerImage.allowsEditing = NO;
+    pickerImage.navigationBar.barTintColor = DEFAULT_BACKGROUND_COLOR;
+    pickerImage.navigationBar.tintColor = [UIColor whiteColor];
+    
+    [self presentViewController:pickerImage animated:YES completion:nil];
+}
+
 
 - (void)uploadImageData {
     
     [self startLoading];
+    __weak typeof(self)wself = self;
     
-    AFHTTPRequestOperationManager *manager = [AFHTTPRequestOperationManager manager];
     
-    manager.responseSerializer.acceptableContentTypes = [NSSet setWithObject:@"text/html"];
-    NSDictionary *parameters =@{@"user_id":[ZTools getUid],@"task_id":@"b0b64fb2938460562bc73798edf9a38f"};
+    NSMutableURLRequest * request = [[AFHTTPRequestSerializer serializer] multipartFormRequestWithMethod:@"POST"
+                                                                                               URLString:TASK_UPLOAD_IMAGE_URL
+                                                                                              parameters:@{@"user_id":[ZTools getUid],@"task_id":_task_id}
+                                                                               constructingBodyWithBlock:^(id<AFMultipartFormData>  _Nonnull formData)
+    {
+        
+        NSData * ImageData = UIImageJPEGRepresentation(selected_photo_imageView.image, 1);
+        
+        [formData appendPartWithFileData:ImageData name:@"image" fileName:@"image.jpg" mimeType:@"image/jpeg"];
+
+    } error:nil];
     
-    [manager POST:@"http://test.twttmob.com/test_version.php?m=User&a=upload_forward_image" parameters:parameters constructingBodyWithBlock:^(id<AFMultipartFormData> formData) {
+    
+    AFHTTPSessionManager * manager = [AFHTTPSessionManager manager];
+    manager.responseSerializer = [AFHTTPResponseSerializer serializer];
+    manager.requestSerializer = [AFHTTPRequestSerializer serializer];
+
+    NSURLSessionUploadTask * uploadTask = [manager uploadTaskWithStreamedRequest:request progress:^(NSProgress * _Nonnull uploadProgress) {
         
-        UIImage * image = [UIImage imageNamed:@"Icon"];
-        NSData * data = UIImageJPEGRepresentation(image, 1);
-        
-        [formData appendPartWithFileData:data name:@"image" fileName:@"image.jpg" mimeType:@"image/jpeg"];
-        
-    } success:^(AFHTTPRequestOperation *operation,id responseObject) {
-        
-        
-        NSLog(@"Success: %@", [responseObject objectForKey:@"msg"]);
-    } failure:^(AFHTTPRequestOperation *operation,NSError *error) {
-        
-        
-        NSLog(@"Error: %@", error);
+    } completionHandler:^(NSURLResponse * _Nonnull response, id  _Nullable responseObject, NSError * _Nullable error) {
+       
+        if (error) {
+            NSLog(@"Error: %@", error);
+        } else {
+            [wself endLoading];
+            NSData* data= (NSData *)responseObject;
+            NSString * string = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+            NSLog(@"string ---  %@",string);
+            id dict=[NSJSONSerialization  JSONObjectWithData:data options:0 error:nil];
+            if (dict && [dict isKindOfClass:[NSDictionary class]]) {
+                if ([dict[ERROR_CODE] intValue] == 1) {
+                    [ZTools showMBProgressWithText:@"图片上传成功，等待后台人员审核" WihtType:MBProgressHUDModeText addToView:wself.view isAutoHidden:YES];
+                }else{
+                    [ZTools showMBProgressWithText:dict[ERROR_INFO] WihtType:MBProgressHUDModeText addToView:wself.view isAutoHidden:YES];
+                }
+            }
+        }
+
     }];
+    
+    
+    [uploadTask resume];
     
 }
 

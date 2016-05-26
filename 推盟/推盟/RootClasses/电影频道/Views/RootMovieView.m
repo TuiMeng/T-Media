@@ -20,7 +20,6 @@
     float _lastPosition;
 }
 
-@property(nonatomic,strong)NSMutableArray   * data_array;
 @property(nonatomic,strong)NSString         * current_city;
 @property(nonatomic,strong)NSMutableArray   * rowHeightArray;
 @property(nonatomic,strong)SDCycleScrollView * cycle_scrollView;
@@ -128,7 +127,7 @@
     }
     
     __weak typeof(self)wself = self;
-    [[ZAPI manager] sendGet:[NSString stringWithFormat:@"%@&type=%@",GIFT_FOCUS_IMAGES_URL,@"root"] success:^(id data) {
+    [[ZAPI manager] sendGet:[NSString stringWithFormat:@"%@&type=%@",GIFT_FOCUS_IMAGES_URL,@"film"] success:^(id data) {
         if (data && [data isKindOfClass:[NSDictionary class]]) {
             NSMutableArray * modelArray = [NSMutableArray array];
             NSMutableArray * titleArray = [NSMutableArray array];
@@ -175,10 +174,6 @@
             if ([data count] > 0) {
                 for (NSDictionary * item in data) {
                     MovieListModel * model  = [[MovieListModel alloc] initWithDictionary:item];
-                    //张少南
-//                    model.movieId           = @"20121204001";
-//                    model.reward            = @"美人鱼悬赏[200积分]，邀请您发起话题或影评。精华[1000积分]额外奖励，转发赚积分。";
-//                    model.topic             = @"都说我们欠星爷一张电影票，为什么？我怎么不知道这个梗";
                     
                     float rowHeitht         = 100+(model.reward.length?30:0) + (model.topic.length?30:0);
                     
@@ -309,7 +304,7 @@
     [_viewController presentViewController:navc animated:YES completion:nil];
     
     __weak typeof(self)wself = self;
-    [viewController selectedCityWithCityBlock:^(SubCityModel *model) {
+    [viewController selectedCityWithCityBlock:^(MovieCityModel *model) {
         [button setTitle:model.cityName forState:UIControlStateNormal];
         wself.current_city = model.cityName;
         [wself updateButtonContentWithButton:button WithText:model.cityName];

@@ -94,7 +94,7 @@
  */
 @property(nonatomic,assign)int          useCount;
 
-
+@property(nonatomic,strong)NSString     * usestartdate;
 
 
 

@@ -27,11 +27,10 @@
 
 @property(nonatomic,strong)NSString                 * orderId;
 //积分抵消费用
-@property(nonatomic,assign)int                      scorePrice;
+@property(nonatomic,assign)float                    scorePrice;
 //全部服务费用
 @property(nonatomic,assign)float                    serverPrice;
 //总共需要支付的费用
 @property(nonatomic,assign)float                    totalPrice;
-
 
 @end

@@ -7,6 +7,7 @@
 //
 
 #import "MPublishCommentViewController.h"
+#import "UIAlertView+Blocks.h"
 
 
 @interface MPublishCommentViewController (){
@@ -43,7 +44,17 @@
 }
 
 -(void)leftButtonTap:(UIButton *)sender{
-    [self dismissViewControllerAnimated:YES completion:nil];
+    __weak typeof(self)wself = self;
+    if (starRatingView.rating || textView.text.length != 0) {
+        UIAlertView * alertView = [UIAlertView showWithTitle:@"退出此次编辑？" message:nil cancelButtonTitle:@"取消" otherButtonTitles:@[@"退出"] tapBlock:^(UIAlertView * _Nonnull alertView, NSInteger buttonIndex) {
+            if (buttonIndex == 1) {
+                [wself dismissViewControllerAnimated:YES completion:nil];
+            }
+        }];
+        [alertView show];
+        return;
+    }
+    [wself dismissViewControllerAnimated:YES completion:nil];
 }
 
 -(void)uploadButtonClicked:(UIButton *)sender{

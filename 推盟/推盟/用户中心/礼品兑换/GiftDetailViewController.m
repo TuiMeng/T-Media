@@ -36,6 +36,12 @@
     //计时器
     NSTimer * timer;
     int time_count;
+    //图形验证码输入框
+    UITextField * _vericationImageCodeTF;
+    //图形验证码
+    UIImageView * _vericationCodeImageView;
+    //重新获取图形验证码按钮
+    UIButton * _reGetVericationCodeButton;
 }
 
 
@@ -124,12 +130,10 @@
 }
 
 -(void)viewWillDisappear:(BOOL)animated{
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardWillShowNotification object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardWillHideNotification object:nil];
 }
 -(void)viewWillAppear:(BOOL)animated{
     [super viewWillAppear:animated];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillShow:) name:UIKeyboardWillShowNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillHidden:) name:UIKeyboardWillHideNotification object:nil];
 }
 
@@ -220,6 +224,56 @@
     }];
 }
 
+#pragma mark -----  获取验证码
+-(void)getVericationCode:(UIButton*)button{
+    
+    if (_vericationImageCodeTF.text.length == 0) {
+        [ZTools showMBProgressWithText:@"请先输入图片中的验证码" WihtType:MBProgressHUDModeText addToView:alertView.background_imageView isAutoHidden:YES];
+        return;
+    }
+    
+    button.enabled = NO;
+    button.backgroundColor = [UIColor lightGrayColor];
+    time_count      = 60;
+    timer           = [NSTimer scheduledTimerWithTimeInterval:1.0f
+                                                       target:self
+                                                     selector:@selector(timerDown)
+                                                     userInfo:nil
+                                                      repeats:YES];
+    [[NSRunLoop currentRunLoop] addTimer:timer forMode:NSRunLoopCommonModes];
+    
+    __WeakSelf__ wself = self;
+    MBProgressHUD * loadHUD = [ZTools showMBProgressWithText:@"发送中..." WihtType:MBProgressHUDModeText addToView:alertView.background_imageView isAutoHidden:NO];
+    NSDictionary * dic = @{@"user_id":[ZTools getUid],
+                           @"verify":_vericationImageCodeTF.text};
+    [[ZAPI manager] sendPost:GET_APPLY_VERIFICATION_GIFT_URL myParams:dic success:^(id data) {
+        [loadHUD hide:YES];
+        if (data && [data isKindOfClass:[NSDictionary class]]) {
+            if ([data[ERROR_CODE] intValue] == 1) {
+                MBProgressHUD * hud = [ZTools showMBProgressWithText:[NSString stringWithFormat:@"验证码已发送到%@",[ZTools getPhoneNum]] WihtType:MBProgressHUDModeText addToView:alertView.background_imageView isAutoHidden:NO];
+                [hud hide:YES afterDelay:2.5f];
+            }else{
+                [wself reGetVericationCodeClicked:nil];
+                [ZTools showMBProgressWithText:data[ERROR_INFO] WihtType:MBProgressHUDModeText addToView:alertView.background_imageView isAutoHidden:YES];
+                [wself stopTimer];
+            }
+        }else{
+            [wself stopTimer];
+        }
+        
+    } failure:^(NSError *error) {
+        [loadHUD hide:YES];
+        [wself stopTimer];
+    }];
+}
+
+
+
+#pragma mark -重新获取图形验证码
+-(void)reGetVericationCodeClicked:(UIButton *)button{
+    [_vericationCodeImageView sd_setImageWithURL:[NSURL URLWithString:T_VERICATION_CODE_IMAGE_URL([ZTools timechangeToDateline])] placeholderImage:[UIImage imageNamed:DEFAULT_VERIFY_LOADING_IMAGE]];
+}
+
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
 }
@@ -242,7 +296,7 @@
 }
 -(void)keyboardWillHidden:(NSNotification*)notification{
     if (alertView) {
-        alertView.background_imageView.center = CGPointMake(alertView.background_imageView.center.x, DEVICE_HEIGHT/2.0f);
+        alertView.background_imageView.centerY = DEVICE_HEIGHT/2.0f;
     }
 }
 
@@ -359,7 +413,7 @@
         
         //商品价格
         UILabel * price_label = [[UILabel alloc] initWithFrame:CGRectMake(10, title_label.bottom+10, content_view.width-20, 20)];
-        price_label.text = [NSString stringWithFormat:@"兑换金额：%@积分",info.price];
+        price_label.text = [NSString stringWithFormat:@"兑换积分：%@积分",info.price];
         price_label.textAlignment = NSTextAlignmentLeft;
         price_label.textColor = RGBCOLOR(57, 57, 57);
         price_label.font = [ZTools returnaFontWith:14];
@@ -412,8 +466,36 @@
         [content_view addSubview:title_label];
     }
     
-    //验证码
-    _getVericationButton = [ZTools createButtonWithFrame:CGRectMake(content_view.width-90,content_view.bottom-50, 70, 30)
+    
+    
+    //图形验证码 输入框
+    _vericationImageCodeTF = [ZTools createTextFieldWithFrame:CGRectMake(20, content_view.bottom-50, content_view.width-40, 30)
+                                                                      font:12
+                                                               placeHolder:@"请输入下图中的字符，不区分大小写"
+                                                           secureTextEntry:NO];
+    _vericationImageCodeTF.delegate = self;
+    [content_view addSubview:_vericationImageCodeTF];
+    //图形验证码图片
+    _vericationCodeImageView = [[UIImageView alloc] initWithFrame:CGRectMake(_vericationImageCodeTF.left+25, _vericationImageCodeTF.bottom+15, [ZTools autoWidthWith:90], 30)];
+    _vericationCodeImageView.layer.masksToBounds = YES;
+    _vericationCodeImageView.layer.borderColor = DEFAULT_BACKGROUND_COLOR.CGColor;
+    _vericationCodeImageView.layer.borderWidth = 0.5;
+    [self reGetVericationCodeClicked:nil];
+    [content_view addSubview:_vericationCodeImageView];
+    
+    //重新获取图形验证码按钮
+    _reGetVericationCodeButton = [UIButton buttonWithType:UIButtonTypeCustom];
+    _reGetVericationCodeButton.frame = CGRectMake(_vericationCodeImageView.right+10, _vericationCodeImageView.bottom-30, 90, 30);
+    [_reGetVericationCodeButton setTitle:@"看不清？换一张" forState:UIControlStateNormal];
+    _reGetVericationCodeButton.titleLabel.font = [ZTools returnaFontWith:12];
+    [_reGetVericationCodeButton setTitleColor:DEFAULT_BACKGROUND_COLOR forState:UIControlStateNormal];
+    [_reGetVericationCodeButton addTarget:self action:@selector(reGetVericationCodeClicked:) forControlEvents:UIControlEventTouchUpInside];
+    [content_view addSubview:_reGetVericationCodeButton];
+    
+    
+    
+    //短信验证码
+    _getVericationButton = [ZTools createButtonWithFrame:CGRectMake(content_view.width-90,_vericationCodeImageView.bottom+15, 70, 30)
                                                    title:@"获取验证码"
                                                    image:nil];
     _getVericationButton.titleLabel.font = [ZTools returnaFontWith:12];
@@ -422,13 +504,16 @@
     
     
     _vericationTF = [ZTools createTextFieldWithFrame:CGRectMake(20, _getVericationButton.top, _getVericationButton.left-30, 30)
-                                                font:14
+                                                font:12
                                          placeHolder:@"请输入验证码"
                                      secureTextEntry:NO];
-    _vericationTF.keyboardType = UIKeyboardTypeNumberPad;
+    _vericationTF.delegate      = self;
+    _vericationTF.keyboardType  = UIKeyboardTypeNumberPad;
     [content_view addSubview:_vericationTF];
     
-    content_view.height = _getVericationButton.bottom+10;
+    
+    
+    content_view.height = _vericationTF.bottom+10;
     
     
     alertView.contentView = content_view;
@@ -440,29 +525,35 @@
     NSMutableDictionary * dic = [NSMutableDictionary dictionaryWithDictionary:@{@"type":info.type,@"user_id":[ZTools getUid],@"gift_id":info.id}];
     
     if (user_name_tf.text.length == 0 && info.type.intValue == 4) {
-        [ZTools showMBProgressWithText:@"请输入收货人姓名" WihtType:MBProgressHUDModeText addToView:alertView isAutoHidden:YES];
+        [ZTools showMBProgressWithText:@"请输入收货人姓名" WihtType:MBProgressHUDModeText addToView:alertView.background_imageView isAutoHidden:YES];
         return;
     }
     
     if ((user_mobile_tf.text.length == 0 || user_mobile_tf.text.length != 11) && info.type.intValue == 4) {
-        [ZTools showMBProgressWithText:@"请输入正确的手机号码" WihtType:MBProgressHUDModeText addToView:alertView isAutoHidden:YES];
+        [ZTools showMBProgressWithText:@"请输入正确的手机号码" WihtType:MBProgressHUDModeText addToView:alertView.background_imageView isAutoHidden:YES];
         return;
     }
     
     if (user_code_tf.text.length == 0 && info.type.intValue == 4) {
-        [ZTools showMBProgressWithText:@"请输入邮政编码" WihtType:MBProgressHUDModeText addToView:alertView isAutoHidden:YES];
+        [ZTools showMBProgressWithText:@"请输入邮政编码" WihtType:MBProgressHUDModeText addToView:alertView.background_imageView isAutoHidden:YES];
         return;
     }
     
     if (user_address_tf.text.length == 0 && info.type.intValue == 4) {
-        [ZTools showMBProgressWithText:@"请输入收货地址" WihtType:MBProgressHUDModeText addToView:alertView isAutoHidden:YES];
+        [ZTools showMBProgressWithText:@"请输入收货地址" WihtType:MBProgressHUDModeText addToView:alertView.background_imageView isAutoHidden:YES];
         return;
     }
     
     if (_vericationTF.text.length == 0) {
-        [ZTools showMBProgressWithText:@"请输入验证码" WihtType:MBProgressHUDModeText addToView:alertView isAutoHidden:YES];
+        [ZTools showMBProgressWithText:@"请输入短信验证码" WihtType:MBProgressHUDModeText addToView:alertView.background_imageView isAutoHidden:YES];
         return;
     }
+    
+    if (_vericationImageCodeTF.text.length == 0) {
+        [ZTools showMBProgressWithText:@"请输入图中的验证码" WihtType:MBProgressHUDModeText addToView:alertView.background_imageView isAutoHidden:YES];
+        return;
+    }
+    
     
     if (info.type.intValue == 4)//实物兑换
     {
@@ -473,23 +564,26 @@
     }
     
     [dic setObject:_vericationTF.text forKey:@"code_num"];
+    [dic setObject:_vericationImageCodeTF.text forKey:@"verify"];
     
-    MBProgressHUD * loading = [ZTools showMBProgressWithText:@"发送中..." WihtType:MBProgressHUDModeIndeterminate addToView:alertView isAutoHidden:NO];
+    MBProgressHUD * loading = [ZTools showMBProgressWithText:@"发送中..." WihtType:MBProgressHUDModeIndeterminate addToView:alertView.background_imageView isAutoHidden:NO];
     
     __weak typeof(self)wself = self;
     [[ZAPI manager] sendPost:GIFT_APPLY_URL myParams:dic success:^(id data) {
         [loading hide:YES];
         if (data && [data isKindOfClass:[NSDictionary class]]) {
             
-            NSString * status = [data objectForKey:@"status"];
+            NSString * status = [data objectForKey:ERROR_CODE];
             if (status.intValue == 1) {
                 [alertView removeFromSuperview];
                 [wself successForApply];
             }else{
-                [ZTools showMBProgressWithText:[data objectForKey:@"errorinfo"] WihtType:MBProgressHUDModeText addToView:[UIApplication sharedApplication].keyWindow isAutoHidden:YES];
+                [wself reGetVericationCodeClicked:nil];
+                [ZTools showMBProgressWithText:[data objectForKey:ERROR_INFO] WihtType:MBProgressHUDModeText addToView:[UIApplication sharedApplication].keyWindow isAutoHidden:YES];
             }
         }
     } failure:^(NSError *error) {
+        [wself reGetVericationCodeClicked:nil];
         [loading hide:YES];
     }];
 }
@@ -540,10 +634,10 @@
 
 -(BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string{
     
-    CGRect rect = [textField convertRect:textField.frame toView:alertView];
+    CGRect rect = [alertView.contentView convertRect:textField.frame toView:alertView];
     if (rect.origin.y + textField.height + keyboard_height > DEVICE_HEIGHT) {
         
-        alertView.background_imageView.top = alertView.background_imageView.top - (rect.origin.y - (DEVICE_HEIGHT - keyboard_height - textField.height));
+        alertView.background_imageView.top = alertView.background_imageView.top - (rect.origin.y - (DEVICE_HEIGHT - keyboard_height) + textField.height) - 30;
     }
     return YES;
 }
@@ -557,50 +651,12 @@
         user_address_placeHolder_label.text = @"";
     }
     
-    CGRect rect = [textView convertRect:textView.frame toView:alertView];
+    CGRect rect = [textView convertRect:textView.frame toView:alertView.background_imageView];
     if (rect.origin.y + rect.size.height + keyboard_height > DEVICE_HEIGHT) {
         alertView.background_imageView.top = alertView.background_imageView.top - (rect.origin.y - rect.size.height - (DEVICE_HEIGHT - keyboard_height - rect.size.height));
     }
 }
-#pragma mark -----  获取验证码
--(void)getVericationCode:(UIButton*)button{
-    
-    if (timer && timer.valid) {
-        return;
-    }
-    
-    button.userInteractionEnabled = NO;
-    button.backgroundColor = [UIColor lightGrayColor];
-    time_count      = 60;
-    timer           = [NSTimer scheduledTimerWithTimeInterval:1.0f
-                                                       target:self
-                                                     selector:@selector(timerDown)
-                                                     userInfo:nil
-                                                      repeats:YES];
-    [[NSRunLoop currentRunLoop] addTimer:timer forMode:NSRunLoopCommonModes];
-    
-    __WeakSelf__ wself = self;
-    MBProgressHUD * loadHUD = [ZTools showMBProgressWithText:@"发送中..." WihtType:MBProgressHUDModeText addToView:alertView isAutoHidden:NO];
-    
-    [[ZAPI manager] sendPost:GET_APPLY_VERIFICATION_GIFT_URL myParams:@{@"user_id":[ZTools getUid]} success:^(id data) {
-        [loadHUD hide:YES];
-        if (data && [data isKindOfClass:[NSDictionary class]]) {
-            if ([data[ERROR_CODE] intValue] == 1) {
-                MBProgressHUD * hud = [ZTools showMBProgressWithText:[NSString stringWithFormat:@"验证码已发送到%@，请注意查收",[ZTools getPhoneNum]] WihtType:MBProgressHUDModeText addToView:alertView isAutoHidden:NO];
-                [hud hide:YES afterDelay:2.5f];
-            }else{
-                [ZTools showMBProgressWithText:data[ERROR_INFO] WihtType:MBProgressHUDModeText addToView:alertView isAutoHidden:YES];
-                [wself stopTimer];
-            }
-        }else{
-            [wself stopTimer];
-        }
-        
-    } failure:^(NSError *error) {
-        [loadHUD hide:YES];
-        [wself stopTimer];
-    }];
-}
+
 #pragma mark ------  计时器
 -(void)timerDown{
     if (time_count < 1) {

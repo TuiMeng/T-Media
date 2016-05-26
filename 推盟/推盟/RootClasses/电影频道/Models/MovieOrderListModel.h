@@ -34,7 +34,7 @@
  */
 @property (nonatomic , copy) NSString              * ticket_desc;
 /**
- *  订单状态(1：待支付  2：支付成功  3：支付失败)
+ *  订单状态(1：支付成功  2：支付失败  3：未支付)
  */
 @property (nonatomic , copy) NSString              * status;
 /**
@@ -50,7 +50,7 @@
  */
 @property (nonatomic , strong) NSString            * movie_money;
 /**
- *
+ *  积分
  */
 @property (nonatomic , copy) NSString              * integral;
 /**
