@@ -33,15 +33,15 @@
 //#define M_ADD_MOVIE_ORDER [NSString stringWithFormat:@"%@/pwmobile/mobile/lockseats?",BASE_MOVIE_URL]
 
 //添加购票订单
-#define MOVIE_ADD_MOVIE_ORDER       [NSString stringWithFormat:@"%@?m=Apply&a=e_point_order1",BASE_M_URL]
+#define MOVIE_ADD_MOVIE_ORDER       [NSString stringWithFormat:@"%@?m=Apply&a=e_point_order1",BASE_URL]
 //支付接口
-#define MOVIE_PAY_ORDER_URL         [NSString stringWithFormat:@"%@?m=Apply&a=e_point_order2",BASE_M_URL]
+#define MOVIE_PAY_ORDER_URL         [NSString stringWithFormat:@"%@?m=Apply&a=e_point_order2",BASE_URL]
 //检测订单支付信息
-#define MOVIE_CHECK_PAY_INFO_URL    [NSString stringWithFormat:@"%@?m=Pay&a=wx_order",BASE_M_URL]
+#define MOVIE_CHECK_PAY_INFO_URL    [NSString stringWithFormat:@"%@?m=Pay&a=wx_order",BASE_URL]
 //解锁座位信息
-#define MOVIE_RELEASE_SEAT_URL      [NSString stringWithFormat:@"%@?m=Pay&a=unlock",BASE_M_URL]
+#define MOVIE_RELEASE_SEAT_URL      [NSString stringWithFormat:@"%@?m=Pay&a=unlock",BASE_URL]
 //查看订单列表
-#define MOVIE_ORDER_LIST_URL        [NSString stringWithFormat:@"%@?m=Task&a=getMovieOrderList",BASE_M_URL]
+#define MOVIE_ORDER_LIST_URL        [NSString stringWithFormat:@"%@?m=Task&a=getMovieOrderList",BASE_URL]
 //重新发送取票码接口
 #define MOVIE_SEND_TICKERCODE_URL   [NSString stringWithFormat:@"%@?m=Gift&a=renote",BASE_M_URL]
 

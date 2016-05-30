@@ -422,7 +422,9 @@
 #pragma mark -----   检测支付状态
 -(void)checkPayState{
     __WeakSelf__ wself = self;
-    [checkPayStateTask cancel];
+    if (checkPayStateTask && checkPayStateTask.state == NSURLSessionTaskStateRunning) {
+        return;
+    }
    checkPayStateTask = [[ZAPI manager] sendMoviePost:MOVIE_CHECK_PAY_INFO_URL myParams:@{@"pay_no":_orderId} success:^(id data) {
         if (data && [data isKindOfClass:[NSDictionary class]]) {
             [[MovieNetWork sharedManager] endTimer];
@@ -430,7 +432,11 @@
             if (status.intValue == 1) {
                 [payLoadingHUD hide:YES];
                 [payTimer invalidate];
-                UIAlertView * alertView = [UIAlertView showWithTitle:@"您已支付成功，正在获取取票码，如果15分钟之后未收到通知短信，请您拨打400-666-9696与客服联系" message:nil cancelButtonTitle:@"确认" otherButtonTitles:nil tapBlock:^(UIAlertView * _Nonnull alertView, NSInteger buttonIndex) {
+                UIAlertView * alertView = [UIAlertView showWithTitle:@"您已支付成功，正在获取取票码，如果15分钟之后未收到通知短信，请您拨打400-666-9696与客服联系"
+                                                             message:nil
+                                                   cancelButtonTitle:@"确认"
+                                                   otherButtonTitles:nil
+                                                            tapBlock:^(UIAlertView * _Nonnull alertView, NSInteger buttonIndex) {
                     
                 }];
                 [alertView show];
@@ -438,8 +444,13 @@
                 MOrderListController * orderList = [[MOrderListController alloc] init];
                 [wself.navigationController pushViewController:orderList animated:YES];
             }else{
+                [payLoadingHUD hide:YES];
                 [[MovieNetWork sharedManager] releaseMovieSeatsWithOrderId:self.orderId];
-                UIAlertView * alertView = [UIAlertView showWithTitle:data[ERROR_INFO] message:@"支付失败，您可以拨打400-666-9696与客服联系" cancelButtonTitle:@"知道了" otherButtonTitles:nil tapBlock:^(UIAlertView * _Nonnull alertView, NSInteger buttonIndex) {
+                UIAlertView * alertView = [UIAlertView showWithTitle:data[ERROR_INFO]
+                                                             message:@"支付失败，您可以拨打400-666-9696与客服联系"
+                                                   cancelButtonTitle:@"知道了"
+                                                   otherButtonTitles:nil
+                                                            tapBlock:^(UIAlertView * _Nonnull alertView, NSInteger buttonIndex) {
                     
                     MOrderListController * orderList = [[MOrderListController alloc] init];
                     [wself.navigationController pushViewController:orderList animated:YES];
@@ -448,7 +459,10 @@
             }
         }
     } failure:^(NSError *error) {
-        [ZTools showMBProgressWithText:@"订单提交失败，请检查当前网络状况" WihtType:MBProgressHUDModeText addToView:wself.view isAutoHidden:YES];
+        [ZTools showMBProgressWithText:@"订单提交失败，请检查当前网络状况"
+                              WihtType:MBProgressHUDModeText
+                             addToView:wself.view
+                          isAutoHidden:YES];
     }];
 }
 

@@ -27,7 +27,7 @@
 #define WECHAT_MCHID        @"1319234701"
 //商户API密钥，填写相应参数
 #define PARTNER_ID          @"34EE39AE4A5262A220781A78A1DC4F6D"
-#define WECHAT_CALLBACK_URL [NSString stringWithFormat:@"%@/Test_version/include/wxpay/xmkp_notify.php",WEBSITE]  
+#define WECHAT_CALLBACK_URL [NSString stringWithFormat:@"%@/New_version/include/wxpay/xmkp_notify.php",WEBSITE]
 
 //高德地图key
 #define AMAP_KEY            @"5ec3a1c302941db6046f74f673259efa"
@@ -54,14 +54,30 @@
 
 
 #pragma mark 所有接口
-#pragma mark -----------域名--------------
-//#define BASE_URL          @"http://www.twttmob.com/api.php"
-#define BASE_URL            @"http://test.twttmob.com/test_version.php"
+#pragma mark -----------测试域名--------------
+//测试地址
+////推盟域名
+//#define BASE_URL            @"http://test.twttmob.com/test_version.php"
+////首页任务txt文件地址
+//#define TASK_TXT_URL(dateline) [NSString stringWithFormat:@"http://test.twttmob.com/Test_version/include/index_lista.txt?%@",dateline]
 
-//#define  BASE_MOVIE_URL     @"http://www.yingmile.com/tmmobile/mobile/"
-#define BASE_MOVIE_URL      @"http://202.108.31.66:8088/tmmobile/mobile/"
+////电影频道域名
+//#define BASE_MOVIE_URL      @"http://202.108.31.66:8088/tmmobile/mobile/"
+
+
+
+#pragma mark -----------正式域名--------------
+//正式地址
+//推盟域名
+#define BASE_URL          @"http://test.twttmob.com/new_version.php"
+//首页任务txt文件地址(正式环境)
+#define TASK_TXT_URL(dateline) [NSString stringWithFormat:@"http://test.twttmob.com/New_version/include/index_lista.txt?%@",dateline]
+//电影频道域名
+#define  BASE_MOVIE_URL     @"http://www.yingmile.com/tmmobile/mobile/"
+
 //电影频道图片地址域名
 #define BASE_MOVIE_IMAGE_URL @"http://www.yingmile.com/yml_img"
+
 
 #pragma mark -----------------  图形验证码地址
 #define T_VERICATION_CODE_IMAGE_URL(dateline) [NSString stringWithFormat:@"http://test.twttmob.com/Test_version/Tpl/Public/phpyzm/code_gg.php?%@",dateline]

@@ -44,12 +44,14 @@
     UIButton * _reGetVericationCodeButton;
 }
 
+@property(nonatomic,strong) GiftListModel * detail_info;
 
 @property (weak, nonatomic) IBOutlet UIScrollView *myScrollView;
 
 @property (weak, nonatomic) IBOutlet UIView *contentView;
 
 @property (weak, nonatomic) IBOutlet UIView *headerView;
+
 /**
  *  大图
  */
@@ -215,8 +217,8 @@
             
             NSString * status = [data objectForKey:@"status"];
             if (status.intValue == 1) {
-                GiftListModel * detail_info = [[GiftListModel alloc] initWithDictionary:[data objectForKey:@"detail"]];
-                [wself setInfomation:detail_info];
+                wself.detail_info = [[GiftListModel alloc] initWithDictionary:[data objectForKey:@"detail"]];
+                [wself setInfomation:wself.detail_info];
             }
         }
     } failure:^(NSError *error) {
@@ -302,6 +304,15 @@
 
 #pragma mark --------  立即兑换
 - (IBAction)getButtonClicked:(id)sender {
+    //判断积分够不够
+    if (_detail_info) {
+        if ([[ZTools getRestMoney] floatValue] < _detail_info.price.floatValue) {
+            [ZTools showMBProgressWithText:@"积分不足,无法兑换" WihtType:MBProgressHUDModeText addToView:self.view isAutoHidden:YES];
+            return;
+        }
+    }
+    
+    
 //    NSDictionary * dic = @{@"type":@"",@"user_id":@"",@"gift_id":@"",@"phone_num":@""};
     
     alertView = [[SAlertView alloc] initWithTitle:@"确认兑换" WithContentView:nil WithCancelTitle:@"取消" WithDoneTitle:@"确认"];

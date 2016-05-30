@@ -196,9 +196,10 @@
     __weak typeof(self)wself = self;
     MBProgressHUD * hud = [ZTools showMBProgressWithText:@"订单提交中..." WihtType:MBProgressHUDModeIndeterminate addToView:self.view isAutoHidden:YES];
     [[ZAPI manager] sendMoviePost:MOVIE_PAY_ORDER_URL myParams:_payInfoDic success:^(id data) {
-        [hud hide:YES];
+        
         [[MovieNetWork sharedManager] endTimer];
         if (data && [data isKindOfClass:[NSDictionary class]]) {
+            [hud hide:YES];
             NSString * status = data[ERROR_CODE];
             if (status.intValue == 1) {
                 UIAlertView * alertView = [UIAlertView showWithTitle:@"您已支付成功，正在获取取票码，如果15分钟之后未收到通知短信，请您拨打400-666-9696与客服联系" message:nil cancelButtonTitle:@"知道了" otherButtonTitles:nil tapBlock:^(UIAlertView * _Nonnull alertView, NSInteger buttonIndex) {

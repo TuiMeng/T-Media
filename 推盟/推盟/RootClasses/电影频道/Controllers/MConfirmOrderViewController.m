@@ -29,7 +29,7 @@
 
 @property(nonatomic,strong)UITableView      * myTableView;
 //积分抵消费用
-@property(nonatomic,assign)float              scorePrice;
+@property(nonatomic,assign)int              scorePrice;
 //全部服务费用
 @property(nonatomic,assign)float            serverPrice;
 //总共需要支付的费用
@@ -76,17 +76,17 @@
 
 -(void)updatePriceWithUseScore:(BOOL)isUse{
     
-    float score = 0;
+    int score = 0;
     if (isUse) {
         float movieMoney = _sequenceModel.price.floatValue - _sequenceModel.fee.intValue;
         int restMoney = [[ZTools getRestMoney] intValue]>0?[[ZTools getRestMoney] intValue]:0;
         //积分最高可用数
         int scoreMaxMoney = movieMoney*_seatArray.count*PAYMENT_RATIO;
         
-        if (restMoney/10.0f >= scoreMaxMoney) {
+        if (restMoney/10 >= scoreMaxMoney) {
             score = scoreMaxMoney;
         }else{
-            score = restMoney/10.0f;
+            score = (int)(restMoney/10);
         }
     }
     
@@ -228,6 +228,11 @@
     cell.accessoryType = UITableViewCellAccessoryNone;
     
     NSString * title = titleArray[indexPath.row];
+    
+    cell.textLabel.text = title;
+    cell.textLabel.font = [ZTools returnaFontWith:15];
+
+    
     if ([title isEqualToString:MTOTALPRICE]) {
         UILabel * totalLabel = [ZTools createLabelWithFrame:CGRectMake(DEVICE_WIDTH-165, 5, 150, 34) text:@"" textColor:DEFAULT_GRAY_TEXT_COLOR textAlignment:NSTextAlignmentRight font:12];
         totalLabel.numberOfLines = 0;
@@ -244,11 +249,23 @@
             switchView.on = ([titleArray containsObject:MPONIT] && _scorePrice);
             [switchView addTarget:self action:@selector(switchOn:) forControlEvents:UIControlEventValueChanged];
         }
-        
         [cell.contentView addSubview:switchView];
+        NSString * tishiString = @"(每10积分抵1元,最高抵50%)";
+        NSString * string = [NSString stringWithFormat:@"%@ %@",MUSEPOINT,tishiString];
+        NSMutableAttributedString * str = [ZTools labelTextFontWith:string Color:DEFAULT_ORANGE_TEXT_COLOR Font:13 range:[string rangeOfString:tishiString]];
+        
+        cell.textLabel.attributedText = str;
+        
     }else if ([title isEqualToString:MPONIT]){
         cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
-        cell.detailTextLabel.text = [NSString stringWithFormat:@"%.0f个积分可用，已抵消%.1f元",_scorePrice*10,_scorePrice];
+        //最低10个积分起抵扣
+        int restScore = [ZTools getRestMoney].intValue;
+        if (restScore < 10) {
+            cell.detailTextLabel.text = [NSString stringWithFormat:@"当前共%d积分",restScore];
+        }else{
+            cell.detailTextLabel.text = [NSString stringWithFormat:@"%d个积分可用，已抵消%d元",_scorePrice*10,_scorePrice];
+        }
+        
         cell.detailTextLabel.font = [ZTools returnaFontWith:15];
         cell.detailTextLabel.textColor = DEFAULT_ORANGE_TEXT_COLOR;
     }else if ([title isEqualToString:MNEEDTOPAY]){
@@ -259,8 +276,6 @@
         cell.detailTextLabel.attributedText = str;
     }
     
-    cell.textLabel.text = title;
-    cell.textLabel.font = [ZTools returnaFontWith:15];
     
     return cell;
 }

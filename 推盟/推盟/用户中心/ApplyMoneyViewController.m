@@ -409,6 +409,13 @@
 #pragma mark - 立即提现按钮
 - (IBAction)getMoneyButtonTap:(id)sender {
     
+    if ([[ZTools getRestMoney] floatValue] < 500) {
+        [ZTools showMBProgressWithText:@"积分不足500,无法提现" WihtType:MBProgressHUDModeText addToView:self.view isAutoHidden:YES];
+        return;
+    }
+    
+    
+    
     NSString * bank_card = [ZTools getBankCard];
     NSString * bank_name = [[[NSUserDefaults standardUserDefaults] objectForKey:@"UserInfomationData"] objectForKey:@"bank"];
     NSString * alipay_num = [ZTools getAlipayNum];

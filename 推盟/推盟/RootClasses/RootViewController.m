@@ -117,13 +117,45 @@
     }];
 }
 
+-(void)showIntrodction{
+    SAlertView * apply_alertView = [[SAlertView alloc] initWithTitle:@"注意啦！全新推盟！全新玩儿法！" WithContentView:nil WithCancelTitle:@"确认" WithDoneTitle:@""];
+    [apply_alertView alertShow];
+    
+    UIView * content_view = [[UIView alloc] initWithFrame:CGRectMake(0, 50, apply_alertView.contentView.width,240)];
+    NSString * apply_introduction_string = @"随手赚\n\n分享任务到微信朋友圈或微信群，好友点击可获得积分收益。\n\n电影票\n\n最新最热大片可直接用账户积分余额抵现金购票，等于每张票都是特价的！\n\n玩游戏\n\n千款H5小游戏随时玩儿。\n\n个人中心（点击首页右上角人像图标）\n\n500积分可转换现金直接提取现金，也可以到积分商城兑换各大视频网站会员啦！\n注：升级高级用户积分收入翻倍啦！快去升级吧！";
+    
+    UITextView * textView = [[UITextView alloc] initWithFrame:CGRectMake(10, 0, content_view.width-20,DEVICE_HEIGHT/2.0f)];
+    textView.textAlignment = NSTextAlignmentLeft;
+    textView.font = [ZTools returnaFontWith:14];
+    textView.textColor = RGBCOLOR(57, 57, 57);
+    [content_view addSubview:textView];
+    
+    content_view.height = textView.bottom + 10;
+    
+    NSMutableAttributedString *str = [[NSMutableAttributedString alloc] initWithString:apply_introduction_string];
+    [str addAttribute:NSFontAttributeName value:[UIFont boldSystemFontOfSize:14] range:[apply_introduction_string rangeOfString:@"随手赚"]];
+    [str addAttribute:NSFontAttributeName value:[UIFont boldSystemFontOfSize:14] range:[apply_introduction_string rangeOfString:@"电影票"]];
+    [str addAttribute:NSFontAttributeName value:[UIFont boldSystemFontOfSize:14] range:[apply_introduction_string rangeOfString:@"玩游戏"]];
+    [str addAttribute:NSFontAttributeName value:[UIFont boldSystemFontOfSize:14] range:[apply_introduction_string rangeOfString:@"个人中心（点击首页右上角人像图标）"]];
+    textView.attributedText = str;
+    
+    apply_alertView.contentView = content_view;
+
+}
+
 - (void)viewDidLoad {
     [super viewDidLoad];
     
+    BOOL showed = [[NSUserDefaults standardUserDefaults] boolForKey:@"isFirstShow"];
+    
+    if (!showed && [CURRENT_VERSION isEqualToString:@"5.0"]) {
+        [self showIntrodction];
+        [[NSUserDefaults standardUserDefaults] setBool:YES forKey:@"isFirstShow"];
+    }
+    
+    
     [[UIApplication sharedApplication] setStatusBarHidden:NO];
-    
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardWillShowNotification object:nil];
-    
+        
     [self setMyViewControllerRightButtonType:MyViewControllerButtonTypePhoto WihtRightString:@"root_personal_center_image"];
     //侧边栏，暂时隐藏
     /*
@@ -273,8 +305,7 @@
     int page = currentPage;
     SNRefreshTableView * tableView = _contentViews[page];
     
-    
-    NSURLRequest * request = [NSURLRequest requestWithURL:[NSURL URLWithString:[NSString stringWithFormat:@"%@/Test_version/include/index_lista.txt?%@",WEBSITE,[ZTools timechangeToDateline]]]];
+    NSURLRequest * request = [NSURLRequest requestWithURL:[NSURL URLWithString:TASK_TXT_URL([ZTools timechangeToDateline])]];
     
     AFURLSessionManager * manager = [[AFURLSessionManager alloc] init];
     NSString *savedPath = [NSHomeDirectory() stringByAppendingString:@"/Documents/task.txt"];
@@ -650,6 +681,7 @@
     [locationManager setDesiredAccuracy:kCLLocationAccuracyHundredMeters];
     locationManager.locationTimeout = 3;
     locationManager.reGeocodeTimeout = 3;
+    
     [locationManager requestLocationWithReGeocode:YES completionBlock:^(CLLocation *location, AMapLocationReGeocode *regeocode, NSError *error) {
         if (error)
         {
@@ -664,8 +696,7 @@
         if (regeocode)
         {
             NSLog(@"regeoco.city ----  %@",regeocode.formattedAddress);
-            [wself handleLocationManagerDataWithCity:regeocode.formattedAddress];
-            
+            [wself handleLocationManagerDataWithCity:regeocode.city?regeocode.city:regeocode.formattedAddress];
         }
     }];
 }

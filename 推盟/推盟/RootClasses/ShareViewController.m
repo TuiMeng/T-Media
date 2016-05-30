@@ -364,7 +364,8 @@
     NSString * sign = [[WXUtil md5:[NSString stringWithFormat:@"%@%@%@%@",[ZTools getPhoneNum],userId,_task_id,dateline]] lowercaseString];
     
     //分享到第三方平台的链接地址
-    NSLog(@"share_content_url ------   %@",[NSString stringWithFormat:@"%@&user_id=%@&task_id=%@&sign=%@",SHARE_CONTENT_URL,[ZTools getUid],_task_id,sign]);
+    NSString * share_string = [NSString stringWithFormat:@"%@&user_id=%@&task_id=%@&sign=%@",SHARE_CONTENT_URL,[ZTools getUid],_task_id,sign];
+    NSLog(@"share_content_url ------   %@",share_string);
     
     if ([[ZTools replaceNullString:_task_model.spread_type WithReplaceString:@""] length] == 0) {
         spread_type = @[SHARE_WECHAT_FRIEND,SHARE_WECHAT_CIRCLE];
@@ -374,7 +375,7 @@
     shareView = [[SShareView alloc] initWithTitles:spread_type
                                              title:nil
                                            content:title_string
-                                               Url:[NSString stringWithFormat:@"%@&user_id=%@&task_id=%@&sign=%@",SHARE_CONTENT_URL,[ZTools getUid],_task_id,sign]
+                                               Url:share_string
                                              image:shareImage
                                           location:nil
                                        urlResource:url_resource
@@ -484,7 +485,6 @@
                            };
     
     NSLog(@"dic -----  %@",dic);
-    
     
     [[ZAPI manager] sendPost:SHARE_URL myParams:dic success:^(id data) {
         if (data && [data isKindOfClass:[NSDictionary class]]) {
