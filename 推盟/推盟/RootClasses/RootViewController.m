@@ -21,10 +21,12 @@
 #import "SWebViewController.h"
 #import "WXUtil.h"
 #import "UIAlertView+Blocks.h"
+#import "PrizeListView.h"
 
 #define ROOT_TASK_ID @"1"
 #define ROOT_GAME_ID @"4"
 #define ROOT_MOVIE_ID @"2"
+#define ROOT_PRIZE_ID @"8"
 
 @interface RootViewController ()<SNRefreshDelegate,UITableViewDataSource,SDCycleScrollViewDelegate>{
     BOOL                isShowCycleView;
@@ -99,8 +101,8 @@
     
     [left_button setImageEdgeInsets:UIEdgeInsetsMake(0, size.width+2, 0, 0)];
     [left_button setTitleEdgeInsets:UIEdgeInsetsMake(0, -10, 0,left_button.width - size.width-1)];
-
-   
+    
+    
 }
 
 -(void)leftButtonClicked:(UIButton *)button{
@@ -118,6 +120,15 @@
 }
 
 -(void)showIntrodction{
+    
+    BOOL showed = [[NSUserDefaults standardUserDefaults] boolForKey:@"isFirstShow"];
+    
+    if (showed || ![CURRENT_VERSION isEqualToString:@"5.0"]) {
+        return;
+    }
+    
+    [[NSUserDefaults standardUserDefaults] setBool:YES forKey:@"isFirstShow"];
+    
     SAlertView * apply_alertView = [[SAlertView alloc] initWithTitle:@"注意啦！全新推盟！全新玩儿法！" WithContentView:nil WithCancelTitle:@"确认" WithDoneTitle:@""];
     [apply_alertView alertShow];
     
@@ -140,33 +151,27 @@
     textView.attributedText = str;
     
     apply_alertView.contentView = content_view;
-
+    
 }
 
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-    BOOL showed = [[NSUserDefaults standardUserDefaults] boolForKey:@"isFirstShow"];
-    
-    if (!showed && [CURRENT_VERSION isEqualToString:@"5.0"]) {
-        [self showIntrodction];
-        [[NSUserDefaults standardUserDefaults] setBool:YES forKey:@"isFirstShow"];
-    }
-    
+    [self showIntrodction];
     
     [[UIApplication sharedApplication] setStatusBarHidden:NO];
-        
+    
     [self setMyViewControllerRightButtonType:MyViewControllerButtonTypePhoto WihtRightString:@"root_personal_center_image"];
     //侧边栏，暂时隐藏
     /*
-    [self setMyViewControllerLeftButtonType:MyViewControllerButtonTypePhoto WihtLeftString:@"root_left_image"];
+     [self setMyViewControllerLeftButtonType:MyViewControllerButtonTypePhoto WihtLeftString:@"root_left_image"];
      */
     /*
-    //排行榜
-    [self setMyViewControllerLeftButtonType:MyViewControllerButtonTypePhoto WihtLeftString:@"root_ranking_image"];
+     //排行榜
+     [self setMyViewControllerLeftButtonType:MyViewControllerButtonTypePhoto WihtLeftString:@"root_ranking_image"];
      */
     [self createLeftItem];
-    self.title_label.text = @"推盟";
+    self.title_label.text = APP_NAME;
     
     _data_array     = [NSMutableArray array];
     _contentViews   = [NSMutableArray array];
@@ -182,8 +187,8 @@
     
     [self setupLocationManager];
     [self loadTitlesData];
-    //自动更新
-    [UMCheckUpdate checkUpdate:@"发现新版本" cancelButtonTitle:@"稍后再说" otherButtonTitles:@"立即去更新" appkey:@"54903d31fd98c544f3000e17" channel:nil];
+     //自动更新
+     [UMCheckUpdate checkUpdate:@"发现新版本" cancelButtonTitle:@"稍后再说" otherButtonTitles:@"立即去更新" appkey:@"54903d31fd98c544f3000e17" channel:nil];
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(logOut:) name:@"userLogOut" object:nil];
     
@@ -204,7 +209,7 @@
 }
 
 -(void)getIpAddress{
-//    http://ip.taobao.com/service/getIpInfo2.php?ip=myip
+    //    http://ip.taobao.com/service/getIpInfo2.php?ip=myip
     [[ZAPI manager] sendGet:@"http://ip.taobao.com/service/getIpInfo2.php?ip=myip" success:^(id data) {
         if (data && [data isKindOfClass:[NSDictionary class]]) {
             NSDictionary * item = [data objectForKey:@"data"];
@@ -221,14 +226,14 @@
 #pragma mark -----   排行榜
 -(void)leftButtonTap:(UIButton *)sender{
     //侧边栏暂时隐藏
-//    [self.mm_drawerController toggleDrawerSide:MMDrawerSideLeft animated:YES completion:nil];
-
+    //    [self.mm_drawerController toggleDrawerSide:MMDrawerSideLeft animated:YES completion:nil];
+    
     [self performSegueWithIdentifier:@"showRankingSegue" sender:nil];
 }
 #pragma mark ------   个人中心
 -(void)rightButtonTap:(UIButton *)sender{
     if (![ZTools isLogIn]) {
-//        [self performSegueWithIdentifier:@"showLoginSegue" sender:@"personal"];
+        //        [self performSegueWithIdentifier:@"showLoginSegue" sender:@"personal"];
         __weak typeof(self)wself = self;
         [[LogInView sharedInstance] loginShowWithSuccess:^{
             [wself performSegueWithIdentifier:@"showPersonalCenterSegue" sender:nil];
@@ -256,15 +261,14 @@
     
     __weak typeof(self)wself        = self;
     RootTopTitleModel*model         = _top_array[currentPage];
-    SNRefreshTableView * tableView  = _contentViews[currentPage];
+    SNRefreshTableView * tableView  = (SNRefreshTableView *)[_myScrollView viewWithTag:1000];
     
     //最后一条任务id
     NSString * task_id = @"";
-    //当前选中的栏目
     int page = currentPage;
-    int count = (int)[_data_array[currentPage] count];
+    int count = (int)[_data_array count];
     if (count) {
-        RootTaskListModel * obj = [_data_array[currentPage] objectAtIndex:(count-1)];
+        RootTaskListModel * obj = [_data_array objectAtIndex:(count-1)];
         task_id = obj.encrypt_id;
     }
     
@@ -273,7 +277,7 @@
         if (data && [data isKindOfClass:[NSDictionary class]]) {
             tableView.isHaveMoreData = YES;
             if (tableView.pageNum == 1) {
-                [wself.data_array[page] removeAllObjects];
+                [wself.data_array removeAllObjects];
             }
             if ([[data objectForKey:@"status"] intValue] == 1) {
                 NSArray * array = [data objectForKey:@"task_list"];
@@ -307,10 +311,11 @@
     
     NSURLRequest * request = [NSURLRequest requestWithURL:[NSURL URLWithString:TASK_TXT_URL([ZTools timechangeToDateline])]];
     
+    __weak typeof(self)wself = self;
     AFURLSessionManager * manager = [[AFURLSessionManager alloc] init];
     NSString *savedPath = [NSHomeDirectory() stringByAppendingString:@"/Documents/task.txt"];
     NSString *copy_path = [NSHomeDirectory() stringByAppendingString:@"/Documents/task_copy.txt"];
-
+    
     NSURLSessionDownloadTask * task = [manager downloadTaskWithRequest:request progress:^(NSProgress * _Nonnull downloadProgress) {
         
     } destination:^NSURL * _Nonnull(NSURL * _Nonnull targetPath, NSURLResponse * _Nonnull response)
@@ -323,16 +328,17 @@
                                        }completionHandler:^(NSURLResponse * _Nonnull response, NSURL * _Nullable filePath, NSError * _Nullable error) {
                                            if (error) {
                                                [ZTools showMBProgressWithText:@"请求超时..." WihtType:MBProgressHUDModeText addToView:self.view isAutoHidden:YES];
-                                               [tableView finishReloadigData];
+                                               [wself loadTaskCacheFile];
+                                               
                                            }else{
                                                NSLog(@"下载成功");
                                                NSData *data = [[NSMutableData alloc] initWithContentsOfFile:copy_path];
                                                id json = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
                                                NSLog(@"json:%@",json);
                                                if (json && [json isKindOfClass:[NSArray class]]) {
-                                                   [self.data_array[page] removeAllObjects];
+                                                   [wself.data_array removeAllObjects];
                                                    tableView.isHaveMoreData = YES;
-                                                   [self handleTaskDataWithDictionary:json WithTableView:tableView WithPage:page];
+                                                   [wself handleTaskDataWithDictionary:json WithTableView:tableView WithPage:page];
                                                    
                                                    //把数据写入到task.txt
                                                    [json writeToFile:savedPath atomically:NO];
@@ -344,14 +350,15 @@
                                                    }
                                                }else{
                                                    [ZTools showMBProgressWithText:@"加载失败，请重试" WihtType:MBProgressHUDModeText addToView:self.view isAutoHidden:YES];
+                                                   [wself loadTaskCacheFile];
                                                }
                                                [tableView finishReloadigData];
-
+                                               
                                            }
                                        }];
     
     [task resume];
-
+    
 }
 
 -(void)loadFocusData{
@@ -373,7 +380,7 @@
             }
             [wself setCycleView];
         }
-
+        
     } failure:^(NSError *error) {
         
     }];
@@ -407,8 +414,18 @@
 }
 //打开程序首先读取沙河存储的任务缓存文件
 -(void)loadTaskCacheFile{
+    SNRefreshTableView * tableView;
+    for (int i = 0; i < _top_array.count; i++) {
+        RootTopTitleModel * model = _top_array[i];
+        if ([model.id isEqualToString:ROOT_TASK_ID]) {
+            tableView = _contentViews[i];
+        }
+    }
     
-    SNRefreshTableView * tableView = _contentViews[0];
+    if (!tableView) {
+        return;
+    }
+    
     //沙盒路径
     NSString *file_path = [NSHomeDirectory() stringByAppendingString:@"/Documents/task_copy.txt"];
     NSFileManager * manager = [NSFileManager defaultManager];
@@ -419,13 +436,11 @@
             [self handleTaskDataWithDictionary:json WithTableView:tableView WithPage:0];
         }
     }
-    [tableView reloadData];
-    //拿到缓存数据，加载新数据
-    [tableView showRefreshHeader:YES];
+    [tableView finishReloadigData];
 }
 -(void)handleTaskDataWithDictionary:(NSArray*)array
-                            WithTableView:(SNRefreshTableView *)tableView
-                                 WithPage:(int)page{
+                      WithTableView:(SNRefreshTableView *)tableView
+                           WithPage:(int)page{
     
     for (NSDictionary * item in array) {
         RootTaskListModel * model = [[RootTaskListModel alloc] initWithDictionary:item];
@@ -436,14 +451,14 @@
             }
         }
         
-        [_data_array[page] addObject:model];
+        [_data_array addObject:model];
     }
 }
 
 #pragma mark ----  任务读取缓存数据
 -(void)ReadCacheTaskListDataWithTableView:(SNRefreshTableView*)tableView WithPage:(int)page{
     NSString *savedPath = [NSHomeDirectory() stringByAppendingString:@"/Documents/task.txt"];
-
+    
     NSData *data = [[NSMutableData alloc] initWithContentsOfFile:savedPath];
     id json = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
     
@@ -458,31 +473,37 @@
                 }
             }
             
-            [self.data_array[page] addObject:model];
+            [self.data_array addObject:model];
         }
         [tableView finishReloadigData];
     }
-
+    
 }
 
 #pragma mark - 处理标题数据
 -(void)columnDataWith:(NSArray*)array{
-
+    
     if (!_c_array) {
         _c_array            = [NSMutableArray array];
         _focus_image_array  = [NSMutableArray array];
         _focus_title_array  = [NSMutableArray array];
     }
+    
+    NSArray * rootArray = @[ROOT_TASK_ID,ROOT_GAME_ID,ROOT_MOVIE_ID,ROOT_PRIZE_ID];
     for (NSDictionary * dic in array) {
         
         RootTopTitleModel * model = [[RootTopTitleModel alloc] initWithDictionary:dic];
-        [self.top_array addObject:model];
-        [self.top_title_array addObject:model.column_name];
         
-        [_c_array           addObject:model.is_show.intValue?[NSMutableArray array]:@""];
-        [_focus_image_array addObject:model.is_show.intValue?[NSMutableArray array]:@""];
-        [_focus_title_array addObject:model.is_show.intValue?[NSMutableArray array]:@""];
+        if ([rootArray containsObject:model.id]) {
+            [self.top_array addObject:model];
+            [self.top_title_array addObject:model.column_name];
+            
+            [_c_array           addObject:model.is_show.intValue?[NSMutableArray array]:@""];
+            [_focus_image_array addObject:model.is_show.intValue?[NSMutableArray array]:@""];
+            [_focus_title_array addObject:model.is_show.intValue?[NSMutableArray array]:@""];
+        }
     }
+    
     [self createMainViews];
     [self createTopTitleView];
 }
@@ -520,26 +541,31 @@
          wself.myScrollView.contentOffset = CGPointMake(DEVICE_WIDTH*page, 0);
      } completion:^(BOOL finished) {
          
-         if ([tableView isKindOfClass:[RootMovieView class]]) {
+         if ([tableView isKindOfClass:[RootMovieView class]])
+         {
              RootMovieView * movieView = (RootMovieView *)tableView;
              //判断如果是第一次则加载数据
              if (movieView.data_array.count == 0) {
                  [(RootMovieView*)tableView loadMoiveData];
              }
-         }else if ([tableView isKindOfClass:[UIWebView class]]){
+         }else if ([tableView isKindOfClass:[UIWebView class]])
+         {
              UIWebView * webView = (UIWebView *)tableView;
              [MobClick event:@"RootGame"];
              if (!webView.request.URL) {
                  [webView loadRequest:[[NSURLRequest alloc] initWithURL:[NSURL URLWithString:GAME_SITE]]];
              }
-         }else{
+         }else if([tableView isKindOfClass:[SNRefreshTableView class]])
+         {
              [(SNRefreshTableView*)pre_tableView setScrollsToTop:NO];
              
              [(SNRefreshTableView*)tableView setScrollsToTop:YES];
-             if ([wself.data_array[currentPage] count] == 0) {
+             if ([wself.data_array count] == 0) {
                  ///加载数据
                  [tableView showRefreshHeader:YES];
              }
+         }else if ([tableView isKindOfClass:[PrizeListView class]]){
+             
          }
      }];
 }
@@ -547,13 +573,17 @@
 -(void)createMainViews{
     for (int i = 0; i < self.top_array.count; i++) {
         RootTopTitleModel * model = _top_array[i];
-        [_data_array addObject:[NSMutableArray array]];
+        
         if ([model.id isEqualToString:ROOT_MOVIE_ID])//电影频道
         {
             RootMovieView * movie_view = [[RootMovieView alloc] initWithFrame:CGRectMake(DEVICE_WIDTH*i, 0, DEVICE_WIDTH, self.myScrollView.height)];
             movie_view.viewController = self;
             [_myScrollView addSubview:movie_view];
             [_contentViews addObject:movie_view];
+            //如果电影频道为第一个栏目，则加载数据
+            if (i == 0) {
+                [movie_view loadMoiveData];
+            }
             
         }else if ([model.id isEqualToString:ROOT_GAME_ID]){
             
@@ -561,6 +591,9 @@
             webView.scalesPageToFit = YES;
             [_myScrollView addSubview:webView];
             [_contentViews addObject:webView];
+            if (i == 0) {
+                [webView loadRequest:[[NSURLRequest alloc] initWithURL:[NSURL URLWithString:GAME_SITE]]];
+            }
         }else if([model.id isEqualToString:ROOT_TASK_ID])
         {
             SNRefreshTableView * tableView  = [[SNRefreshTableView alloc] initWithFrame:CGRectMake(DEVICE_WIDTH*i,0,DEVICE_WIDTH,self.myScrollView.height) showLoadMore:YES];
@@ -568,7 +601,7 @@
             tableView.refreshDelegate       = self;
             tableView.dataSource            = self;
             tableView.isHaveMoreData        = NO;
-            tableView.tag                   = 1000 + i;
+            tableView.tag                   = 1000;
             tableView.backgroundColor       = RGBCOLOR(237, 237, 237);
             tableView.scrollsToTop          = NO;
             if (i==0) {
@@ -577,13 +610,19 @@
             
             [_myScrollView addSubview:tableView];
             [_contentViews addObject:tableView];
+            
+            if (i == 0) {
+                [tableView showRefreshHeader:YES];
+            }
+        }else if ([model.id isEqualToString:ROOT_PRIZE_ID])
+        {
+            PrizeListView * prizeView = [[PrizeListView alloc] initWithFrame:CGRectMake(DEVICE_WIDTH*i, 0, DEVICE_WIDTH, self.myScrollView.height)];
+            [_myScrollView addSubview:prizeView];
+            [_contentViews addObject:prizeView];
         }
-        
     }
     
-    [self loadTaskCacheFile];
-    
-    _myScrollView.contentSize = CGSizeMake(DEVICE_WIDTH*_top_array.count, 0);
+    _myScrollView.contentSize = CGSizeMake(DEVICE_WIDTH*3, 0);
 }
 
 -(void)setCycleView{
@@ -595,28 +634,26 @@
     _cycle_scrollView.pageControlAliment = SDCycleScrollViewPageContolAlimentRight;
     _cycle_scrollView.autoScrollTimeInterval = 5.f;
     
-    if (currentPage == 0) {
-        UITableView * tableView     = (UITableView*)[_myScrollView viewWithTag:1000];
-        tableView.tableHeaderView   = _cycle_scrollView;
-    }
+    
+    UITableView * tableView     = (UITableView*)[_myScrollView viewWithTag:1000];
+    tableView.tableHeaderView   = _cycle_scrollView;
 }
 #pragma mark ------------------   Refresh delegate methods
 - (void)loadNewData{
     RootTopTitleModel * model = _top_array[currentPage];
     if ([model.id isEqualToString:ROOT_TASK_ID]) {
-
         [self loadFocusData];
         [self loadRootTaskListFile];
     }
 }
 - (void)loadMoreData{
     RootTopTitleModel * model = _top_array[currentPage];
-    if ([_data_array[currentPage] count] != 0 && [model.id isEqualToString:ROOT_TASK_ID]) {
+    if ([_data_array count] != 0 && [model.id isEqualToString:ROOT_TASK_ID]) {
         [self loadOffLineTaskListData];
     }
 }
 - (void)didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
-    RootTaskListModel * model = _data_array[currentPage][indexPath.row];
+    RootTaskListModel * model = _data_array[indexPath.row];
     [self performSegueWithIdentifier:@"ShowTaskDetailSegue" sender:model];
 }
 - (CGFloat)heightForRowIndexPath:(NSIndexPath *)indexPath{
@@ -624,7 +661,7 @@
 }
 #pragma mark ----------------   UITableView Delegate
 -(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
-    return [_data_array[tableView.tag-1000] count];
+    return [_data_array count];
 }
 
 -(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
@@ -636,8 +673,8 @@
     }
     
     cell.selectionStyle = UITableViewCellSelectionStyleNone;
-    RootTaskListModel * model = _data_array[tableView.tag-1000][indexPath.row];
-    [cell setInfoWith:model showTag:!currentPage WithShare:^{
+    RootTaskListModel * model = _data_array[indexPath.row];
+    [cell setInfoWith:model showTag:(tableView.tag==1000) WithShare:^{
         
         BOOL isLogIn = [[NSUserDefaults standardUserDefaults] boolForKey:LOGIN];
         
@@ -646,7 +683,7 @@
         }else{
             [self performSegueWithIdentifier:@"ShowSharePageSegue" sender:model.encrypt_id];
         }
-    }];    
+    }];
     return cell;
 }
 
@@ -659,9 +696,9 @@
 -(void)scrollViewDidScroll:(UIScrollView *)scrollView{
     //侧边栏，暂时隐藏
     /*
-    if (scrollView.contentOffset.x < -40 && self.mm_drawerController.openSide == MMDrawerSideNone) {
-        [self.mm_drawerController toggleDrawerSide:MMDrawerSideLeft animated:YES completion:nil];
-    }
+     if (scrollView.contentOffset.x < -40 && self.mm_drawerController.openSide == MMDrawerSideNone) {
+     [self.mm_drawerController toggleDrawerSide:MMDrawerSideLeft animated:YES completion:nil];
+     }
      */
 }
 
@@ -675,7 +712,6 @@
     __weak typeof(self)wself = self;
     //高德地图
     [AMapLocationServices sharedServices].apiKey = AMAP_KEY;
-    
     
     locationManager = [[AMapLocationManager alloc] init];
     [locationManager setDesiredAccuracy:kCLLocationAccuracyHundredMeters];
@@ -691,8 +727,8 @@
             }
         }
         
-//        locationLat = location.coordinate.latitude;
-//        locationLng = location.coordinate.longitude;
+        //        locationLat = location.coordinate.latitude;
+        //        locationLng = location.coordinate.longitude;
         if (regeocode)
         {
             NSLog(@"regeoco.city ----  %@",regeocode.formattedAddress);

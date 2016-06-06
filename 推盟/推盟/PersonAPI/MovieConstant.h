@@ -27,7 +27,6 @@
 
 
 #pragma **********************  接口相关 **********************
-#define BASE_M_URL @"http://test.twttmob.com/test_version.php"
 //添加购票订单
 //http://localhost:8080/pwmobile/mobile/ lockseats?bid=100001&planid=99920130502054461& orderid=10001&seatids=1:01_
 //#define M_ADD_MOVIE_ORDER [NSString stringWithFormat:@"%@/pwmobile/mobile/lockseats?",BASE_MOVIE_URL]
@@ -43,7 +42,7 @@
 //查看订单列表
 #define MOVIE_ORDER_LIST_URL        [NSString stringWithFormat:@"%@?m=Task&a=getMovieOrderList",BASE_URL]
 //重新发送取票码接口
-#define MOVIE_SEND_TICKERCODE_URL   [NSString stringWithFormat:@"%@?m=Gift&a=renote",BASE_M_URL]
+#define MOVIE_SEND_TICKERCODE_URL   [NSString stringWithFormat:@"%@?m=Gift&a=renote",BASE_URL]
 
 
 

@@ -212,6 +212,7 @@
                 self.sendButton.alpha           = 0;
                 self.secondNextButton.alpha     = 0;
                 self.backButton.alpha           = 0;
+                self.verificationCodeTF.text    = @"";
                 
             } completion:^(BOOL finished) {
                 
@@ -435,7 +436,7 @@
     [self showContentView];
     
     //判断是否是测试账号，测试账号不需要发送短信
-    if (![_phoneTF.text isEqualToString:@"18066666666"]) {
+    if (![_phoneTF.text isEqualToString:@"18600755163"]) {
         [self getVerificationCode];
     }
 }
@@ -501,6 +502,10 @@
 #pragma mark -----  增加计时器
 -(void)addTimer{
     time_count = 60;
+    if (timer) {
+        [timer invalidate];
+        timer = nil;
+    }
     timer = [NSTimer scheduledTimerWithTimeInterval:1.0f target:self selector:@selector(timeCount) userInfo:nil repeats:YES];
     [[NSRunLoop currentRunLoop] addTimer:timer forMode:NSDefaultRunLoopMode];
 }

@@ -21,7 +21,7 @@
     if (self) {
         
         if (!_distance_label) {
-            _distance_label = [ZTools createLabelWithFrame:CGRectMake(DEVICE_WIDTH-65, 15, 30, 30)
+            _distance_label = [ZTools createLabelWithFrame:CGRectMake(DEVICE_WIDTH-65, 15, 50, 30)
                                                       text:@""
                                                  textColor:RGBCOLOR(125, 125, 125)
                                              textAlignment:NSTextAlignmentRight

@@ -85,10 +85,19 @@
     }
 }
 
+-(void)leftButtonTap:(UIButton *)sender{
+    if (payTimer) {
+        [payTimer invalidate];
+        payTimer = nil;
+    }
+    [self.navigationController popViewControllerAnimated:YES];
+}
+
 -(void)viewDidLoad{
     [super viewDidLoad];
     
     self.title_label.text       = @"支付订单";
+    [self setMyViewControllerLeftButtonType:MyViewControllerButtonTypeBack WihtLeftString:@"backImage"];
     self.view.backgroundColor   = GRAY_BACKGROUND_COLOR;
     showCardPayOption           = YES;
     if (showCardPayOption) {
@@ -204,9 +213,9 @@
         
         [[MovieNetWork sharedManager] endTimer];
         
-        
+        __weak typeof(self)wself = self;
         UIAlertView * alertView     = [UIAlertView showWithTitle:@"支付超时，该订单已失效，请重新选座购买" message:@"" cancelButtonTitle:@"确定" otherButtonTitles:nil tapBlock:^(UIAlertView * _Nonnull alertView, NSInteger buttonIndex) {
-            [self popToSeatsController];
+            [wself popToSeatsController];
         }];
         
         [alertView show];
@@ -425,6 +434,9 @@
     if (checkPayStateTask && checkPayStateTask.state == NSURLSessionTaskStateRunning) {
         return;
     }
+    
+    checkPayStateTask = nil;
+    
    checkPayStateTask = [[ZAPI manager] sendMoviePost:MOVIE_CHECK_PAY_INFO_URL myParams:@{@"pay_no":_orderId} success:^(id data) {
         if (data && [data isKindOfClass:[NSDictionary class]]) {
             [[MovieNetWork sharedManager] endTimer];
@@ -467,7 +479,12 @@
 }
 
 -(void)loadPayState{
-    payLoadingHUD = [ZTools showMBProgressWithText:@"获取订单状态..." WihtType:MBProgressHUDModeIndeterminate addToView:self.view isAutoHidden:YES];
+    if (!payLoadingHUD) {
+        payLoadingHUD = [ZTools showMBProgressWithText:@"获取订单状态..." WihtType:MBProgressHUDModeIndeterminate addToView:self.view isAutoHidden:YES];
+    }else{
+        [payLoadingHUD show:YES];
+    }
+    
     if (!payTimer) {
         payTimer = [NSTimer scheduledTimerWithTimeInterval:3 target:self selector:@selector(checkPayState) userInfo:nil repeats:YES];
         [[NSRunLoop currentRunLoop] addTimer:payTimer forMode:NSDefaultRunLoopMode];
@@ -512,6 +529,7 @@
 
 
 -(void)dealloc{
+    
     [payTimer invalidate];
     payTimer = nil;
     [timer invalidate];

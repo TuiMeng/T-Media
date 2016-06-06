@@ -54,6 +54,9 @@
 		0B5C07E11B78550B00077151 /* ConversionListTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B5C07E01B78550B00077151 /* ConversionListTableViewCell.m */; };
 		0B5C07E31B78AB2700077151 /* IndustryList.plist in Resources */ = {isa = PBXBuildFile; fileRef = 0B5C07E21B78AB2700077151 /* IndustryList.plist */; };
 		0B5C07E61B799D3400077151 /* MyWebViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B5C07E51B799D3400077151 /* MyWebViewController.m */; };
+		0B5D0F911D01711F003AD15A /* PrizeListView.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B5D0F901D01711F003AD15A /* PrizeListView.m */; };
+		0B5D0F941D0276CA003AD15A /* PrizeCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B5D0F931D0276CA003AD15A /* PrizeCell.m */; };
+		0B5D0F971D027809003AD15A /* PrizeModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B5D0F961D027809003AD15A /* PrizeModel.m */; };
 		0B5E4FF51B8B0AF1004C2B98 /* GiftRecordModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B5E4FF41B8B0AF1004C2B98 /* GiftRecordModel.m */; };
 		0B5E4FFB1B8C137E004C2B98 /* ApplyMoneyCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B5E4FFA1B8C137E004C2B98 /* ApplyMoneyCell.m */; };
 		0B5E4FFE1B8C3E20004C2B98 /* RankingViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B5E4FFD1B8C3E20004C2B98 /* RankingViewController.m */; };
@@ -148,6 +151,7 @@
 		0B9A49D91BAFEFB5000655BC /* InvitationListViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B9A49D81BAFEFB5000655BC /* InvitationListViewController.m */; };
 		0BA3DAAC1C44D93A00410073 /* TaskInfo+CoreDataProperties.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BA3DAA91C44D93A00410073 /* TaskInfo+CoreDataProperties.m */; };
 		0BA3DAAD1C44D93A00410073 /* TaskInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BA3DAAB1C44D93A00410073 /* TaskInfo.m */; };
+		0BADD9F41D0545BC0062007E /* PrizeDetailViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BADD9F31D0545BC0062007E /* PrizeDetailViewController.m */; };
 		0BB3D6F91C9117C900FA9EB6 /* MovieSelectSeatViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BB3D6F81C9117C900FA9EB6 /* MovieSelectSeatViewController.m */; };
 		0BB3D6FC1C911A5800FA9EB6 /* MSelectSeatView.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BB3D6FB1C911A5800FA9EB6 /* MSelectSeatView.m */; };
 		0BB3D7061C911AB700FA9EB6 /* KyoCenterLineView.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BB3D6FF1C911AB700FA9EB6 /* KyoCenterLineView.m */; };
@@ -285,6 +289,12 @@
 		0B5C07E21B78AB2700077151 /* IndustryList.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = IndustryList.plist; sourceTree = "<group>"; };
 		0B5C07E41B799D3400077151 /* MyWebViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MyWebViewController.h; sourceTree = "<group>"; };
 		0B5C07E51B799D3400077151 /* MyWebViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MyWebViewController.m; sourceTree = "<group>"; };
+		0B5D0F8F1D01711F003AD15A /* PrizeListView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PrizeListView.h; sourceTree = "<group>"; };
+		0B5D0F901D01711F003AD15A /* PrizeListView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PrizeListView.m; sourceTree = "<group>"; };
+		0B5D0F921D0276CA003AD15A /* PrizeCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PrizeCell.h; sourceTree = "<group>"; };
+		0B5D0F931D0276CA003AD15A /* PrizeCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PrizeCell.m; sourceTree = "<group>"; };
+		0B5D0F951D027809003AD15A /* PrizeModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PrizeModel.h; sourceTree = "<group>"; };
+		0B5D0F961D027809003AD15A /* PrizeModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PrizeModel.m; sourceTree = "<group>"; };
 		0B5E4FF31B8B0AF1004C2B98 /* GiftRecordModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GiftRecordModel.h; sourceTree = "<group>"; };
 		0B5E4FF41B8B0AF1004C2B98 /* GiftRecordModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GiftRecordModel.m; sourceTree = "<group>"; };
 		0B5E4FF91B8C137E004C2B98 /* ApplyMoneyCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ApplyMoneyCell.h; sourceTree = "<group>"; };
@@ -472,6 +482,8 @@
 		0BA3DAA91C44D93A00410073 /* TaskInfo+CoreDataProperties.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "TaskInfo+CoreDataProperties.m"; sourceTree = "<group>"; };
 		0BA3DAAA1C44D93A00410073 /* TaskInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TaskInfo.h; sourceTree = "<group>"; };
 		0BA3DAAB1C44D93A00410073 /* TaskInfo.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TaskInfo.m; sourceTree = "<group>"; };
+		0BADD9F21D0545BC0062007E /* PrizeDetailViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PrizeDetailViewController.h; sourceTree = "<group>"; };
+		0BADD9F31D0545BC0062007E /* PrizeDetailViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PrizeDetailViewController.m; sourceTree = "<group>"; };
 		0BB3D6F71C9117C900FA9EB6 /* MovieSelectSeatViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MovieSelectSeatViewController.h; sourceTree = "<group>"; };
 		0BB3D6F81C9117C900FA9EB6 /* MovieSelectSeatViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MovieSelectSeatViewController.m; sourceTree = "<group>"; };
 		0BB3D6FA1C911A5800FA9EB6 /* MSelectSeatView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MSelectSeatView.h; sourceTree = "<group>"; };
@@ -644,6 +656,45 @@
 				0B610BC31B70B3E900B5D20B /* AboutViewController.m */,
 			);
 			path = SettingClasses;
+			sourceTree = "<group>";
+		};
+		0B5D0F881D017065003AD15A /* 积分夺宝 */ = {
+			isa = PBXGroup;
+			children = (
+				0B5D0F8C1D0170F9003AD15A /* controllers */,
+				0B5D0F8D1D0170F9003AD15A /* model */,
+				0B5D0F8E1D0170F9003AD15A /* views */,
+			);
+			path = "积分夺宝";
+			sourceTree = "<group>";
+		};
+		0B5D0F8C1D0170F9003AD15A /* controllers */ = {
+			isa = PBXGroup;
+			children = (
+				0BADD9F21D0545BC0062007E /* PrizeDetailViewController.h */,
+				0BADD9F31D0545BC0062007E /* PrizeDetailViewController.m */,
+			);
+			path = controllers;
+			sourceTree = "<group>";
+		};
+		0B5D0F8D1D0170F9003AD15A /* model */ = {
+			isa = PBXGroup;
+			children = (
+				0B5D0F951D027809003AD15A /* PrizeModel.h */,
+				0B5D0F961D027809003AD15A /* PrizeModel.m */,
+			);
+			path = model;
+			sourceTree = "<group>";
+		};
+		0B5D0F8E1D0170F9003AD15A /* views */ = {
+			isa = PBXGroup;
+			children = (
+				0B5D0F8F1D01711F003AD15A /* PrizeListView.h */,
+				0B5D0F901D01711F003AD15A /* PrizeListView.m */,
+				0B5D0F921D0276CA003AD15A /* PrizeCell.h */,
+				0B5D0F931D0276CA003AD15A /* PrizeCell.m */,
+			);
+			path = views;
 			sourceTree = "<group>";
 		};
 		0B5D27271B6B2868006DFB03 /* ZListBar */ = {
@@ -1053,6 +1104,7 @@
 		0B96137D1B678472001DB0B0 /* RootClasses */ = {
 			isa = PBXGroup;
 			children = (
+				0B5D0F881D017065003AD15A /* 积分夺宝 */,
 				0B7E67A51C870B3F00F55579 /* 电影频道 */,
 				0B7E67991C86D18900F55579 /* Views */,
 				0B610BDD1B735ADB00B5D20B /* Models */,
@@ -1471,6 +1523,7 @@
 				0B531C201B85825700DE4B44 /* STextField.m in Sources */,
 				0B0F89FD1B8FF77300C9DB68 /* CycleScrollView.m in Sources */,
 				0B9613A91B68E33E001DB0B0 /* PersonalCenterViewController.m in Sources */,
+				0B5D0F971D027809003AD15A /* PrizeModel.m in Sources */,
 				0BBB2E081C4390E500F4ABDF /* CoreData.xcdatamodeld in Sources */,
 				0B9612F41B677776001DB0B0 /* __.xcdatamodeld in Sources */,
 				0B610BCB1B7203BB00B5D20B /* UserInfoModel.m in Sources */,
@@ -1483,6 +1536,7 @@
 				0B96139B1B68D52D001DB0B0 /* ShareViewController.m in Sources */,
 				0BB3D7101C92BBCB00FA9EB6 /* KyoButton.m in Sources */,
 				0BB3D6FC1C911A5800FA9EB6 /* MSelectSeatView.m in Sources */,
+				0B5D0F941D0276CA003AD15A /* PrizeCell.m in Sources */,
 				0B296A421B9C128D00E64E6C /* ProtocalViewController.m in Sources */,
 				0B13FC7A1CEC4B4F007511D1 /* UIImage+ImageEffects.m in Sources */,
 				0B87B2311C3CBC990032D981 /* UserInfoCenterViewController.m in Sources */,
@@ -1497,6 +1551,7 @@
 				0BF650B71C97DD8A00F18D9F /* MScreenViewController.m in Sources */,
 				0B6CB2B01CCDF21400722B2D /* MOrderListController.m in Sources */,
 				0B9613AC1B68E46A001DB0B0 /* ZAPI.m in Sources */,
+				0BADD9F41D0545BC0062007E /* PrizeDetailViewController.m in Sources */,
 				0BD6ED121C8FD4800035BD3E /* MovieCommentsListViewController.m in Sources */,
 				0B4F6C091C9A5AEF0099505B /* SView.m in Sources */,
 				0B610BE01B735B0500B5D20B /* RootTaskListModel.m in Sources */,
@@ -1562,6 +1617,7 @@
 				0B610BD61B734D9E00B5D20B /* PersonalInfoViewController.m in Sources */,
 				0B9613951B68A894001DB0B0 /* LRefreshTableHeaderView.m in Sources */,
 				0B9613B61B69CCC6001DB0B0 /* GiftListViewController.m in Sources */,
+				0B5D0F911D01711F003AD15A /* PrizeListView.m in Sources */,
 				0B6DD5AB1C3234560031AFFA /* FriendListModel.m in Sources */,
 				0B9613B21B69C92C001DB0B0 /* BindBankCardViewController.m in Sources */,
 				0B8F05F91C8971DB00F5E89D /* MovieTopicModel.m in Sources */,
