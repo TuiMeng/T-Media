@@ -11,6 +11,8 @@
 #import "UserTaskModel.h"
 #import "PersonalCenterCell.h"
 #import "MOrderListController.h"
+#import "AddressManangerViewController.h"
+#import "MyPrizeViewController.h"
 
 @interface PersonalCenterViewController ()<UITableViewDataSource,UITableViewDelegate,UIAlertViewDelegate,SNRefreshDelegate>{
     //当前选中项（抢单中任务/已完成任务）
@@ -184,15 +186,43 @@
             [money_background_view addSubview:line_view];
         }
         
-        //邀请好友、我的电影票、礼品兑换
-        NSArray * dataArray = @[[UIImage imageNamed:@"personal_invitation_image"],[UIImage imageNamed:@"personal_movie_image"],[UIImage imageNamed:@"personal_gift_image"],@"邀请好友",@"我的电影票",@"礼品兑换"];
-        for (int i = 0; i < 3; i++) {
-            UIView * lineView           = [[UIView alloc] initWithFrame:CGRectMake(DEVICE_WIDTH/3.0f*i, 180, 0.5, 45)];
-            lineView.backgroundColor    = DEFAULT_LINE_COLOR;
-            [section_view addSubview:lineView];
+        /*
+        //夺宝历史
+        SView * lotteryBackView = [[SView alloc] initWithFrame:CGRectMake(0, money_background_view.bottom, DEVICE_WIDTH, 35)];
+        lotteryBackView.lineColor = DEFAULT_LINE_COLOR;
+        lotteryBackView.isShowBottomLine = YES;
+        [section_view addSubview:lotteryBackView];
+        
+        UIButton * lotteryButton    = [UIButton buttonWithType:UIButtonTypeCustom];
+        lotteryButton.frame         = CGRectMake(10, 5, 100, 25);
+        lotteryButton.titleLabel.font = [ZTools returnaFontWith:13];
+        [lotteryButton setTitle:@"夺宝历史" forState:UIControlStateNormal];
+        [lotteryButton setTitleColor:DEFAULT_BLACK_TEXT_COLOR forState:UIControlStateNormal];
+        [lotteryButton setImage:[UIImage imageNamed:@"person_lotteryHistoryImage"] forState:UIControlStateNormal];
+        lotteryButton.enabled = NO;
+        [lotteryButton setImageEdgeInsets:UIEdgeInsetsMake(0, 10, 0, 80)];
+//        [lotteryButton setTitleEdgeInsets:UIEdgeInsetsMake(0, 5, 0, 0)];
+        [lotteryBackView addSubview:lotteryButton];
+        
+        UIButton * getLotteryListButton = [UIButton buttonWithType:UIButtonTypeCustom];
+        getLotteryListButton.frame = CGRectMake(DEVICE_WIDTH-130, 5, 100, 25);
+        [getLotteryListButton setTitleColor:DEFAULT_BLACK_TEXT_COLOR forState:UIControlStateNormal];
+        getLotteryListButton.titleLabel.font = [ZTools returnaFontWith:13];
+        [getLotteryListButton setTitle:@"查看历史" forState:UIControlStateNormal];
+        [getLotteryListButton setImage:[UIImage imageNamed:@"cinema_right_arrow_image"] forState:UIControlStateNormal];
+        [getLotteryListButton setImageEdgeInsets:UIEdgeInsetsMake(0, 110, 0, 0)];
+        [getLotteryListButton setTitleEdgeInsets:UIEdgeInsetsMake(0, 20, 0, 0)];
+        [getLotteryListButton addTarget:self action:@selector(getLotteryListData:) forControlEvents:UIControlEventTouchUpInside];
+        [lotteryBackView addSubview:getLotteryListButton];
+        */
+        
+        //邀请好友、礼品兑换、购票记录、收货地址
+        NSArray * dataArray = @[[UIImage imageNamed:@"person_invitationImage"],[UIImage imageNamed:@"person_giftHistoryImage"],[UIImage imageNamed:@"person_ticketHistoryImage"],[UIImage imageNamed:@"person_receiptAddressImage"],@"邀请好友",@"礼品兑换",@"购票记录",@"收货地址"];
+
+        for (int i = 0; i < dataArray.count/2; i++) {
             
             UIButton * button           = [UIButton buttonWithType:UIButtonTypeCustom];
-            button.frame                = CGRectMake(lineView.right, 175, DEVICE_WIDTH/3.0f, 55);
+            button.frame                = CGRectMake(DEVICE_WIDTH/(dataArray.count/2.0f)*i, money_background_view.bottom+10, DEVICE_WIDTH/(dataArray.count/2), 55);
             [button addTarget:self action:@selector(functionButtonClicked:) forControlEvents:UIControlEventTouchUpInside];
             button.tag                  = 10000+i;
             [section_view addSubview:button];
@@ -202,7 +232,7 @@
             [button addSubview:imageView];
             
             UILabel * label             = [ZTools createLabelWithFrame:CGRectMake(0, imageView.bottom+5, button.width, 20)
-                                                                  text:dataArray[i+3]
+                                                                  text:dataArray[i+4]
                                                              textColor:DEFAULT_BLACK_TEXT_COLOR
                                                          textAlignment:NSTextAlignmentCenter
                                                                   font:12];
@@ -386,21 +416,36 @@
             [self performSegueWithIdentifier:@"showInvitationSegue" sender:nil];
         }
             break;
-        case 1://电影票订单
+        case 1://礼品兑换
+        {
+            [self performSegueWithIdentifier:@"showGiftListSegue" sender:nil];
+        }
+            break;
+        case 2://购票记录
         {
             MOrderListController * vc = [[MOrderListController alloc] init];
             [self.navigationController pushViewController:vc animated:YES];
         }
             break;
-        case 2://礼品兑换
+        case 3://收货地址
         {
-            [self performSegueWithIdentifier:@"showGiftListSegue" sender:nil];
+            
+            AddressManangerViewController * addressVC = [[AddressManangerViewController alloc] init];
+            [self.navigationController pushViewController:addressVC animated:YES];
+             
         }
             break;
             
         default:
             break;
     }
+}
+#pragma mark ---- 夺宝历史
+-(void)getLotteryListData:(UIButton *)button{
+    
+    MyPrizeViewController * viewController = [[MyPrizeViewController alloc] init];
+    [self.navigationController pushViewController:viewController animated:YES];
+    
 }
 
 #pragma mark - 邀请好友

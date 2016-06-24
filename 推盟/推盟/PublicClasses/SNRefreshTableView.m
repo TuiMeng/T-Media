@@ -94,7 +94,7 @@
 - (void)createFooterView
 {
     UIView *tableFooterView = [[UIView alloc] initWithFrame:CGRectMake(0.0f, 0.0f, DEVICE_WIDTH, TABLEFOOTER_HEIGHT)];
-    
+    tableFooterView.clipsToBounds = YES;
     [tableFooterView addSubview:self.loadingIndicator];
     [tableFooterView addSubview:self.loadingLabel];
     [tableFooterView addSubview:self.normalLabel];
@@ -210,11 +210,20 @@
     NSLog(@"finishReloadigData完成加载");
     
     
-    
     _reloading = NO;
     if (_refreshHeaderView) {
         [self.refreshHeaderView egoRefreshScrollViewDataSourceDidFinishedLoading:self];
         self.isReloadData = NO;
+    }
+    
+    //如果有更多数据，重新设置footerview  frame
+    if (self.isHaveMoreData)
+    {
+        [self stopLoading:1];
+        
+    }else {
+        
+        [self stopLoading:2];
     }
     
     @try {
@@ -228,16 +237,6 @@
     }
     @finally {
         
-    }
-    
-    //如果有更多数据，重新设置footerview  frame
-    if (self.isHaveMoreData)
-    {
-        [self stopLoading:1];
-        
-    }else {
-        
-        [self stopLoading:2];
     }
     
     
@@ -425,11 +424,13 @@
     [self.loadingIndicator stopAnimating];
     switch (loadingType) {
         case 1:
+            self.tableFooterView.height = TABLEFOOTER_HEIGHT;
             [self.normalLabel setHidden:NO];
             [self.normalLabel setText:NSLocalizedString(NORMAL_TEXT, nil)];
             [self.loadingLabel setHidden:YES];
             break;
         case 2:
+            self.tableFooterView.height = 0;
             [self.normalLabel setHidden:NO];
             [self.normalLabel setText:NSLocalizedString(NOMORE_TEXT, nil)];
             [self.loadingLabel setHidden:YES];

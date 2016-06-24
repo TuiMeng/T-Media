@@ -11,6 +11,7 @@
 #import "BindBankCardViewController.h"
 #import "ApplyRecordModel.h"
 #import "ApplyMoneyCell.h"
+#import "UIAlertView+Blocks.h"
 
 @interface ApplyMoneyViewController ()<UITableViewDelegate,UITableViewDataSource,UIActionSheetDelegate,SAlertViewDelegate>
 {
@@ -214,23 +215,20 @@
 }
 #pragma mark -----   申请提现
 -(void)applyRestMoney{
-    /*
-    int apply_num = [rest_money_tf.text intValue];
-    if (apply_num!= 50) {
-        [ZTools showMBProgressWithText:@"每次提现限额50元" WihtType:MBProgressHUDModeText addToView:alertView.background_imageView isAutoHidden:YES];
-        return;
-    }
-     */
+
+    __weak typeof(self)wself = self;
     
     if (_vericationTF.text.length == 0) {
         [ZTools showMBProgressWithText:@"请输入短信验证码" WihtType:MBProgressHUDModeText addToView:alertView.background_imageView isAutoHidden:YES];
         return;
     }
     
+    /*图形验证码
     if (_vericationImageCodeTF.text.length == 0) {
         [ZTools showMBProgressWithText:@"请输入图中的验证码" WihtType:MBProgressHUDModeText addToView:alertView.background_imageView isAutoHidden:YES];
         return;
     }
+     */
     
     
     MBProgressHUD * load_hud = [ZTools showMBProgressWithText:@"申请中..." WihtType:MBProgressHUDModeText addToView:alertView.background_imageView isAutoHidden:NO];
@@ -238,9 +236,8 @@
     NSDictionary * dic = @{@"user_id":[ZTools getUid],
                            @"money":@"500",
                            @"type":bank_type,
-                           @"verify":_vericationImageCodeTF.text,
                            @"code_num":_vericationTF.text};
-    __weak typeof(self)wself = self;
+    
     [[ZAPI manager] sendPost:APPLY_MONEY_URL myParams:dic success:^(id data){
         [load_hud hide:YES];
         if (data  && [data isKindOfClass:[NSDictionary class]]) {
@@ -263,15 +260,16 @@
 
 #pragma mark -----   获取验证码
 -(void)getVericationCode:(UIButton*)button{
-    
+    /*
     if (_vericationImageCodeTF.text.length == 0) {
         [ZTools showMBProgressWithText:@"请先输入图片中的验证码" WihtType:MBProgressHUDModeText addToView:alertView.background_imageView isAutoHidden:YES];
         return;
     }
+     */
     
     button.enabled = NO;
     button.backgroundColor = [UIColor lightGrayColor];
-    time_count      = 60;
+    time_count      = 120;
     timer           = [NSTimer scheduledTimerWithTimeInterval:1.0f
                                                        target:self
                                                      selector:@selector(timerDown)
@@ -280,9 +278,14 @@
     [[NSRunLoop currentRunLoop] addTimer:timer forMode:NSRunLoopCommonModes];
     
     MBProgressHUD * loadHUD = [ZTools showMBProgressWithText:@"发送中..." WihtType:MBProgressHUDModeText addToView:alertView.background_imageView isAutoHidden:NO];
-    
+    /*图形验证码
     NSDictionary * dic = @{@"user_id":[ZTools getUid],
                            @"verify":_vericationImageCodeTF.text};
+     */
+    NSString * dateline = [ZTools timechangeToDateline];
+    NSDictionary * dic = @{@"user_id":[ZTools getUid],
+                           @"sign":[ZTools signWithDateLine:dateline],
+                           @"signtime":dateline};
     __weak typeof(self)wself = self;
     [[ZAPI manager] sendPost:GET_APPLY_VERIFICATION_CODE_URL myParams:dic success:^(id data) {
         [loadHUD hide:YES];
@@ -414,6 +417,16 @@
         return;
     }
     
+    __WeakSelf__ wself = self;
+    if ([[ZTools getIDNumber] length] == 0) {
+        [[UIAlertView showWithTitle:@"为了您账户的安全，提现需要绑定身份证号码，且姓名身份证银行开户名必须保持一致，是否现在去绑定" message:nil cancelButtonTitle:@"取消" otherButtonTitles:@[@"去绑定"] tapBlock:^(UIAlertView * _Nonnull alertView, NSInteger buttonIndex) {
+            if (buttonIndex == 1) {
+                [wself pushToBindCardController];
+            }
+            
+        }] show];
+        return;
+    }
     
     
     NSString * bank_card = [ZTools getBankCard];
@@ -472,10 +485,10 @@
                                            haveBorder:NO];
     [content_view addSubview:card_label];
     
+    content_view.height = card_label.bottom+10;
     
     
-    
-    
+    /*
     //图形验证码 输入框
     _vericationImageCodeTF = [ZTools createTextFieldWithFrame:CGRectMake(20, card_label.bottom+10, content_view.width-40, 30)
                                                          font:13
@@ -499,12 +512,10 @@
     [_reGetVericationCodeButton setTitleColor:DEFAULT_BACKGROUND_COLOR forState:UIControlStateNormal];
     [_reGetVericationCodeButton addTarget:self action:@selector(reGetVericationCodeClicked:) forControlEvents:UIControlEventTouchUpInside];
     [content_view addSubview:_reGetVericationCodeButton];
-    
-    
-    
+    */
     
     //验证码
-    _getVericationButton = [ZTools createButtonWithFrame:CGRectMake(content_view.width-90,_vericationCodeImageView.bottom+10, 70, 30)
+    _getVericationButton = [ZTools createButtonWithFrame:CGRectMake(content_view.width-90,card_label.bottom+10, 70, 30)
                                                    title:@"获取验证码"
                                                    image:nil];
     _getVericationButton.titleLabel.font = [ZTools returnaFontWith:12];
@@ -513,13 +524,14 @@
     [content_view addSubview:_getVericationButton];
     
     
-    _vericationTF = [ZTools createTextFieldWithFrame:CGRectMake(20, _vericationCodeImageView.bottom+10, _getVericationButton.left-30, 30)
+    _vericationTF = [ZTools createTextFieldWithFrame:CGRectMake(20, card_label.bottom+10, _getVericationButton.left-30, 30)
                                                 font:13
                                          placeHolder:@"请输入验证码"
                                      secureTextEntry:NO];
     _vericationTF.delegate = self;
     _vericationTF.keyboardType = UIKeyboardTypeNumberPad;
     [content_view addSubview:_vericationTF];
+     content_view.height = _vericationTF.bottom + 20;
     
     
     /*
@@ -536,7 +548,7 @@
     [money_back_label addSubview:rest_money_tf];
      */
     
-    content_view.height = _vericationTF.bottom + 20;
+    
     alertView.contentView = content_view;
     
 }
@@ -635,6 +647,16 @@
         label.layer.borderColor = DEFAULT_LINE_COLOR.CGColor;
     }
     return label;
+}
+
+#pragma mark -------  跳转到绑定身份证界面
+-(void)pushToBindCardController{
+    NSString * cardType = @"1";
+    if ([[ZTools getBankCard] length] == 0 && [[ZTools getAlipayNum] length] != 0) {
+        cardType = @"0";
+    }
+    
+    [self performSegueWithIdentifier:@"showbindbankcardSegue" sender:cardType];
 }
 
 #pragma mark - Navigation

@@ -68,8 +68,7 @@
 #import "UMSocialControllerService.h"
 #import "UMSocialWechatHandler.h"
 #import "UMSocialQQHandler.h"
-#import "UMSocialSinaHandler.h"
-#import "UMCheckUpdate.h"
+#import "UMSocialSinaSSOHandler.h"
 //高德地图
 #import <AMapLocationKit/AMapLocationKit.h>
 
@@ -77,7 +76,7 @@
 #import "WXApi.h"
 
 
-#define MYAPPID @"921896755"
+#define MYAPPID @"1121904204"
 #define USERNAME @"username"
 #define PASSWORD "password"
 #define LOGIN @"login"

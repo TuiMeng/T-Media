@@ -58,11 +58,12 @@
 -(void)loadDataWithDayKind:(int)day{
     
     [self createDataArray];
-        
+    [self startLoading];
     __weak typeof(self)wself = self;
     NSDictionary * dic = @{@"cinemaId":_cinema_model.cinemaId,@"movieId":_movie_model.movieId,@"dayKind":[NSString stringWithFormat:@"%d",day]};
     
     [[ZAPI manager] sendMoviePost:QUERY_MOVIE_PLAY_TIME_URL myParams:dic success:^(id data) {
+        [wself endLoading];
         if ([wself.dataArray[day] count]) {
             [wself.dataArray[day] removeAllObjects];
         }
@@ -79,7 +80,7 @@
         [wself createFooterWithHaveData:[wself.dataArray[day] count]];
         [wself.myTableView finishReloadigData];
     } failure:^(NSError *error) {
-        
+        [wself endLoading];
     }];
 }
 

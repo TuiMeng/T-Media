@@ -7,6 +7,7 @@
 //
 
 #import "GiftDetailViewController.h"
+#import "AddressManangerViewController.h"
 
 @interface GiftDetailViewController ()<UITextFieldDelegate,SAlertViewDelegate,UITextViewDelegate>{
     GiftListModel * info;
@@ -18,16 +19,9 @@
     
     SAlertView * alertView;
     
-    //联系人
-    STextField * user_name_tf;
-    //联系电话
-    STextField * user_mobile_tf;
-    //邮政编码
-    STextField * user_code_tf;
-    //联系地址
-    UITextView * user_address_tf;
-    //地址默认显示文字
-    SLabel * user_address_placeHolder_label;
+    //收货地址信息
+    UILabel * userNameLabel;
+    UILabel * addressLabel;
     
     //获取验证码按钮
     UIButton * _getVericationButton;
@@ -136,6 +130,9 @@
 }
 -(void)viewWillAppear:(BOOL)animated{
     [super viewWillAppear:animated];
+    if (alertView && alertView.hidden) {
+        alertView.hidden = NO;
+    }
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillHidden:) name:UIKeyboardWillHideNotification object:nil];
 }
 
@@ -228,15 +225,15 @@
 
 #pragma mark -----  获取验证码
 -(void)getVericationCode:(UIButton*)button{
-    
+    /*图形验证码
     if (_vericationImageCodeTF.text.length == 0) {
         [ZTools showMBProgressWithText:@"请先输入图片中的验证码" WihtType:MBProgressHUDModeText addToView:alertView.background_imageView isAutoHidden:YES];
         return;
     }
-    
+    */
     button.enabled = NO;
     button.backgroundColor = [UIColor lightGrayColor];
-    time_count      = 60;
+    time_count      = 120;
     timer           = [NSTimer scheduledTimerWithTimeInterval:1.0f
                                                        target:self
                                                      selector:@selector(timerDown)
@@ -246,13 +243,15 @@
     
     __WeakSelf__ wself = self;
     MBProgressHUD * loadHUD = [ZTools showMBProgressWithText:@"发送中..." WihtType:MBProgressHUDModeText addToView:alertView.background_imageView isAutoHidden:NO];
+    NSString * dateline = [ZTools timechangeToDateline];
     NSDictionary * dic = @{@"user_id":[ZTools getUid],
-                           @"verify":_vericationImageCodeTF.text};
+                           @"sign":[ZTools signWithDateLine:dateline],
+                           @"signtime":dateline};
     [[ZAPI manager] sendPost:GET_APPLY_VERIFICATION_GIFT_URL myParams:dic success:^(id data) {
         [loadHUD hide:YES];
         if (data && [data isKindOfClass:[NSDictionary class]]) {
             if ([data[ERROR_CODE] intValue] == 1) {
-                MBProgressHUD * hud = [ZTools showMBProgressWithText:[NSString stringWithFormat:@"验证码已发送到%@",[ZTools getPhoneNum]] WihtType:MBProgressHUDModeText addToView:alertView.background_imageView isAutoHidden:NO];
+                MBProgressHUD * hud = [ZTools showMBProgressWithText:[NSString stringWithFormat:@"已发送到%@",[ZTools getPhoneNum]] WihtType:MBProgressHUDModeText addToView:alertView.background_imageView isAutoHidden:NO];
                 [hud hide:YES afterDelay:2.5f];
             }else{
                 [wself reGetVericationCodeClicked:nil];
@@ -302,6 +301,19 @@
     }
 }
 
+#pragma mark --------   管理收货地址
+-(void)modifyAddressButtonTap:(UIButton *)button{
+    alertView.hidden = YES;
+    AddressManangerViewController * viewController = [[AddressManangerViewController alloc] init];
+    [self.navigationController pushViewController:viewController animated:YES];
+    
+    [viewController save:^(UserAddressModel * model){
+        alertView.hidden = NO;
+        userNameLabel.text = [NSString stringWithFormat:@"收货人：%@",model.put_man];
+        addressLabel.text = [NSString stringWithFormat:@"收货地址：%@%@",model.user_city,model.user_area];
+    }];
+}
+
 #pragma mark --------  立即兑换
 - (IBAction)getButtonClicked:(id)sender {
     //判断积分够不够
@@ -311,56 +323,21 @@
             return;
         }
     }
+    info.type = @"4";
     
+    UserAddressModel * addressModel = [ZTools getAddressModel];
+
+    if (info.type.intValue == 4 && !addressModel) {
+        [self modifyAddressButtonTap:nil];
+        return;
+    }
     
-//    NSDictionary * dic = @{@"type":@"",@"user_id":@"",@"gift_id":@"",@"phone_num":@""};
     
     alertView = [[SAlertView alloc] initWithTitle:@"确认兑换" WithContentView:nil WithCancelTitle:@"取消" WithDoneTitle:@"确认"];
     alertView.delegate = self;
     [alertView alertShow];
     
     UIView * content_view;
-//    if (info.type.intValue == 1)//充值卡
-//    {
-//        content_view = [[UIView alloc] initWithFrame:CGRectMake(0, 50, alertView.contentView.width, 0)];
-//        //商品名称
-//        UILabel * title_label = [[UILabel alloc] initWithFrame:CGRectMake(10, 10, content_view.width-20, 30)];
-//        title_label.text = @"手机话费充值";
-//        title_label.textAlignment = NSTextAlignmentLeft;
-//        title_label.font = [UIFont boldSystemFontOfSize:15];
-//        title_label.textColor = RGBCOLOR(57, 57, 57);
-//        
-//        //商品价格
-//        UILabel * price_label = [[UILabel alloc] initWithFrame:CGRectMake(10, title_label.bottom+10, content_view.width-20, 20)];
-//        price_label.text = @"兑换金额：10元";
-//        price_label.textAlignment = NSTextAlignmentLeft;
-//        price_label.textColor = RGBCOLOR(57, 57, 57);
-//        price_label.font = [UIFont systemFontOfSize:14];
-//        
-//        phone_tf = [self createTextFieldWithFrame:CGRectMake(10, price_label.bottom+10, content_view.width-20, 30) PlaceHolder:@"请输入充值手机号码"];
-//        again_phone_tf = [self createTextFieldWithFrame:CGRectMake(10, phone_tf.bottom+10, content_view.width-20, 30) PlaceHolder:@"再输入一次"];
-//        
-//        //提示信息
-//        NSString * introduction_string = @"注意：兑换礼品后，不支持退换，积分立减不退。提交后于7个工作日内充值到您的手机号，请确保您输入的手机号正确。";
-//        CGSize size = [ZTools stringHeightWithFont:[ZTools returnaFontWith:12] WithString:introduction_string WithWidth:content_view.width-20];
-//        UILabel * introduction_label = [[UILabel alloc] initWithFrame:CGRectMake(10, again_phone_tf.bottom+20, content_view.width-20, size.height)];
-//        introduction_label.text = introduction_string;
-//        introduction_label.numberOfLines = 0;
-//        introduction_label.font = [ZTools returnaFontWith:12];
-//        introduction_label.textColor = DEFAULT_LINE_COLOR;
-//        
-//        
-//        content_view.height = introduction_label.bottom+10;
-//        
-//        [content_view addSubview:introduction_label];
-//        [content_view addSubview:price_label];
-//        [content_view addSubview:phone_tf];
-//        [content_view addSubview:again_phone_tf];
-//        [content_view addSubview:title_label];
-//        
-//    }else if (info.type.intValue == 2 || info.type.intValue == 3)//电影票
-//    {
-    
     
     if (info.type.intValue == 1 || info.type.intValue == 2 || info.type.intValue == 3)//话费充值，电影票兑换券，视频网站会员
     {
@@ -426,39 +403,44 @@
         UILabel * price_label = [[UILabel alloc] initWithFrame:CGRectMake(10, title_label.bottom+10, content_view.width-20, 20)];
         price_label.text = [NSString stringWithFormat:@"兑换积分：%@积分",info.price];
         price_label.textAlignment = NSTextAlignmentLeft;
-        price_label.textColor = RGBCOLOR(57, 57, 57);
+        price_label.textColor = DEFAULT_ORANGE_TEXT_COLOR;
         price_label.font = [ZTools returnaFontWith:14];
         
-        UILabel * queren_tishi_label = [[UILabel alloc] initWithFrame:CGRectMake(10, price_label.bottom+5, content_view.width-20, 15)];
-        queren_tishi_label.text = @"请认真填写礼品邮寄信息";
-        queren_tishi_label.font = [ZTools returnaFontWith:12];
-        queren_tishi_label.textColor = [UIColor lightGrayColor];
         
-        user_name_tf = [self createTextFieldWithFrame:CGRectMake(10, queren_tishi_label.bottom+10, content_view.width-20, 30) PlaceHolder:@"收货人姓名"];
-        user_name_tf.keyboardType = UIKeyboardTypeDefault;
+        UILabel * phoneNumLabel = [ZTools createLabelWithFrame:CGRectMake(content_view.width-110, price_label.bottom+10, 100, 20)
+                                                          text:[ZTools getPhoneNum]
+                                                     textColor:DEFAULT_BLACK_TEXT_COLOR
+                                                 textAlignment:NSTextAlignmentRight
+                                                          font:14];
+        [content_view addSubview:phoneNumLabel];
         
-        user_mobile_tf = [self createTextFieldWithFrame:CGRectMake(10, user_name_tf.bottom+10, content_view.width-20, 30) PlaceHolder:@"收货人手机号码"];
+        userNameLabel = [ZTools createLabelWithFrame:CGRectMake(10, price_label.bottom+10, phoneNumLabel.left-20, 20)
+                                                          text:[NSString stringWithFormat:@"收货人：%@",addressModel.put_man]
+                                                     textColor:DEFAULT_BLACK_TEXT_COLOR
+                                                 textAlignment:NSTextAlignmentLeft
+                                                          font:14];
+        [content_view addSubview:userNameLabel];
         
-        user_code_tf = [self createTextFieldWithFrame:CGRectMake(10, user_mobile_tf.bottom+10, content_view.width-20, 30) PlaceHolder:@"邮政编码"];
+        addressLabel = [ZTools createLabelWithFrame:CGRectMake(10, userNameLabel.bottom+10, content_view.width-20, 20)
+                                                         text:[NSString stringWithFormat:@"收货地址：%@%@",addressModel.user_city,addressModel.user_area]
+                                                    textColor:DEFAULT_BLACK_TEXT_COLOR
+                                                textAlignment:NSTextAlignmentLeft
+                                                         font:13];
+        addressLabel.numberOfLines = 0;
+        [addressLabel sizeToFit];
+        [content_view addSubview:addressLabel];
         
-        user_address_tf = [[UITextView alloc] initWithFrame:CGRectMake(10, user_code_tf.bottom+10, content_view.width-20, 60)];
-        user_address_tf.font = [ZTools returnaFontWith:12];
-        user_address_tf.delegate = self;
-        user_address_tf.layer.borderColor = DEFAULT_LINE_COLOR.CGColor;
-        user_address_tf.layer.cornerRadius = 5;
-        user_address_tf.layer.borderWidth = 0.5;
         
-        user_address_placeHolder_label = [[SLabel alloc] initWithFrame:CGRectMake(5, 8, user_address_tf.width, user_address_tf.height)];
-        user_address_placeHolder_label.textColor = [UIColor lightGrayColor];
-        user_address_placeHolder_label.verticalAlignment = VerticalAlignmentTop;
-        user_address_placeHolder_label.text = @"请填写收货地址";
-        user_address_placeHolder_label.font = user_address_tf.font;
-        [user_address_tf addSubview:user_address_placeHolder_label];
+        UIButton * modifyAddressButton = [ZTools createButtonWithFrame:CGRectMake((content_view.width-100)/2.0f, addressLabel.bottom+10, 100, 30) title:@"修改收货地址" image:nil];
+        modifyAddressButton.titleLabel.font = [ZTools returnaFontWith:13];
+        [modifyAddressButton addTarget:self action:@selector(modifyAddressButtonTap:) forControlEvents:UIControlEventTouchUpInside];
+        [content_view addSubview:modifyAddressButton];
+        
         
         //提示信息
         NSString * introduction_string = @"注意：礼品将在一周内发放。";
         CGSize size = [ZTools stringHeightWithFont:[ZTools returnaFontWith:12] WithString:introduction_string WithWidth:content_view.width-20];
-        UILabel * introduction_label = [[UILabel alloc] initWithFrame:CGRectMake(10, user_address_tf.bottom+20, content_view.width-20, size.height)];
+        UILabel * introduction_label = [[UILabel alloc] initWithFrame:CGRectMake(10, modifyAddressButton.bottom+20, content_view.width-20, size.height)];
         introduction_label.text = introduction_string;
         introduction_label.numberOfLines = 0;
         introduction_label.font = [ZTools returnaFontWith:12];
@@ -469,16 +451,11 @@
         
         [content_view addSubview:introduction_label];
         [content_view addSubview:price_label];
-        [content_view addSubview:queren_tishi_label];
-        [content_view addSubview:user_name_tf];
-        [content_view addSubview:user_mobile_tf];
-        [content_view addSubview:user_code_tf];
-        [content_view addSubview:user_address_tf];
         [content_view addSubview:title_label];
     }
     
     
-    
+    /*
     //图形验证码 输入框
     _vericationImageCodeTF = [ZTools createTextFieldWithFrame:CGRectMake(20, content_view.bottom-50, content_view.width-40, 30)
                                                                       font:12
@@ -502,11 +479,11 @@
     [_reGetVericationCodeButton setTitleColor:DEFAULT_BACKGROUND_COLOR forState:UIControlStateNormal];
     [_reGetVericationCodeButton addTarget:self action:@selector(reGetVericationCodeClicked:) forControlEvents:UIControlEventTouchUpInside];
     [content_view addSubview:_reGetVericationCodeButton];
-    
+    */
     
     
     //短信验证码
-    _getVericationButton = [ZTools createButtonWithFrame:CGRectMake(content_view.width-90,_vericationCodeImageView.bottom+15, 70, 30)
+    _getVericationButton = [ZTools createButtonWithFrame:CGRectMake(content_view.width-90,content_view.bottom-50, 70, 30)
                                                    title:@"获取验证码"
                                                    image:nil];
     _getVericationButton.titleLabel.font = [ZTools returnaFontWith:12];
@@ -521,10 +498,8 @@
     _vericationTF.delegate      = self;
     _vericationTF.keyboardType  = UIKeyboardTypeNumberPad;
     [content_view addSubview:_vericationTF];
-    
-    
-    
     content_view.height = _vericationTF.bottom+10;
+    
     
     
     alertView.contentView = content_view;
@@ -533,49 +508,24 @@
 #pragma mark ---------   SAlertViewDelegate
 -(void)doneButtonClicked:(UIButton *)sender{
     
-    NSMutableDictionary * dic = [NSMutableDictionary dictionaryWithDictionary:@{@"type":info.type,@"user_id":[ZTools getUid],@"gift_id":info.id}];
-    
-    if (user_name_tf.text.length == 0 && info.type.intValue == 4) {
-        [ZTools showMBProgressWithText:@"请输入收货人姓名" WihtType:MBProgressHUDModeText addToView:alertView.background_imageView isAutoHidden:YES];
-        return;
-    }
-    
-    if ((user_mobile_tf.text.length == 0 || user_mobile_tf.text.length != 11) && info.type.intValue == 4) {
-        [ZTools showMBProgressWithText:@"请输入正确的手机号码" WihtType:MBProgressHUDModeText addToView:alertView.background_imageView isAutoHidden:YES];
-        return;
-    }
-    
-    if (user_code_tf.text.length == 0 && info.type.intValue == 4) {
-        [ZTools showMBProgressWithText:@"请输入邮政编码" WihtType:MBProgressHUDModeText addToView:alertView.background_imageView isAutoHidden:YES];
-        return;
-    }
-    
-    if (user_address_tf.text.length == 0 && info.type.intValue == 4) {
-        [ZTools showMBProgressWithText:@"请输入收货地址" WihtType:MBProgressHUDModeText addToView:alertView.background_imageView isAutoHidden:YES];
-        return;
-    }
-    
     if (_vericationTF.text.length == 0) {
         [ZTools showMBProgressWithText:@"请输入短信验证码" WihtType:MBProgressHUDModeText addToView:alertView.background_imageView isAutoHidden:YES];
         return;
     }
     
-    if (_vericationImageCodeTF.text.length == 0) {
-        [ZTools showMBProgressWithText:@"请输入图中的验证码" WihtType:MBProgressHUDModeText addToView:alertView.background_imageView isAutoHidden:YES];
-        return;
-    }
+    /*图形验证码
+     if (_vericationImageCodeTF.text.length == 0) {
+     [ZTools showMBProgressWithText:@"请输入图中的验证码" WihtType:MBProgressHUDModeText addToView:alertView.background_imageView isAutoHidden:YES];
+     return;
+     }
+     */
     
+    NSMutableDictionary * dic = [NSMutableDictionary dictionaryWithDictionary:@{@"type":info.type,@"user_id":[ZTools getUid],@"gift_id":info.id,@"code_num":_vericationTF.text}];
     
     if (info.type.intValue == 4)//实物兑换
     {
-        [dic setObject:user_name_tf.text forKey:@"user_name"];
-        [dic setObject:user_mobile_tf.text forKey:@"phone_num"];
-        [dic setObject:user_code_tf.text forKey:@"user_code"];
-        [dic setObject:user_address_tf.text forKey:@"address"];
+        
     }
-    
-    [dic setObject:_vericationTF.text forKey:@"code_num"];
-    [dic setObject:_vericationImageCodeTF.text forKey:@"verify"];
     
     MBProgressHUD * loading = [ZTools showMBProgressWithText:@"发送中..." WihtType:MBProgressHUDModeIndeterminate addToView:alertView.background_imageView isAutoHidden:NO];
     
@@ -653,19 +603,6 @@
     return YES;
 }
 -(void)textFieldDidBeginEditing:(UITextField *)textField{
-}
-#pragma mark -----  UITextViewDelegate
--(void)textViewDidChange:(UITextView *)textView{
-    if (textView.text.length == 0) {
-        user_address_placeHolder_label.text = @"请填写收货地址";
-    }else{
-        user_address_placeHolder_label.text = @"";
-    }
-    
-    CGRect rect = [textView convertRect:textView.frame toView:alertView.background_imageView];
-    if (rect.origin.y + rect.size.height + keyboard_height > DEVICE_HEIGHT) {
-        alertView.background_imageView.top = alertView.background_imageView.top - (rect.origin.y - rect.size.height - (DEVICE_HEIGHT - keyboard_height - rect.size.height));
-    }
 }
 
 #pragma mark ------  计时器

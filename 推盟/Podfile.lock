@@ -44,6 +44,7 @@ PODS:
   - UIAlertView+Blocks (0.9)
   - UMengAnalytics (3.5.10)
   - UMengFeedback (2.3.3)
+  - UMengSocialCOM (5.2.1)
 
 DEPENDENCIES:
   - AFNetworking (~> 3.1.0)
@@ -64,6 +65,7 @@ DEPENDENCIES:
   - UIAlertView+Blocks (~> 0.9)
   - UMengAnalytics (~> 3.5.8)
   - UMengFeedback (~> 2.3.1)
+  - UMengSocialCOM (~> 5.2.1)
 
 SPEC CHECKSUMS:
   AFNetworking: 5e0e199f73d8626b11e79750991f5d173d1f8b67
@@ -84,5 +86,6 @@ SPEC CHECKSUMS:
   UIAlertView+Blocks: a46c99c5144f6c5dbc7d62fd2a0678daceec89a3
   UMengAnalytics: 092c24aef47b6ac3c76ad51543f91156a8d7b645
   UMengFeedback: 6dd19dc88d310c317023aa495d10671b1c112531
+  UMengSocialCOM: 074c135ce349aa4c8848d3fb8458757bcb6ffb67
 
 COCOAPODS: 0.39.0

@@ -56,7 +56,7 @@
     
     [[ZAPI manager] sendGet:[NSString stringWithFormat:@"%@&page=%d",GIFT_LIST_URL,_myTableView.pageNum] success:^(id data) {
         if (data && [data isKindOfClass:[NSDictionary class]]) {
-            
+            [wself endLoading];
             if (wself.myTableView.pageNum == 1) {
                 wself.myTableView.isHaveMoreData = YES;
                 [wself.data_array removeAllObjects];
@@ -75,7 +75,7 @@
                 }
                 
             }else{
-                
+                [ZTools showMBProgressWithText:data[ERROR_INFO] WihtType:MBProgressHUDModeText addToView:wself.view isAutoHidden:YES];
             }
             [wself.myTableView finishReloadigData];
         }

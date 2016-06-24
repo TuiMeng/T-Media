@@ -52,6 +52,9 @@
     
     //获取支付状态请求
     NSURLSessionDataTask * checkPayStateTask;
+    
+    UIView * footerView;
+    UIButton * payButton;
 }
 
 
@@ -191,16 +194,21 @@
 }
 
 -(void)createFooterView{
-    UIView * footerView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, DEVICE_WIDTH, 100)];
-    footerView.backgroundColor = GRAY_BACKGROUND_COLOR;
-    
-    UIButton * payButton = [ZTools createButtonWithFrame:CGRectMake(16, 40, DEVICE_WIDTH-32, 37) title:@"确认支付" image:nil];
-    payButton.titleLabel.font = [ZTools returnaFontWith:16];
-    payButton.backgroundColor = DEFAULT_ORANGE_TEXT_COLOR;
-    [payButton addTarget:self action:@selector(payButtonClicked:) forControlEvents:UIControlEventTouchUpInside];
-    [footerView addSubview:payButton];
-    
-    _myTableView.tableFooterView = footerView;
+    if (!footerView) {
+        footerView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, DEVICE_WIDTH, 100)];
+        footerView.backgroundColor = GRAY_BACKGROUND_COLOR;
+        
+        payButton = [ZTools createButtonWithFrame:CGRectMake(16, 40, DEVICE_WIDTH-32, 37)
+                                            title:@""
+                                            image:nil];
+        payButton.titleLabel.font = [ZTools returnaFontWith:16];
+        payButton.backgroundColor = DEFAULT_ORANGE_TEXT_COLOR;
+        [payButton addTarget:self action:@selector(payButtonClicked:) forControlEvents:UIControlEventTouchUpInside];
+        [footerView addSubview:payButton];
+        
+        _myTableView.tableFooterView = footerView;
+    }
+    [payButton setTitle:[NSString stringWithFormat:@"在线支付（￥%.1f）",_totalPrice-cardMoney-_scorePrice] forState:UIControlStateNormal];
 }
 
 -(void)timeDown{
@@ -275,23 +283,23 @@
     
     if ([title isEqualToString:PAY_CARD]) {
         
-        MCardPayViewController      * viewController = [[MCardPayViewController alloc] init];
-        viewController.countDown    = _countDown;
-        viewController.orderId      = _orderId;
-        viewController.needPayPrice = _totalPrice-_scorePrice;
-        viewController.cardInfoArray = cardDataArray;
-        viewController.payInfoDic   = payInfoDic;
-        viewController.sign         = [self buildSign];
-        
-        [self.navigationController pushViewController:viewController animated:YES];
-        
-        [viewController chooseCardWith:^(float payMoney, NSString *cardInfo, NSMutableArray *cardArray) {
-            NSLog(@"zhang ----  %f ----  %@",payMoney,cardInfo);
-            cardMoney           = payMoney;
-            cardInfoString      = cardInfo;
-            cardDataArray       = cardArray;
-        }];
-        
+        if (cardInfoString.length) {
+            __WeakSelf__ wself = self;
+            UIAlertView * alertView = [UIAlertView showWithTitle:@"本次输入的卡信息将清除，但不会产生费用，是否选择其他电影卡？" message:nil cancelButtonTitle:@"取消" otherButtonTitles:@[@"确认"] tapBlock:^(UIAlertView * _Nonnull alertView, NSInteger buttonIndex) {
+                if (buttonIndex == 1) {
+                    cardMoney           = 0;
+                    cardInfoString      = @"";
+                    [cardDataArray removeAllObjects];
+                    cardDataArray = nil;
+                    [wself createFooterView];
+                    [wself pushToCardPayViewController];
+                }
+            }];
+            [alertView show];
+        }else{
+            [self pushToCardPayViewController];
+        }
+    
         return;
     }
     
@@ -382,7 +390,7 @@
 
 -(void)wechatPay{
     MBProgressHUD * loadingHUD = [ZTools showMBProgressWithText:@"发起支付中..." WihtType:MBProgressHUDModeText addToView:self.view isAutoHidden:NO];
-    WXManager * manager = [[WXManager alloc] initWithAppID:WECHAT_APPKEY mchID:WECHAT_MCHID spKey:PARTNER_ID];
+    WXManager * manager = [[WXManager alloc] initWithAppID:WECHAT_APPKEY1 mchID:WECHAT_MCHID spKey:PARTNER_ID];
     NSString * fee = [NSString stringWithFormat:@"%.0f",(_totalPrice-cardMoney-_scorePrice)*100];
     
     NSMutableDictionary * dict = [manager getPrepayWithOrderName:_movie_model.movieName price:fee device:@"1000" orderId:_orderId];
@@ -526,7 +534,26 @@
     }
     [self.navigationController popViewControllerAnimated:YES];
 }
+#pragma mark ------  跳转到卡支付界面
+-(void)pushToCardPayViewController{
+    MCardPayViewController      * viewController = [[MCardPayViewController alloc] init];
+    viewController.countDown    = _countDown;
+    viewController.orderId      = _orderId;
+    viewController.needPayPrice = _totalPrice-_scorePrice;
+    viewController.cardInfoArray = cardDataArray;
+    viewController.payInfoDic   = payInfoDic;
+    viewController.sign         = [self buildSign];
+    
+    [self.navigationController pushViewController:viewController animated:YES];
+    __WeakSelf__ wself = self;
+    [viewController chooseCardWith:^(float payMoney, NSString *cardInfo, NSMutableArray *cardArray) {
+        cardMoney           = payMoney;
+        cardInfoString      = cardInfo;
+        cardDataArray       = cardArray;
+        [wself createFooterView];
+    }];
 
+}
 
 -(void)dealloc{
     

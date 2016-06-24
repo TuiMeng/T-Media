@@ -96,7 +96,7 @@
 #pragma mark -----  创建轮播图
 -(void)setCycleView{
     
-    _cycle_scrollView                   = [SDCycleScrollView cycleScrollViewWithFrame:CGRectMake(0,0,DEVICE_WIDTH,[ZTools autoHeightWith:80]) imageURLStringsGroup:_cycleData[@"image"]];
+    _cycle_scrollView                   = [SDCycleScrollView cycleScrollViewWithFrame:CGRectMake(0,40,DEVICE_WIDTH,[ZTools autoHeightWith:180]) imageURLStringsGroup:_cycleData[@"image"]];
 //    _cycle_scrollView.titlesGroup       = _cycleData[@"title"];
     _cycle_scrollView.delegate          = self;
     _cycle_scrollView.pageControlStyle  = SDCycleScrollViewPageContolStyleNone;

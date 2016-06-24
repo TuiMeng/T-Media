@@ -121,7 +121,7 @@
                 wself.task_model.task_status        = [dic objectForKey:@"task_status"];
                 wself.task_model.task_price         = [dic objectForKey:@"task_price"];
                 wself.task_model.gao_click_price    = [dic objectForKey:@"gao_click_price"];
-                wself.task_model.spread_type        = [dic objectForKey:@"spread_type"];
+                wself.task_model.spread_type        = [ZTools replaceNullString:[dic objectForKey:@"spread_type"] WithReplaceString:@""];
                 
                 wself.task_model.canUploadImage     = [dic objectForKey:@"canUploadImage"];
                 wself.task_model.img_num            = [dic objectForKey:@"img_num"];
@@ -352,10 +352,9 @@
         return;
     }
     
-    UIImage *shareImage = _shareImage?_shareImage:[UIImage imageNamed:@"default_share_image"];
+    UIImage *shareImage = _shareImage?_shareImage:[UIImage imageNamed:@"Icon"];
     UMSocialUrlResource * url_resource = [[UMSocialUrlResource alloc] initWithSnsResourceType:UMSocialUrlResourceTypeImage url:_task_model.task_img];
     __weak typeof(self)wself = self;
-    
     
     NSArray * spread_type;
     NSString * userId = [ZTools getUid];
@@ -378,7 +377,7 @@
                                                Url:share_string
                                              image:shareImage
                                           location:nil
-                                       urlResource:url_resource
+                                       urlResource:nil
                                presentedController:self];
     
     shareView.string_copy = [ZTools getInvitationCode];

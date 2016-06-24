@@ -14,13 +14,13 @@
     self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
     if (self) {
         if (!_backView) {
-            _backView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, DEVICE_WIDTH, 125)];
+            _backView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, DEVICE_WIDTH, 150)];
             _backView.backgroundColor = RGBCOLOR(237, 237, 237);
             [self.contentView addSubview:_backView];
         }
         
         if (!_imageV) {
-            _imageV = [[UIImageView alloc] initWithFrame:CGRectMake(0, 11, DEVICE_WIDTH, 114)];
+            _imageV = [[UIImageView alloc] initWithFrame:CGRectMake(0, 15, DEVICE_WIDTH, 150-15)];
             _imageV.backgroundColor = [UIColor greenColor];
             [_backView addSubview:_imageV];
         }
@@ -41,12 +41,24 @@
             [_titleView addSubview:_restLabel];
         }
         
+        if (!_endRemindImageView) {
+            UIImage * image = [UIImage imageNamed:@"prizeTaskEndImage"];
+            _endRemindImageView = [[UIImageView alloc] initWithImage:image];
+            _endRemindImageView.center = CGPointMake(_backView.width - image.size.width/2.0f - 15, image.size.height/2.0f+15);
+            _endRemindImageView.hidden = YES;
+            [_backView addSubview:_endRemindImageView];
+        }
+        
     }
     return self;
 }
 
 -(void)setInfomationWithPrizeModel:(PrizeModel *)model{
-    
+    [_imageV sd_cancelCurrentImageLoad];
+    [_imageV sd_setImageWithURL:[NSURL URLWithString:[NSString stringWithFormat:@"%@%@",WEBSITE,model.task_img]] placeholderImage:[UIImage imageNamed:DEFAULT_LOADING_BIG_IMAGE]];
+    _titleLabel.text = model.task_name;
+    _restLabel.text = [NSString stringWithFormat:@"%@/%@",model.task_prize_surplus,model.task_prize_num];
+    _endRemindImageView.hidden = model.task_status.intValue == 1?NO:YES;
 }
 
 

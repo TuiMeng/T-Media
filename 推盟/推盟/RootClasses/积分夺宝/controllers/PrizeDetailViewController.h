@@ -7,7 +7,13 @@
 //
 
 #import "MyViewController.h"
+#import "PrizeModel.h"
 
 @interface PrizeDetailViewController : MyViewController
+
+
+@property(nonatomic,strong)PrizeModel   * model;
+
+@property(nonatomic,strong)NSString     * prizeId;
 
 @end

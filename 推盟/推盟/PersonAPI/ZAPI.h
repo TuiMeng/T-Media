@@ -27,7 +27,7 @@
  *  @param success 成功回调
  *  @param failure 失败回调
  */
--(void)sendPost:(NSString *)rawURL myParams:(NSDictionary *)params
+-(NSURLSessionDataTask*)sendPost:(NSString *)rawURL myParams:(NSDictionary *)params
         success:(void (^)(id data))success
         failure:(void (^)(NSError *error))failure;
 //电影数据不需要传平台版本号

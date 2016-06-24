@@ -32,16 +32,16 @@
     //友盟
      [UMSocialConfig hiddenNotInstallPlatforms:@[UMShareToQQ,UMShareToQzone,UMShareToWechatSession,UMShareToWechatTimeline]];
     [UMSocialConfig setFinishToastIsHidden:YES position:UMSocialiToastPositionCenter];
-    [UMSocialData setAppKey:@"54903d31fd98c544f3000e17"];
+    [UMSocialData setAppKey:UMENG_KEY];
     [UMSocialWechatHandler setWXAppId:WECHAT_APPKEY appSecret:@"" url:@"http://112.126.68.189/index.php"];
-    [UMSocialQQHandler setQQWithAppId:@"1104759285" appKey:@"BjrSeQYERDVvAbcA" url:WEBSITE];
+    [UMSocialQQHandler setQQWithAppId:@"1105111599" appKey:@"ixn9uYi3wKNmmIHk" url:WEBSITE];
     
-    [UMSocialSinaHandler openSSOWithRedirectURL:@"http://sns.whalecloud.com"];
+    [UMSocialSinaSSOHandler openNewSinaSSOWithAppKey:@"1954703021" secret:@"bea6e1f323e5cd5044f70c794c9c096d" RedirectURL:@"http://sns.whalecloud.com"];
     
-    [MobClick startWithAppkey:@"54903d31fd98c544f3000e17" reportPolicy:BATCH channelId:nil];
+    [MobClick startWithAppkey:UMENG_KEY reportPolicy:BATCH channelId:nil];
     
-    [UMessage startWithAppkey:@"54903d31fd98c544f3000e17" launchOptions:launchOptions];
-    [UMFeedback setAppkey:@"54903d31fd98c544f3000e17"];
+    [UMessage startWithAppkey:UMENG_KEY launchOptions:launchOptions];
+    [UMFeedback setAppkey:UMENG_KEY];
 
     [UMessage registerForRemoteNotificationTypes:UIRemoteNotificationTypeBadge
      |UIRemoteNotificationTypeSound

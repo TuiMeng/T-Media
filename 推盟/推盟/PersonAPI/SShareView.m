@@ -30,7 +30,8 @@
               title:(NSString*)title
             content:(NSString *)content
                 Url:(NSString *)url
-              image:(UIImage*)image location:(CLLocation *)location
+              image:(UIImage*)image
+           location:(CLLocation *)location
         urlResource:(UMSocialUrlResource *)urlResource
     presentedController:(UIViewController *)presentedController{
     self = [super initWithFrame:CGRectZero];
@@ -150,6 +151,9 @@
         snsName = @"wxsession";
          [UMSocialData defaultData].extConfig.wechatSessionData.url = _share_url;
         [UMSocialData defaultData].extConfig.wechatSessionData.title = _share_title;
+        
+        [UMSocialData defaultData].urlResource = _share_urlResource;
+        
     }else  if ([title isEqualToString:SHARE_WECHAT_CIRCLE]) {
         share_type = @"微信朋友圈";
         snsName = @"wxtimeline";
@@ -215,7 +219,13 @@
 
 -(void)shareWithSNS:(NSString *)snsName WithShareType:(NSString *)type{
     if (snsName.length > 0) {
-        [[UMSocialDataService defaultDataService] postSNSWithTypes:@[snsName] content:_share_content image:_share_image location:_share_location urlResource:_share_urlResource presentedController:_presentedController completion:^(UMSocialResponseEntity * response)
+        [[UMSocialDataService defaultDataService] postSNSWithTypes:@[snsName]
+                                                           content:_share_content
+                                                             image:_share_image
+                                                          location:_share_location
+                                                       urlResource:_share_urlResource
+                                               presentedController:_presentedController
+                                                        completion:^(UMSocialResponseEntity * response)
          {
              if (response.responseCode == UMSResponseCodeSuccess)
              {

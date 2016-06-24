@@ -8,6 +8,7 @@
 
 #import <Foundation/Foundation.h>
 #import "STextField.h"
+#import "UserInfoModel.h"
 
 @interface ZTools : NSObject
 //判断是否登陆
@@ -26,6 +27,10 @@
 +(NSString*)getGPSAddress;
 //获取用户名
 +(NSString *)getUserName;
+//获取用户真实姓名
++(NSString *)getRealUserName;
+//获取用户身份证号
++(NSString *)getIDNumber;
 //获取等级
 +(int)getGrade;
 //获取用户兴趣爱好
@@ -49,6 +54,8 @@
 //退出登陆
 +(void)logOut;
 +(NSString*)getDeviceToken;
+//获取收货人地址信息
++(UserAddressModel *)getAddressModel;
 //设置默认地区
 +(void)setSelectedCity:(NSString *)city cityId:(NSString *)cityId;
 //获取默认地区
@@ -186,6 +193,16 @@
  *  截屏并模糊处理
  */
 +(UIImage *)screenShotVague;
+
++(NSString *)linkAllAddressWithImageAddress:(NSString *)url;
+/**
+ *  加密字符
+ *
+ *  @param dateline 时间戳
+ *
+ *  @return 签名
+ */
++(NSString *)signWithDateLine:(NSString *)dateline;
 
 @end
 

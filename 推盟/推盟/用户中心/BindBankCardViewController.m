@@ -7,19 +7,24 @@
 //
 
 #import "BindBankCardViewController.h"
+#import "WXUtil.h"
 
 @interface BindBankCardViewController (){
     NSString * bankName_string;
     NSMutableArray * bank_name_array;
     BOOL isBank;
+    
+    float keyboard_height;
 }
 
 @property (weak, nonatomic) IBOutlet UIScrollView *myScrollView;
 
+@property (strong, nonatomic) IBOutlet UIView *contentView;
+
 /**
  *  银行卡/支付宝 开户人姓名
  */
-@property (weak, nonatomic) IBOutlet UITextField *userName_tf;
+@property (weak, nonatomic) IBOutlet STextField *userName_tf;
 /**
  *  银行名称
  */
@@ -27,11 +32,15 @@
 /**
  *  银行卡号/支付宝账号
  */
-@property (weak, nonatomic) IBOutlet UITextField *bankCard_tf;
+@property (weak, nonatomic) IBOutlet STextField *bankCard_tf;
 /**
  *  再次输入银行卡号/支付宝账号
  */
-@property (weak, nonatomic) IBOutlet UITextField *once_bankCard_tf;
+@property (weak, nonatomic) IBOutlet STextField *once_bankCard_tf;
+/**
+ *  身份证号
+ */
+@property (strong, nonatomic) IBOutlet STextField *IdCardNum_tf;
 
 @property (weak, nonatomic) IBOutlet UIButton *done_button;
 
@@ -58,6 +67,17 @@
     
 }
 
+-(void)viewWillDisappear:(BOOL)animated{
+    [super viewWillDisappear:animated];
+    
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardWillHideNotification object:nil];
+}
+-(void)viewWillAppear:(BOOL)animated{
+    [super viewWillAppear:animated];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillHidden:) name:UIKeyboardWillHideNotification object:nil];
+}
+
 - (void)viewDidLoad {
     [super viewDidLoad];
     
@@ -77,6 +97,11 @@
 }
 
 -(void)setup{
+    
+    _userName_tf.delegate = self;
+    _IdCardNum_tf.delegate = self;
+    _bankCard_tf.delegate = self;
+    _once_bankCard_tf.delegate = self;
     
     _done_button.backgroundColor = DEFAULT_BACKGROUND_COLOR;
     _done_button.layer.cornerRadius = 5;
@@ -116,6 +141,16 @@
         bankName_string = bank_name_array[0];
     }
     
+    //判断是否绑定身份证，如果绑定不可修改
+    if ([ZTools getIDNumber].length) {
+        _userName_tf.text = [ZTools getRealUserName];
+        _userName_tf.enabled = NO;
+        _userName_tf.layer.borderColor = DEFAULT_GRAY_TEXT_COLOR.CGColor;
+        _IdCardNum_tf.text = [ZTools getIDNumber];
+        _IdCardNum_tf.enabled = NO;
+        _IdCardNum_tf.layer.borderColor = DEFAULT_GRAY_TEXT_COLOR.CGColor;
+    }
+    
     UITapGestureRecognizer * tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(doTap:)];
     [self.myScrollView addGestureRecognizer:tap];
 }
@@ -123,6 +158,29 @@
     [self.view endEditing:YES];
 }
 
+#pragma mark ------   监控键盘高度
+- (void)keyboardWillShow:(NSNotification *)notification {
+    
+    /*
+     Reduce the size of the text view so that it's not obscured by the keyboard.
+     Animate the resize so that it's in sync with the appearance of the keyboard.
+     */
+    
+    NSDictionary *userInfo = [notification userInfo];
+    
+    // Get the origin of the keyboard when it's displayed.
+    NSValue* aValue = [userInfo objectForKey:UIKeyboardFrameEndUserInfoKey];
+    
+    // Get the top of the keyboard as the y coordinate of its origin in self's view's coordinate system. The bottom of the text view's frame should align with the top of the keyboard's final position.
+    CGRect keyboardRect = [aValue CGRectValue];
+    keyboard_height = keyboardRect.size.height;
+}
+-(void)keyboardWillHidden:(NSNotification*)notification{
+    
+    if (_myScrollView.contentOffset.y + _myScrollView.height > _myScrollView.contentSize.height) {
+        [_myScrollView setContentOffset:CGPointMake(0, _myScrollView.contentSize.height-_myScrollView.height) animated:YES];
+    }
+}
 
 
 #pragma mark - ToolBar Methods -
@@ -207,6 +265,17 @@
         return;
     }
     
+    if (isBank && [_bankName_button.titleLabel.text isEqualToString:@"开户行名称"]) {
+        [ZTools showMBProgressWithText:@"请选择开户银行" WihtType:MBProgressHUDModeText addToView:self.view isAutoHidden:YES];
+        return;
+    }
+    
+    if (_IdCardNum_tf.text.length == 0) {
+        UIAlertView * alertView = [[UIAlertView alloc] initWithTitle:@"请输入与姓名一致的身份证号码，绑定后不可更改" message:nil delegate:nil cancelButtonTitle:@"知道了" otherButtonTitles:nil, nil];
+        [alertView show];
+        return;
+    }
+    
     MBProgressHUD * hud = [ZTools showMBProgressWithText:@"正在提交..." WihtType:MBProgressHUDModeText addToView:self.view isAutoHidden:YES];
     
     NSMutableDictionary * dic = [NSMutableDictionary dictionaryWithDictionary:@{@"type":[NSString stringWithFormat:@"%d",!isBank],@"user_id":[ZTools getUid],(isBank?BANK_CARD:ALIPAY_NUM):_bankCard_tf.text,(isBank?BANK_NAME:ALIPAY_NAME):_userName_tf.text}];
@@ -214,14 +283,34 @@
         [dic setObject:bankName_string forKey:@"bank"];
     }
     
+    //加密字符
+    NSString * dataline = [ZTools timechangeToDateline];
+    NSString * sign = [ZTools signWithDateLine:dataline];
+    [dic setObject:sign forKey:@"sign"];
+    [dic setObject:dataline forKey:@"signtime"];
+    
+    //告诉后台是绑定信息还是修改信息(绑定过身份证就是修改没绑定过就是绑定)
+    if ([[ZTools getIDNumber] length] == 0) {
+        [dic setObject:_IdCardNum_tf.text forKey:@"idnumber"];
+        [dic setObject:_userName_tf.text forKey:@"user_namea"];
+        
+        [dic setObject:@"0" forKey:@"modify"];
+    }else{
+        [dic setObject:@"1" forKey:@"modify"];
+    }
+    
     __weak typeof(self)bself = self;
     [[ZAPI manager] sendPost:BIND_BANK_URL myParams:dic success:^(id data) {
         if (data && [data isKindOfClass:[NSDictionary class]]) {
             if ([[data objectForKey:ERROR_CODE] intValue] == 1)
             {
+                [hud hide:YES afterDelay:1.5];
                 hud.labelText = @"绑定成功";
                 [[NSNotificationCenter defaultCenter] postNotificationName:@"modifyUserInfomation" object:nil];
-                [bself disappearWithPOP:@"1" afterDelay:1.5f];
+                [bself disappearWithPOP:YES afterDelay:1.5f];
+            }else if([[data objectForKey:ERROR_CODE] intValue] == 2){
+                [hud hide:YES];
+                [[[UIAlertView alloc] initWithTitle:data[ERROR_INFO] message:nil delegate:nil cancelButtonTitle:@"确定" otherButtonTitles:nil, nil] show];
             }else
             {
                 [hud hide:YES];
@@ -232,6 +321,20 @@
         hud.labelText = @"提交失败，请重试";
         [hud hide:YES afterDelay:1.5];
     }];
+}
+
+-(BOOL)textFieldShouldBeginEditing:(UITextField *)textField{
+    return YES;
+}
+-(BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string{
+    CGPoint point = [_contentView convertPoint:textField.center toView:self.view];
+    
+    if(point.y+textField.height + keyboard_height > DEVICE_HEIGHT-64)
+    {
+        _myScrollView.top = _myScrollView.top - (point.y+textField.height+keyboard_height-(DEVICE_HEIGHT-64));
+    }
+
+    return YES;
 }
 
 

@@ -125,7 +125,7 @@
         [_forward_button setTitle:@"已结束" forState:UIControlStateNormal];
         _forward_button.backgroundColor = RGBCOLOR(251, 154, 155);
     }else{
-        [_forward_button setTitle:@"转发赚积分" forState:UIControlStateNormal];
+        [_forward_button setTitle:@"分享得积分" forState:UIControlStateNormal];
         _forward_button.backgroundColor = DEFAULT_BACKGROUND_COLOR;
     }
     if (show) {

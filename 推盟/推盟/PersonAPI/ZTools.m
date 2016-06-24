@@ -8,6 +8,7 @@
 
 #import "ZTools.h"
 #import "UIImage+ImageEffects.h"
+#import "WXUtil.h"
 
 #define IPHONE6_HEIGHT 667.0f
 #define IPHONE6_WIDTH 375.0f
@@ -50,6 +51,16 @@
 +(NSString *)getUserName
 {
     return [[[NSUserDefaults standardUserDefaults] objectForKey:@"UserInfomationData"] objectForKey:@"user_name"];
+}
+//用户姓名
++(NSString *)getRealUserName
+{
+    return [[[NSUserDefaults standardUserDefaults] objectForKey:@"UserInfomationData"] objectForKey:@"user_namea"];
+}
+//身份证
++(NSString *)getIDNumber
+{
+    return [[[NSUserDefaults standardUserDefaults] objectForKey:@"UserInfomationData"] objectForKey:@"idnumber"];
 }
 +(int)getGrade{
     return [[[[NSUserDefaults standardUserDefaults] objectForKey:@"UserInfomationData"] objectForKey:@"grade"] intValue];
@@ -121,6 +132,15 @@
         return token;
     }
     return @"";
+}
+#pragma mark ----  获取收货地址信息
++(UserAddressModel *)getAddressModel{
+    UserAddressModel * addressModel;
+    NSDictionary * dic = [[[NSUserDefaults standardUserDefaults] objectForKey:@"UserInfomationData"] objectForKey:@"address"];
+    if (dic && [dic isKindOfClass:[NSDictionary class]]) {
+        addressModel = [[UserAddressModel alloc] initWithDictionary:dic];
+    }
+    return addressModel;
 }
 #pragma mark ---  获取用户所选地区
 +(NSString *)getSelectedCity{
@@ -577,7 +597,10 @@
 }
 
 +(NSString*)replaceNullString:(NSString*)string WithReplaceString:(NSString*)replace{
-    if (string.length != 0 && ![string isKindOfClass:[NSNull class]] && [string rangeOfString:@"null"].length == 0 && ![string isEqualToString:@"<null>"]) {
+    if ([string isKindOfClass:[NSNull class]]) {
+        return replace;
+    }
+    if (string.length != 0 && [string rangeOfString:@"null"].length == 0 && ![string isEqualToString:@"<null>"]) {
         return string;
     }
     
@@ -657,7 +680,15 @@
     UIImage * screenShot = [uiImage applyBlurWithRadius:10 tintColor:[UIColor colorWithWhite:0.2 alpha:0.3] saturationDeltaFactor:1.0 maskImage:nil];
     
     return screenShot;
-
+}
++(NSString *)linkAllAddressWithImageAddress:(NSString *)url{
+    if (url.length) {
+        return [NSString stringWithFormat:@"http://test.twttmob.com/test_version.php/Admin/Tpl/Public/task_img/%@",url];
+    }
+    return @"";
+}
++(NSString *)signWithDateLine:(NSString *)dateline{
+    return [[WXUtil md5:[NSString stringWithFormat:@"%@tm220661",[[WXUtil md5:[NSString stringWithFormat:@"%@%@",[ZTools getUid],dateline]] lowercaseString]]] lowercaseString];
 }
 
 @end

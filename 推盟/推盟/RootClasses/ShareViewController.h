@@ -20,4 +20,5 @@
 @property(nonatomic,strong)NSString * task_id;
 @property(nonatomic,strong)UIImage * shareImage;
 
+
 @end

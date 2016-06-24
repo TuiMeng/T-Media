@@ -27,9 +27,6 @@
 
 
 #pragma **********************  接口相关 **********************
-//添加购票订单
-//http://localhost:8080/pwmobile/mobile/ lockseats?bid=100001&planid=99920130502054461& orderid=10001&seatids=1:01_
-//#define M_ADD_MOVIE_ORDER [NSString stringWithFormat:@"%@/pwmobile/mobile/lockseats?",BASE_MOVIE_URL]
 
 //添加购票订单
 #define MOVIE_ADD_MOVIE_ORDER       [NSString stringWithFormat:@"%@?m=Apply&a=e_point_order1",BASE_URL]

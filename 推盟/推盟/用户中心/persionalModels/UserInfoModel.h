@@ -7,6 +7,30 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "BaseModel.h"
+
+@interface UserAddressModel : BaseModel
+/**
+ *  收货人姓名
+ */
+@property(nonatomic,strong)NSString * put_man;
+/**
+ *  收货人所在省市
+ */
+@property(nonatomic,strong)NSString * user_city;
+/**
+ *  收货人详细地址
+ */
+@property(nonatomic,strong)NSString * user_area;
+/**
+ *  邮编
+ */
+@property(nonatomic,strong)NSString * user_email;
+
+@end
+
+
+
 
 @interface UserInfoModel : BaseModel
 {
@@ -17,18 +41,10 @@
 @property(nonatomic,strong)NSString * user_name;
 ///用户手机号
 @property(nonatomic,strong)NSString * user_mobile;
-///用户认证状态(1已认证0未认证2审核中)
-@property(nonatomic,strong)NSString * check_status;
-///用户头像
-@property(nonatomic,strong)NSString * head;
 ///用户行业
 @property(nonatomic,strong)NSString * trade;
-///用户认证照片
-@property(nonatomic,strong)NSString * photo;
 ///工作单位
 @property(nonatomic,strong)NSString * company;
-///工作年限
-@property(nonatomic,strong)NSString * life;
 ///银行名称
 @property(nonatomic,strong)NSString * bank;
 ///银行卡号
@@ -81,6 +97,43 @@
  *  被邀请人获得的奖励
  */
 @property(nonatomic,strong)NSString * be_invited_money;
+/**
+ *
+ */
+@property(nonatomic,strong)NSString * user_type;
+/**
+ *  用户姓名
+ */
+@property(nonatomic,strong)NSString * user_namea;
+/**
+ *  身份证号码
+ */
+@property(nonatomic,strong)NSString * idnumber;
+/**
+ *
+ */
+@property(nonatomic,strong)NSString * invite_uid;
+/**
+ *
+ */
+@property(nonatomic,strong)NSString * mobile_area;
+/**
+ *
+ */
+@property(nonatomic,strong)NSString * user_status;
+/**
+ *
+ */
+@property(nonatomic,strong)NSString * regist_time;
+/**
+ *
+ */
+@property(nonatomic,strong)NSString * encrypt_id;
+/**
+ *
+ */
+@property(nonatomic,strong)NSString * invite_status;
+
 
 
 -(UserInfoModel *)initWithDic:(NSDictionary *)dic;

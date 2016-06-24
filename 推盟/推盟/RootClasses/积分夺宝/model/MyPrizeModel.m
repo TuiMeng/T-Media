@@ -1,0 +1,57 @@
+//
+//  MyPrizeModel.m
+//  推盟
+//
+//  Created by joinus on 16/6/12.
+//  Copyright © 2016年 joinus. All rights reserved.
+//
+
+#import "MyPrizeModel.h"
+
+@implementation MyPrizeModel
+
+
+-(void)loadListDataWithType:(int)type page:(int)page withSuccess:(void(^)(NSMutableArray * array))success withFailure:(void(^)(NSString * error))failure{
+    __WeakSelf__ wself = self;
+    //张少南
+    NSDictionary * dic = @{@"page":@(page),@"type":@(type),@"user_id":@"1"};
+    [[ZAPI manager] sendPost:LOTTERY_LIST_URL myParams:dic success:^(id data) {
+        if (data && [data isKindOfClass:[NSDictionary class]]) {
+            if ([data[ERROR_CODE] intValue] == 1) {
+                if (page == 1) {
+                    [wself.dataArray[type-1] removeAllObjects];
+                }
+                NSArray * dataArr = data[@"data"];
+                for (NSDictionary * dic in dataArr) {
+                    MyPrizeModel * model = [[MyPrizeModel alloc] initWithDictionary:dic];
+                    [wself.dataArray[type-1] addObject:model];
+                }
+                
+                if (success) {
+                    success(wself.dataArray[type-1]);
+                }
+            }else{
+                if (failure) {
+                    failure(data[ERROR_INFO]);
+                }
+            }
+        }
+        
+    } failure:^(NSError *error) {
+        failure(@"请求失败");
+    }];
+}
+
+-(NSArray *)dataArray{
+    if (!_dataArray) {
+        _dataArray = @[[NSMutableArray array],[NSMutableArray array]];
+    }
+    return _dataArray;
+}
+
+
+
+
+
+
+@end

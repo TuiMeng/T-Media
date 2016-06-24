@@ -12,15 +12,17 @@
 @interface PrizeCell : UITableViewCell
 
 //背景视图
-@property(nonatomic,strong)UIView * backView;
+@property(nonatomic,strong)UIView       * backView;
 //头图
-@property(nonatomic,strong)UIImageView * imageV;
+@property(nonatomic,strong)UIImageView  * imageV;
 //标题背景图
-@property(nonatomic,strong)UIView * titleView;
+@property(nonatomic,strong)UIView       * titleView;
 //标题
-@property(nonatomic,strong)UILabel * titleLabel;
+@property(nonatomic,strong)UILabel      * titleLabel;
 //剩余数量
-@property(nonatomic,strong)UILabel * restLabel;
+@property(nonatomic,strong)UILabel      * restLabel;
+//已结束提示视图
+@property(nonatomic,strong)UIImageView  * endRemindImageView;
 
 
 -(void)setInfomationWithPrizeModel:(PrizeModel *)model;

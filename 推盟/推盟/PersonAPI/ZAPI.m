@@ -7,6 +7,8 @@
 //
 
 #import "ZAPI.h"
+#import "JSONKit.h"
+
 
 @implementation ZAPI
 
@@ -108,7 +110,7 @@
 
 #pragma mark - 异步请求
 //POST的异步请求
--(void)sendPost:(NSString *)rawURL myParams:(NSDictionary *)params
+-(NSURLSessionDataTask*)sendPost:(NSString *)rawURL myParams:(NSDictionary *)params
         success:(void (^)(id data))success
         failure:(void (^)(NSError *error))failure
 {
@@ -138,8 +140,12 @@
                                               } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
                                                   NSData* data= (NSData *)responseObject;
                                                   NSString * string = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-                                                  NSLog(@"string -----  %@",string);
-                                                  id dict=[NSJSONSerialization  JSONObjectWithData:data options:0 error:nil];
+                                                  NSLog(@"string ----------  %@",string);
+                                                  NSError * error;
+                                                  id dict=[NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers | NSJSONReadingMutableLeaves error:&error];
+                                                  if (error) {
+                                                      NSLog(@"error ------   %@",error);
+                                                  }
                                                   NSLog(@"获取到的数据为：%@",dict);
                                                   if (success) {
                                                       success(dict);
@@ -151,6 +157,7 @@
                                                   }
                                               }];
 
+    return task;
     
 }
 //电影数据不需要提供平台版本号
@@ -214,7 +221,12 @@
     } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         NSLog(@"task ----  %@",task);
         NSData* data= (NSData *)responseObject;
-        id dict=[NSJSONSerialization  JSONObjectWithData:data options:0 error:nil];
+
+        NSError * error;
+        id dict=[NSJSONSerialization  JSONObjectWithData:data options:0 error:&error];
+        if (error) {
+            NSLog(@"error -- %@",error);
+        }
         NSLog(@"获取到的数据为：%@",dict);
         if (success) {
             success(dict);

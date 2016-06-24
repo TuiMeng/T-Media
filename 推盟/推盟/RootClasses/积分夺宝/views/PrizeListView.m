@@ -9,6 +9,7 @@
 #import "PrizeListView.h"
 #import "PrizeCell.h"
 #import "PrizeModel.h"
+#import "PrizeDetailViewController.h"
 
 @interface PrizeListView ()<SNRefreshDelegate,UITableViewDataSource>{
     
@@ -17,7 +18,6 @@
 
 @property(nonatomic,strong)SNRefreshTableView   * myTableView;
 
-@property(nonatomic,strong)NSMutableArray       * dataArray;
 
 @property(nonatomic,strong)PrizeModel           * model;
 
@@ -30,9 +30,7 @@
     self = [super initWithFrame:frame];
     if (self) {
         [self createMainView];
-        
     }
-    
     return self;
 }
 
@@ -46,16 +44,28 @@
 
 -(void)getData{
     __WeakSelf__ wself = self;
-    [self.model loadDataWithPage:_myTableView.pageNum withSuccess:^(NSMutableArray *array) {
-        
+    [self.model loadListDataWithPage:_myTableView.pageNum withSuccess:^(NSMutableArray *array) {
+        wself.dataArray = array;
+        wself.myTableView.isHaveMoreData = YES;
+        [wself.myTableView finishReloadigData];
     } withFailure:^(NSString *error) {
-        [ZTools showMBProgressWithText:error WihtType:MBProgressHUDModeText addToView:wself isAutoHidden:YES];
+        if ([error isEqualToString:@"没有更多数据"]) {
+            wself.myTableView.isHaveMoreData = NO;
+        }else{
+            [ZTools showMBProgressWithText:error WihtType:MBProgressHUDModeText addToView:wself isAutoHidden:YES];
+        }
+        [wself.myTableView finishReloadigData];
     }];
 }
 
 #pragma mark ---  创建主视图
 -(void)createMainView{
+    
+    _dataArray = [NSMutableArray array];
+    
+    
     _myTableView = [[SNRefreshTableView alloc] initWithFrame:self.bounds showLoadMore:YES];
+    _myTableView.isHaveMoreData = YES;
     _myTableView.refreshDelegate    = self;
     _myTableView.dataSource         = self;
     [self addSubview:_myTableView];
@@ -64,7 +74,7 @@
 
 #pragma mark -------  UITableViewDataSource
 -(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
-    return 10;
+    return _dataArray.count;
 }
 
 -(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
@@ -74,20 +84,25 @@
         cell = [[PrizeCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:identifier];
         cell.selectionStyle = UITableViewCellSelectionStyleNone;
     }
+    
+    [cell setInfomationWithPrizeModel:_dataArray[indexPath.row]];
+    
     return cell;
 }
 
 -(void)loadNewData{
-    
+    [self getData];
 }
 - (void)loadMoreData{
-    
+    [self getData];
 }
 - (void)didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
-    
+    PrizeDetailViewController * detailVC = [[PrizeDetailViewController alloc] init];
+    detailVC.model = _dataArray[indexPath.row];
+    [_viewController.navigationController pushViewController:detailVC animated:YES];
 }
 - (CGFloat)heightForRowIndexPath:(NSIndexPath *)indexPath{
-    return 125;
+    return 150;
 }
 
 

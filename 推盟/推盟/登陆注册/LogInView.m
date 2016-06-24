@@ -94,15 +94,22 @@
 #pragma mark -----  创建输入手机号视图
 -(void)setContentView{
     
+    float scale = DEVICE_WIDTH/375;
+    float distance = 40*scale;
+    float contentWidth = 80;
+    if (scale>1) {
+        contentWidth += distance;
+    }else if (scale < 1) {
+        contentWidth -= distance;
+    }
+    
     if (!self.contentView) {
-        self.contentView                 = [[UIView alloc] initWithFrame:CGRectMake(0, 0, DEVICE_WIDTH-50, 170)];
+        self.contentView                 = [[UIView alloc] initWithFrame:CGRectMake(0, 0, DEVICE_WIDTH-contentWidth, 170)];
         self.contentView.backgroundColor = [UIColor whiteColor];
         self.contentView.center          = self.center;
         self.contentView.clipsToBounds   = YES;
         self.contentView.layer.cornerRadius = 5;
     }
-    
-    
     
     if (!self.titleLabel) {
         self.titleLabel = [ZTools createLabelWithFrame:CGRectMake(40, 5, self.contentView.width-80, 30)
@@ -439,6 +446,7 @@
     if (![_phoneTF.text isEqualToString:@"18600755163"]) {
         [self getVerificationCode];
     }
+//    [self getVerificationCode];
 }
 
 #pragma mark ---------  跳转到第一页
@@ -501,7 +509,7 @@
 
 #pragma mark -----  增加计时器
 -(void)addTimer{
-    time_count = 60;
+    time_count = 120;
     if (timer) {
         [timer invalidate];
         timer = nil;

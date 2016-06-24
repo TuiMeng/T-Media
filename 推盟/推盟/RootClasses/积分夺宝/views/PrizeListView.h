@@ -10,6 +10,8 @@
 
 @interface PrizeListView : UIView
 
+@property(nonatomic,strong)UIViewController     * viewController;
+@property(nonatomic,strong)NSMutableArray       * dataArray;
 
 
 -(void)getData;

@@ -18,6 +18,16 @@
 
 @implementation PrizeModel
 
+
+-(instancetype)initWithDictionary:(NSDictionary *)dic{
+    self = [super initWithDictionary:dic];
+    if (self) {
+        
+    }
+    return self;
+}
+
+
 +(instancetype)sharedInstance{
     return [[[self class] alloc] initModel];
 }
@@ -31,23 +41,31 @@
     return self;
 }
 
--(void)loadDataWithPage:(int)page withSuccess:(void(^)(NSMutableArray * array))success withFailure:(void(^)(NSString * error))failure{
+-(void)loadListDataWithPage:(int)page withSuccess:(void(^)(NSMutableArray * array))success withFailure:(void(^)(NSString * error))failure{
+    
     NSDictionary * dic = @{@"page":@(page)};
     [[ZAPI manager] sendPost:PRIZE_LIST_URL myParams:dic success:^(id data) {
         if (data && [data isKindOfClass:[NSDictionary class]]) {
             if ([data[ERROR_CODE] intValue] == 1) {
                 
                 NSArray * dataArr = data[@"data"];
-                
                 NSMutableArray * tempArray = [NSMutableArray array];
                 for (NSDictionary * dic in dataArr) {
                     PrizeModel * model = [[PrizeModel alloc] initWithDictionary:dic];
                     [tempArray addObject:model];
                 }
                 
-                if (success) {
-                    success(tempArray);
+                if (dataArr.count) {
+                    if (success) {
+                        success(tempArray);
+                    }
+                }else{
+                    if (failure) {
+                        failure(@"没有更多数据");
+                    }
                 }
+                
+                
             }else{
                 if (failure) {
                     failure(data[ERROR_INFO]);
@@ -58,12 +76,67 @@
     } failure:^(NSError *error) {
         failure(@"请求失败");
     }];
+    
+}
+
+-(void)loadDetailDataWithTaskID:(NSString *)taskId withSuccess:(void (^)(NSMutableArray * array))success withFailure:(void (^)(NSString * error))failure{
+    __WeakSelf__ wself = self;
+    NSDictionary * dic = @{@"task_id":taskId,@"user_id":@"1"};
+    [[ZAPI manager] sendPost:PRIZE_DETAIL_URL myParams:dic success:^(id data) {
+        if (data && [data isKindOfClass:[NSDictionary class]]) {
+            if ([data[ERROR_CODE] intValue] == 1) {
+                wself.content           = data[@"data"][@"content"];
+                wself.task_describe     = data[@"data"][@"task_describe"];
+                wself.task_rule         = data[@"data"][@"task_rule"];
+                wself.all_click         = data[@"data"][@"all_click"];
+                wself.can_draw_num      = data[@"data"][@"can_draw_num"];
+                wself.task_draw_num     = data[@"data"][@"task_draw_num"];
+                
+                if (success) {
+                    success(nil);
+                }
+            }else{
+                if (failure) {
+                    failure(data[ERROR_INFO]);
+                }
+            }
+        }else{
+            failure(@"请求失败");
+        }
+        
+    } failure:^(NSError *error) {
+        failure(@"请求失败");
+    }];
 }
 
 
-
-
-
+-(void)getPrizeWithTaskID:(NSString *)taskId
+                  success:(void(^)(void))success
+                   failed:(void(^)(NSString * errorInfo))failed{
+    //张少南
+    NSDictionary * dic = @{@"task_id":taskId,@"user_id":@"1"};
+    [[ZAPI manager] sendPost:PRIZE_CONVERT_URL myParams:dic success:^(id data) {
+        if (data && [data isKindOfClass:[NSDictionary class]]) {
+            if ([data[ERROR_CODE] intValue] == 1) {
+                if (success) {
+                    success();
+                }
+            }else{
+                if (failed) {
+                    failed(data[ERROR_INFO]);
+                }
+            }
+        }else{
+            if (failed) {
+                failed(@"获取失败");
+            }
+        }
+    } failure:^(NSError *error) {
+        if (failed) {
+            failed(@"获取失败");
+        }
+    }];
+}
 
 
 

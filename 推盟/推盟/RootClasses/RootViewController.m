@@ -26,7 +26,7 @@
 #define ROOT_TASK_ID @"1"
 #define ROOT_GAME_ID @"4"
 #define ROOT_MOVIE_ID @"2"
-#define ROOT_PRIZE_ID @"8"
+//#define ROOT_PRIZE_ID @"8"
 
 @interface RootViewController ()<SNRefreshDelegate,UITableViewDataSource,SDCycleScrollViewDelegate>{
     BOOL                isShowCycleView;
@@ -157,7 +157,7 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-    [self showIntrodction];
+   // [self showIntrodction];
     
     [[UIApplication sharedApplication] setStatusBarHidden:NO];
     
@@ -187,8 +187,6 @@
     
     [self setupLocationManager];
     [self loadTitlesData];
-     //自动更新
-     [UMCheckUpdate checkUpdate:@"发现新版本" cancelButtonTitle:@"稍后再说" otherButtonTitles:@"立即去更新" appkey:@"54903d31fd98c544f3000e17" channel:nil];
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(logOut:) name:@"userLogOut" object:nil];
     
@@ -444,7 +442,6 @@
     
     for (NSDictionary * item in array) {
         RootTaskListModel * model = [[RootTaskListModel alloc] initWithDictionary:item];
-        
         if ((![model.area isEqualToString:@"全国"] && [[ZTools replaceNullString:model.area WithReplaceString:@""] length] != 0) && model.task_status.intValue == 1) {
             if ([model.area rangeOfString:[ZTools getIPAddress]].length == 0 && [model.area rangeOfString:[ZTools getPhoneNumAddress]].length == 0 && [model.area rangeOfString:[ZTools replaceNullString:location_city WithReplaceString:@""]].length == 0) {
                 continue;
@@ -489,20 +486,23 @@
         _focus_title_array  = [NSMutableArray array];
     }
     
-    NSArray * rootArray = @[ROOT_TASK_ID,ROOT_GAME_ID,ROOT_MOVIE_ID,ROOT_PRIZE_ID];
+    NSArray * rootArray = @[ROOT_TASK_ID,ROOT_GAME_ID,ROOT_MOVIE_ID];
     for (NSDictionary * dic in array) {
         
         RootTopTitleModel * model = [[RootTopTitleModel alloc] initWithDictionary:dic];
         
         if ([rootArray containsObject:model.id]) {
+            
             [self.top_array addObject:model];
             [self.top_title_array addObject:model.column_name];
             
             [_c_array           addObject:model.is_show.intValue?[NSMutableArray array]:@""];
             [_focus_image_array addObject:model.is_show.intValue?[NSMutableArray array]:@""];
             [_focus_title_array addObject:model.is_show.intValue?[NSMutableArray array]:@""];
+            
         }
     }
+    
     
     [self createMainViews];
     [self createTopTitleView];
@@ -565,7 +565,10 @@
                  [tableView showRefreshHeader:YES];
              }
          }else if ([tableView isKindOfClass:[PrizeListView class]]){
-             
+             PrizeListView * prizeView = (PrizeListView *)tableView;
+             if (prizeView.dataArray.count == 0) {
+                 [prizeView getData];
+             }
          }
      }];
 }
@@ -614,15 +617,17 @@
             if (i == 0) {
                 [tableView showRefreshHeader:YES];
             }
-        }else if ([model.id isEqualToString:ROOT_PRIZE_ID])
-        {
-            PrizeListView * prizeView = [[PrizeListView alloc] initWithFrame:CGRectMake(DEVICE_WIDTH*i, 0, DEVICE_WIDTH, self.myScrollView.height)];
-            [_myScrollView addSubview:prizeView];
-            [_contentViews addObject:prizeView];
         }
+//        else if ([model.id isEqualToString:ROOT_PRIZE_ID])
+//        {
+//            PrizeListView * prizeView = [[PrizeListView alloc] initWithFrame:CGRectMake(DEVICE_WIDTH*i, 0, DEVICE_WIDTH, self.myScrollView.height)];
+//            prizeView.viewController = self;
+//            [_myScrollView addSubview:prizeView];
+//            [_contentViews addObject:prizeView];
+//        }
     }
     
-    _myScrollView.contentSize = CGSizeMake(DEVICE_WIDTH*3, 0);
+    _myScrollView.contentSize = CGSizeMake(DEVICE_WIDTH*_top_array.count, 0);
 }
 
 -(void)setCycleView{
@@ -674,6 +679,7 @@
     
     cell.selectionStyle = UITableViewCellSelectionStyleNone;
     RootTaskListModel * model = _data_array[indexPath.row];
+    __weak typeof(cell) wcell = cell;
     [cell setInfoWith:model showTag:(tableView.tag==1000) WithShare:^{
         
         BOOL isLogIn = [[NSUserDefaults standardUserDefaults] boolForKey:LOGIN];
@@ -681,7 +687,7 @@
         if (!isLogIn) {
             [[LogInView sharedInstance] loginShowWithSuccess:nil];
         }else{
-            [self performSegueWithIdentifier:@"ShowSharePageSegue" sender:model.encrypt_id];
+            [self performSegueWithIdentifier:@"ShowSharePageSegue" sender:@{@"task_id":model.encrypt_id,@"shareImage":wcell.headerImageView.image}];
         }
     }];
     return cell;
@@ -794,7 +800,10 @@
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
     if ([segue.identifier isEqualToString:@"ShowSharePageSegue"]) {
         ShareViewController * share = (ShareViewController*)segue.destinationViewController;
-        [share setValue:sender forKey:@"task_id"];
+        NSDictionary * dic = (NSDictionary *)sender;
+        [share setValue:dic[@"task_id"] forKey:@"task_id"];
+        [share setValue:dic[@"shareImage"] forKey:@"shareImage"];
+        
     }else if ([segue.identifier isEqualToString:@"ShowTaskDetailSegue"]){
         UIViewController * detail = segue.destinationViewController;
         [detail setValue:sender forKey:@"task_model"];

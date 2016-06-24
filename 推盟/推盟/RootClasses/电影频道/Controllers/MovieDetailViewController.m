@@ -112,7 +112,7 @@
 -(void)loadMovieData{
     NSLog(@"电影详情-----%@",GET_MOVIEW_DETAIL_URL(_movie_list_model.movieId));
     __weak typeof(self)wself = self;
-    [[ZAPI manager] sendPost:GET_MOVIEW_DETAIL_URL(_movie_list_model.movieId) myParams:nil success:^(id data) {
+    [[ZAPI manager] sendPost:GET_MOVIEW_DETAIL_URL(_movie_list_model.movieId) myParams:nil success:^(id data){
         
         if (data && [data isKindOfClass:[NSDictionary class]]) {
             wself.movieModel = [[MovieModel alloc] initWithDictionary:data];
