@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="9531" systemVersion="15D21" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="vXZ-lx-hvc">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="10117" systemVersion="15D21" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="vXZ-lx-hvc">
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="9529"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="10085"/>
         <capability name="Alignment constraints with different attributes" minToolsVersion="5.1"/>
         <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
     </dependencies>
@@ -1930,6 +1930,7 @@
                         </variation>
                     </view>
                     <connections>
+                        <outlet property="iconImageView" destination="xTM-gO-fAV" id="4N8-uT-UGQ"/>
                         <outlet property="joinus_mail_label" destination="WDK-T6-s3y" id="Z5u-ZD-RKj"/>
                         <outlet property="joinus_num_label" destination="8r6-FW-zm0" id="VQc-uy-Fnn"/>
                         <outlet property="service_phone_num_label" destination="sIa-QW-iC6" id="kjv-v5-WqV"/>
@@ -3785,7 +3786,7 @@
         <!--Task Detail View Controller-->
         <scene sceneID="7U0-ux-gzM">
             <objects>
-                <viewController id="La7-LX-QvY" customClass="TaskDetailViewController" sceneMemberID="viewController">
+                <viewController restorationIdentifier="TaskDetailViewController" storyboardIdentifier="TaskDetailViewController" id="La7-LX-QvY" customClass="TaskDetailViewController" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="8jN-MJ-qDv"/>
                         <viewControllerLayoutGuide type="bottom" id="e1W-Z8-SNQ"/>
@@ -5757,9 +5758,9 @@
         <image name="topBackGroundImage" width="320" height="64"/>
     </resources>
     <inferredMetricsTieBreakers>
-        <segue reference="utc-X3-eKQ"/>
         <segue reference="IdA-Er-AoG"/>
         <segue reference="DMo-Cn-neQ"/>
         <segue reference="A6g-Sk-cBD"/>
+        <segue reference="00a-gr-8By"/>
     </inferredMetricsTieBreakers>
 </document>

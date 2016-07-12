@@ -352,7 +352,9 @@
         return;
     }
     
-    UIImage *shareImage = _shareImage?_shareImage:[UIImage imageNamed:@"Icon"];
+    UIImage * cacheImage = [[SDImageCache sharedImageCache] imageFromDiskCacheForKey:_task_model.task_img];
+    
+    UIImage *shareImage = cacheImage?cacheImage:(IS_YML?[UIImage imageNamed:@"yml_Icon"]:[UIImage imageNamed:@"Icon"]);
     UMSocialUrlResource * url_resource = [[UMSocialUrlResource alloc] initWithSnsResourceType:UMSocialUrlResourceTypeImage url:_task_model.task_img];
     __weak typeof(self)wself = self;
     

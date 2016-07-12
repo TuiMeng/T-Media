@@ -91,7 +91,7 @@
 -(void)createSectionView{
     
     if (!section_view) {
-        section_view = [[UIView alloc] initWithFrame:CGRectMake(0, 0, DEVICE_WIDTH, 300)];
+        section_view = [[UIView alloc] initWithFrame:CGRectMake(0, 0, DEVICE_WIDTH, 400)];
         section_view.backgroundColor = [UIColor whiteColor];
         _myTableView.tableHeaderView = section_view;
         
@@ -122,6 +122,8 @@
         [user_level_button setImageEdgeInsets:UIEdgeInsetsMake(0, -25, 0, -25)];
         [background_view1 addSubview:user_level_button];
         
+
+        
         ///金钱相关视图
         money_background_view = [[UIView alloc] initWithFrame:CGRectMake(0, background_view1.bottom, DEVICE_WIDTH, 120)];
         money_background_view.backgroundColor = DEFAULT_BACKGROUND_COLOR;
@@ -142,8 +144,8 @@
         h_line_view.backgroundColor = [UIColor whiteColor];
         [money_background_view addSubview:h_line_view];
         ///总额 余额  申请提现
-        for (int i = 0; i < 3; i++) {
-            UIButton * button = [ZTools createButtonWithFrame:CGRectMake(5+((DEVICE_WIDTH-20)/3.0 + 5)*i, 75, (DEVICE_WIDTH-20)/3.0, 40) tag:1000+i title:@"" image:nil];
+        for (int i = 0; i < 2; i++) {
+            UIButton * button = [ZTools createButtonWithFrame:CGRectMake(5+((DEVICE_WIDTH-20)/2.0 + 5)*i, 75, (DEVICE_WIDTH-20)/2.0, 40) tag:1000+i title:@"" image:nil];
             button.backgroundColor = [UIColor clearColor];
             [button setTitleEdgeInsets:UIEdgeInsetsMake(-10, 0, 10, 0)];
             button.titleLabel.numberOfLines = 0;
@@ -181,81 +183,53 @@
                 [button addTarget:self action:@selector(applyButtonTap:) forControlEvents:UIControlEventTouchUpInside];
             }
             
-            UIView * line_view = [[UIView alloc] initWithFrame:CGRectMake(-0.5+DEVICE_WIDTH/3.0f*i, 85, 0.5, 20)];
+            UIView * line_view = [[UIView alloc] initWithFrame:CGRectMake(-0.5+DEVICE_WIDTH/2.0f*i, 85, 0.5, 20)];
             line_view.backgroundColor = [UIColor whiteColor];
             [money_background_view addSubview:line_view];
         }
         
-        /*
-        //夺宝历史
-        SView * lotteryBackView = [[SView alloc] initWithFrame:CGRectMake(0, money_background_view.bottom, DEVICE_WIDTH, 35)];
-        lotteryBackView.lineColor = DEFAULT_LINE_COLOR;
-        lotteryBackView.isShowBottomLine = YES;
-        [section_view addSubview:lotteryBackView];
         
-        UIButton * lotteryButton    = [UIButton buttonWithType:UIButtonTypeCustom];
-        lotteryButton.frame         = CGRectMake(10, 5, 100, 25);
-        lotteryButton.titleLabel.font = [ZTools returnaFontWith:13];
-        [lotteryButton setTitle:@"夺宝历史" forState:UIControlStateNormal];
-        [lotteryButton setTitleColor:DEFAULT_BLACK_TEXT_COLOR forState:UIControlStateNormal];
-        [lotteryButton setImage:[UIImage imageNamed:@"person_lotteryHistoryImage"] forState:UIControlStateNormal];
-        lotteryButton.enabled = NO;
-        [lotteryButton setImageEdgeInsets:UIEdgeInsetsMake(0, 10, 0, 80)];
-//        [lotteryButton setTitleEdgeInsets:UIEdgeInsetsMake(0, 5, 0, 0)];
-        [lotteryBackView addSubview:lotteryButton];
-        
-        UIButton * getLotteryListButton = [UIButton buttonWithType:UIButtonTypeCustom];
-        getLotteryListButton.frame = CGRectMake(DEVICE_WIDTH-130, 5, 100, 25);
-        [getLotteryListButton setTitleColor:DEFAULT_BLACK_TEXT_COLOR forState:UIControlStateNormal];
-        getLotteryListButton.titleLabel.font = [ZTools returnaFontWith:13];
-        [getLotteryListButton setTitle:@"查看历史" forState:UIControlStateNormal];
-        [getLotteryListButton setImage:[UIImage imageNamed:@"cinema_right_arrow_image"] forState:UIControlStateNormal];
-        [getLotteryListButton setImageEdgeInsets:UIEdgeInsetsMake(0, 110, 0, 0)];
-        [getLotteryListButton setTitleEdgeInsets:UIEdgeInsetsMake(0, 20, 0, 0)];
-        [getLotteryListButton addTarget:self action:@selector(getLotteryListData:) forControlEvents:UIControlEventTouchUpInside];
-        [lotteryBackView addSubview:getLotteryListButton];
-        */
-        
-        //邀请好友、礼品兑换、购票记录、收货地址
-        NSArray * dataArray = @[[UIImage imageNamed:@"person_invitationImage"],[UIImage imageNamed:@"person_giftHistoryImage"],[UIImage imageNamed:@"person_ticketHistoryImage"],[UIImage imageNamed:@"person_receiptAddressImage"],@"邀请好友",@"礼品兑换",@"购票记录",@"收货地址"];
+        //立即提现、礼品兑换、邀请好友、购票记录、夺宝历史、收货地址
+        NSArray * dataArray = @[[UIImage imageNamed:@"person_apply_money"],
+                                [UIImage imageNamed:@"person_giftHistoryImage"],
+                                [UIImage imageNamed:@"person_invitationImage"],
+                                [UIImage imageNamed:@"person_ticketHistoryImage"],
+                                [UIImage imageNamed:@"person_lottey_prize_list"],
+                                [UIImage imageNamed:@"person_receiptAddressImage"],
+                                @"立即提现",@"礼品兑换",@"邀请好友",@"购票记录",@"夺宝历史",@"收货地址"];
 
-        for (int i = 0; i < dataArray.count/2; i++) {
-            
-            UIButton * button           = [UIButton buttonWithType:UIButtonTypeCustom];
-            button.frame                = CGRectMake(DEVICE_WIDTH/(dataArray.count/2.0f)*i, money_background_view.bottom+10, DEVICE_WIDTH/(dataArray.count/2), 55);
-            [button addTarget:self action:@selector(functionButtonClicked:) forControlEvents:UIControlEventTouchUpInside];
-            button.tag                  = 10000+i;
-            [section_view addSubview:button];
-            
-            UIImageView * imageView     = [[UIImageView alloc] initWithImage:dataArray[i]];
-            imageView.center = CGPointMake(button.width/2.0f, imageView.height/2.0f+5);
-            [button addSubview:imageView];
-            
-            UILabel * label             = [ZTools createLabelWithFrame:CGRectMake(0, imageView.bottom+5, button.width, 20)
-                                                                  text:dataArray[i+4]
-                                                             textColor:DEFAULT_BLACK_TEXT_COLOR
-                                                         textAlignment:NSTextAlignmentCenter
-                                                                  font:12];
-            [button addSubview:label];
+        float buttonWidth = DEVICE_WIDTH/3.0f;
+        float buttonHeight = 55;
+        for (int i = 0; i < 2; i++) {
+            for (int j = 0; j < 3; j++) {
+                UIButton * button           = [UIButton buttonWithType:UIButtonTypeCustom];
+                button.frame                = CGRectMake(buttonWidth*j,
+                                                         money_background_view.bottom+15 + (buttonHeight+10)*i,
+                                                         buttonWidth,
+                                                         buttonHeight);
+                [button addTarget:self action:@selector(functionButtonClicked:) forControlEvents:UIControlEventTouchUpInside];
+                button.tag                  = 10000+i;
+                [section_view addSubview:button];
+                
+                UIImageView * imageView     = [[UIImageView alloc] initWithImage:dataArray[i*3+j]];
+                imageView.center = CGPointMake(button.width/2.0f, imageView.height/2.0f+5);
+                [button addSubview:imageView];
+                
+                UILabel * label             = [ZTools createLabelWithFrame:CGRectMake(0, imageView.bottom+5, button.width, 20)
+                                                                      text:dataArray[i*3+j+6]
+                                                                 textColor:DEFAULT_BLACK_TEXT_COLOR
+                                                             textAlignment:NSTextAlignmentCenter
+                                                                      font:12];
+                [button addSubview:label];
+            }
         }
-        /*
-        ///邀请好友
-        UIButton * invitation_button = [ZTools createButtonWithFrame:CGRectMake(15, 180, 130, 40) tag:0 title:@"邀请好友" image:nil];
-        invitation_button.titleLabel.font = [ZTools returnaFontWith:15];
-        invitation_button.backgroundColor = DEFAULT_BACKGROUND_COLOR;
-        invitation_button.layer.cornerRadius = 5;
-        [invitation_button addTarget:self action:@selector(invitationButtonTap:) forControlEvents:UIControlEventTouchUpInside];
-        [section_view addSubview:invitation_button];
         
-        ///礼品兑换
-        UIButton * gift_apply_button = [ZTools createButtonWithFrame:CGRectMake(DEVICE_WIDTH-130-15, 180, 130, 40) tag:0 title:@"礼品兑换" image:nil];
-        gift_apply_button.titleLabel.font = [ZTools returnaFontWith:15];
-        gift_apply_button.backgroundColor = DEFAULT_BACKGROUND_COLOR;
-        gift_apply_button.layer.cornerRadius = 5;
-        [gift_apply_button addTarget:self action:@selector(giftButtonTap:) forControlEvents:UIControlEventTouchUpInside];
-        [section_view addSubview:gift_apply_button];
-        */
-        UIView * section_h_line_view = [[UIView alloc] initWithFrame:CGRectMake(0, 240, DEVICE_WIDTH, 0.5)];
+        
+        
+        
+        
+        
+        UIView * section_h_line_view = [[UIView alloc] initWithFrame:CGRectMake(0, 320, DEVICE_WIDTH, 0.5)];
         section_h_line_view.backgroundColor = DEFAULT_LINE_COLOR;
         [section_view addSubview:section_h_line_view];
         

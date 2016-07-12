@@ -206,7 +206,7 @@
     
     __weak typeof(self)wself = self;
     //高德地图
-    [AMapLocationServices sharedServices].apiKey = AMAP_KEY;
+    [AMapLocationServices sharedServices].apiKey = IS_YML?YML_AMAP_KEY:AMAP_KEY;
     
     locationManager = [[AMapLocationManager alloc] init];
     [locationManager setDesiredAccuracy:kCLLocationAccuracyHundredMeters];

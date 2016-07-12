@@ -35,13 +35,15 @@
 #define WECHAT_APPKEY       @"wx128448d79fed11e8"
 
 
-//高德地图key
+//高德地图key（推盟）
 #define AMAP_KEY            @"ad0d37a0dfa0cf927897e639a246af04"
+//高德地图key（影迷乐）
+#define YML_AMAP_KEY            @"f135a41c82e11c56494ab4d0efd25c3b"
 
 
 #define WEBSITEH5 @"http://h5.twttmob.com/tuimengmobile/"
 //游戏中心地址
-#define GAME_SITE @"http://h5.twttmob.com/game2/index2.html"
+#define GAME_SITE(dateline) [NSString stringWithFormat:@"http://h5.twttmob.com/game2/index2.html?%@",dateline]
 
 #pragma mark - 图片
 #define NAVIGATION_IMAGE [UIImage imageNamed:@"navigation_image"]
@@ -55,39 +57,40 @@
 #define CURRENT_BUILD   [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleVersion"]
 #define CURRENT_VERSION [[[NSBundle mainBundle] infoDictionary] valueForKey:@"CFBundleShortVersionString"]
 #define APP_NAME        [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleDisplayName"]
-
+//判断该版本是影迷乐还是推盟
+#define IS_YML          [APP_NAME isEqualToString:@"影迷乐"]
 
 #pragma mark 所有接口
-//#pragma mark -----------测试域名 start--------------
-//#define WEBSITE @"http://tmtest.twttmob.com"
-////测试地址
-////推盟域名
-//#define BASE_URL            @"http://tmtest.twttmob.com/test_version.php"
-////首页任务txt文件地址
-//#define TASK_TXT_URL(dateline) [NSString stringWithFormat:@"http://tmtest.twttmob.com/Test_version/include/index_lista.txt?%@",dateline]
-////电影频道域名
-//#define BASE_MOVIE_URL      @"http://202.108.31.66:8088/tmmobile/mobile/"
-////微信回调测试地址
-//#define WECHAT_CALLBACK_URL [NSString stringWithFormat:@"%@/Test_version/include/wxpay/xmkp_notify.php",WEBSITE]
-//#pragma mark -----------------  图形验证码地址
-//#define T_VERICATION_CODE_IMAGE_URL(dateline) [NSString stringWithFormat:@"http://tmtest.twttmob.com/Test_version/Tpl/Public/phpyzm/code_gg.php?%@",dateline]
-//#pragma mark ****-----------测试域名 end--------------****
-
-
-#pragma mark -----------正式域名 start--------------
-//正式地址
-#define WEBSITE @"http://api.twttmob.com"
+#pragma mark -----------测试域名 start--------------
+#define WEBSITE @"http://tmtest.twttmob.com"
+//测试地址
 //推盟域名
-#define BASE_URL          @"http://api.twttmob.com/Api.php"
-//首页任务txt文件地址(正式环境)
-#define TASK_TXT_URL(dateline) [NSString stringWithFormat:@"http://api.twttmob.com/Api/include/index_lista.txt?%@",dateline]
+#define BASE_URL            @"http://tmtest.twttmob.com/test_version.php"
+//首页任务txt文件地址
+#define TASK_TXT_URL(dateline) [NSString stringWithFormat:@"http://tmtest.twttmob.com/Test_version/include/index_lista.txt?%@",dateline]
 //电影频道域名
-#define  BASE_MOVIE_URL     @"http://www.yingmile.com/tmmobile/mobile/"
-//微信回调正式地址
-#define WECHAT_CALLBACK_URL [NSString stringWithFormat:@"%@/Api/include/wxpay/xmkp_notify.php",WEBSITE]
+#define BASE_MOVIE_URL      @"http://202.108.31.66:8088/tmmobile/mobile/"
+//微信回调测试地址
+#define WECHAT_CALLBACK_URL [NSString stringWithFormat:@"%@/Test_version/include/wxpay/xmkp_notify.php",WEBSITE]
 #pragma mark -----------------  图形验证码地址
-#define T_VERICATION_CODE_IMAGE_URL(dateline) [NSString stringWithFormat:@"http://api.twttmob.com/Api/Tpl/Public/phpyzm/code_gg.php?%@",dateline]
-#pragma mark ****----------正式域名 end--------------****
+#define T_VERICATION_CODE_IMAGE_URL(dateline) [NSString stringWithFormat:@"http://tmtest.twttmob.com/Test_version/Tpl/Public/phpyzm/code_gg.php?%@",dateline]
+#pragma mark ****-----------测试域名 end--------------****
+
+
+//#pragma mark -----------正式域名 start--------------
+////正式地址
+//#define WEBSITE @"http://api.twttmob.com"
+////推盟域名
+//#define BASE_URL          @"http://api.twttmob.com/Api.php"
+////首页任务txt文件地址(正式环境)
+//#define TASK_TXT_URL(dateline) [NSString stringWithFormat:@"http://api.twttmob.com/Api/include/index_lista.txt?%@",dateline]
+////电影频道域名
+//#define  BASE_MOVIE_URL     @"http://www.yingmile.com/tmmobile/mobile/"
+////微信回调正式地址
+//#define WECHAT_CALLBACK_URL [NSString stringWithFormat:@"%@/Api/include/wxpay/xmkp_notify.php",WEBSITE]
+//#pragma mark -----------------  图形验证码地址
+//#define T_VERICATION_CODE_IMAGE_URL(dateline) [NSString stringWithFormat:@"http://api.twttmob.com/Api/Tpl/Public/phpyzm/code_gg.php?%@",dateline]
+//#pragma mark ****----------正式域名 end--------------****
 
 
 //电影频道图片地址域名
@@ -240,9 +243,14 @@
 //夺宝活动完成分享请求的接口地址
 #define PRIZE_SHARE_URL [NSString stringWithFormat:@"%@?m=Jfb&a=e_point_prizeshare",BASE_URL]
 /// 夺宝活动分享到平台的链接地址
-#define PRIZE_SHARE_CONTENT_URL [NSString stringWithFormat:@"%@?m=Task&a=e_point_prizerecord",BASE_URL]
+#define PRIZE_SHARE_CONTENT_URL [NSString stringWithFormat:@"%@?m=Jfb&a=e_point_prizerecord",BASE_URL]
 /// 领奖接口
-#define PRIZE_CONVERT_URL [NSString stringWithFormat:@"%@?m=Task&a=e_point_getprize",BASE_URL]
+#define PRIZE_CONVERT_URL [NSString stringWithFormat:@"%@?m=Jfb&a=e_point_getprize",BASE_URL]
+// 抽奖次数查询接口
+#define PRIZE_TIMES_URL [NSString stringWithFormat:@"%@?m=Jfb&a=e_point_prizetimes",BASE_URL]
+
+
+
 
 
 #pragma mark ====================  HTTPS 请求  ========================

@@ -16,5 +16,7 @@
 @property(nonatomic,strong)NSString * task_id;
 //分享图片地址
 @property(nonatomic,strong)NSString * shareImageUrl;
+//分享图片
+@property(nonatomic,strong)UIImage * shareImage;
 
 @end

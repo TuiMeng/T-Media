@@ -26,7 +26,7 @@
 -(void)loadTitlesDataWithTaskId:(NSString *)taskId success:(void (^)(void))success failed:(void (^)(NSString *))failed
 {
     
-    NSDictionary * dic = @{@"user_id":@"1",@"task_id":taskId};
+    NSDictionary * dic = @{@"user_id":[ZTools getUid],@"task_id":taskId};
     __WeakSelf__ wself = self;
     [[ZAPI manager] sendPost:PRIZE_SHARE_TITLES_URL myParams:dic success:^(id data) {
         if (data && [data isKindOfClass:[NSDictionary class]]) {

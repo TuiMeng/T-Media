@@ -47,7 +47,6 @@
 #import "LogInView.h"
 #import "SWebViewController.h"
 #import "STableViewCell.h"
-#import "DJWStarRatingView.h"
 #import <DJWStarRatingView/DJWStarRatingView.h>
 #import "CSNPlaceholderTextView.h"
 //侧边栏
@@ -59,7 +58,7 @@
 
 
 //友盟
-#import "MobClick.h"
+#import "UMMobClick/MobClick.h"
 #import "UMessage.h"
 #import "UMSocialControllerService.h"
 #import "UMFeedback.h"
@@ -74,8 +73,9 @@
 
 //微信
 #import "WXApi.h"
-
-
+////影迷乐appid
+//#define MYAPPID @"1118863912"
+//推盟appid
 #define MYAPPID @"1121904204"
 #define USERNAME @"username"
 #define PASSWORD "password"
@@ -124,7 +124,6 @@
 #define DEFAULT_FONT @"RTWS YueGothic Trial"
 
 //颜色
-
 #define RGBCOLOR(r,g,b) [UIColor colorWithRed:(r)/255.0f green:(g)/255.0f blue:(b)/255.0f alpha:1]
 #define RGBACOLOR(r,g,b,a) [UIColor colorWithRed:(r)/255.0f green:(g)/255.0f blue:(b)/255.0f \
 alpha:(a)]

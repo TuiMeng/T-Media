@@ -10,6 +10,8 @@
 #import "PrizeCell.h"
 #import "PrizeModel.h"
 #import "PrizeDetailViewController.h"
+#import "UIAlertView+Blocks.h"
+#import "PersonalInfoViewController.h"
 
 @interface PrizeListView ()<SNRefreshDelegate,UITableViewDataSource>{
     
@@ -45,6 +47,7 @@
 -(void)getData{
     __WeakSelf__ wself = self;
     [self.model loadListDataWithPage:_myTableView.pageNum withSuccess:^(NSMutableArray *array) {
+        
         wself.dataArray = array;
         wself.myTableView.isHaveMoreData = YES;
         [wself.myTableView finishReloadigData];
@@ -97,14 +100,22 @@
     [self getData];
 }
 - (void)didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
+    
+    if (![ZTools isLogIn]) {
+        [[LogInView sharedInstance] loginShowWithSuccess:^{
+
+        }];
+        return;
+    }
+    
+    
     PrizeDetailViewController * detailVC = [[PrizeDetailViewController alloc] init];
     detailVC.model = _dataArray[indexPath.row];
     [_viewController.navigationController pushViewController:detailVC animated:YES];
 }
 - (CGFloat)heightForRowIndexPath:(NSIndexPath *)indexPath{
-    return 150;
+    return 208;
 }
-
 
 
 @end

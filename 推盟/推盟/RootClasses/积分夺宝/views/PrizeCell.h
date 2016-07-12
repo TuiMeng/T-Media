@@ -5,9 +5,13 @@
 //  Created by joinus on 16/6/4.
 //  Copyright © 2016年 joinus. All rights reserved.
 //
+/*
+ *  该用户在该任务中奖信息展示
+ */
 
 #import <UIKit/UIKit.h>
 #import "PrizeModel.h"
+#import "CLRollLabel.h"
 
 @interface PrizeCell : UITableViewCell
 
@@ -18,7 +22,7 @@
 //标题背景图
 @property(nonatomic,strong)UIView       * titleView;
 //标题
-@property(nonatomic,strong)UILabel      * titleLabel;
+@property(nonatomic,strong)CLRollLabel  * titleLabel;
 //剩余数量
 @property(nonatomic,strong)UILabel      * restLabel;
 //已结束提示视图

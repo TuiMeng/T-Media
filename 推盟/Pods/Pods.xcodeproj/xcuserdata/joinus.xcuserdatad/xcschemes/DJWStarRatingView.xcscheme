@@ -14,7 +14,7 @@
             buildForArchiving = "YES">
             <BuildableReference
                BuildableIdentifier = 'primary'
-               BlueprintIdentifier = '0304324F6B1BE96747A1E455'
+               BlueprintIdentifier = 'DD480A4E51BE2676C9CF0040'
                BlueprintName = 'DJWStarRatingView'
                ReferencedContainer = 'container:Pods.xcodeproj'
                BuildableName = 'libDJWStarRatingView.a'>

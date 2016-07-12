@@ -12,7 +12,7 @@
 #define TITLE_CACHE @"清除缓存"
 #define TITLE_HELP @"建议反馈"
 #define TITLE_VERSION @"当前版本"
-#define TITLE_ABOUT @"关于推盟"
+#define TITLE_ABOUT [NSString stringWithFormat:@"关于%@",APP_NAME]
 #define TITLE_SUPPORT @"软件评分"
 #define TITLE_LOGOUT @"退出登录"
 #define TITLE_LOGIN @"立即登录"

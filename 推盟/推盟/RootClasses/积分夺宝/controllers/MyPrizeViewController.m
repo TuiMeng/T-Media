@@ -12,6 +12,7 @@
 #import "PrizeModel.h"
 #import "PrizeDetailViewController.h"
 #import "TaskDetailViewController.h"
+#import "MyOutPrizeCell.h"
 
 @interface MyPrizeViewController ()<SNRefreshDelegate,UITableViewDataSource>{
     UISegmentedControl * segmentC;
@@ -80,10 +81,11 @@
     }];
 }
 //兑换礼品
--(void)getPrizeWithTaskID:(NSString *)taskId{
+-(void)getPrizeWithTaskID:(NSString *)taskId prizeID:(NSString *)prizeId{
     __WeakSelf__ wself = self;
-    [[PrizeModel sharedInstance] getPrizeWithTaskID:taskId success:^{
+    [[PrizeModel sharedInstance] getPrizeWithTaskID:taskId prizeID:prizeId success:^{
         [ZTools showMBProgressWithText:@"兑换成功，请注意查收" WihtType:MBProgressHUDModeText addToView:wself.view isAutoHidden:YES];
+        [wself getData];
     } failed:^(NSString *errorInfo) {
         [ZTools showMBProgressWithText:errorInfo WihtType:MBProgressHUDModeText addToView:wself.view isAutoHidden:YES];
     }];
@@ -92,7 +94,13 @@
 #pragma mark -----  数据切换
 -(void)segmentedControlValueChanged:(UISegmentedControl *)sender{
     _currentPage = (int)sender.selectedSegmentIndex+1;
-    [self getData];
+    
+    if ([self.model.dataArray[sender.selectedSegmentIndex] count] == 0) {
+        [self getData];
+    }else {
+        [_myTableView finishReloadigData];
+    }
+    
 }
 
 #pragma mark -----  UITableViewDelegate
@@ -102,33 +110,52 @@
 }
 
 -(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
-    static NSString * identifier = @"identifier";
-    MyPrizeCell * cell = [tableView dequeueReusableCellWithIdentifier:identifier];
-    if (cell == nil) {
-        cell = [[MyPrizeCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:identifier];
-        cell.selectionStyle = UITableViewCellSelectionStyleNone;
+    
+    if (_currentPage == 1) {
+        static NSString * identifier = @"identifier1";
+        MyPrizeCell * cell = [tableView dequeueReusableCellWithIdentifier:identifier];
+        if (cell == nil) {
+            cell = [[MyPrizeCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:identifier];
+            cell.selectionStyle = UITableViewCellSelectionStyleNone;
+        }
+        
+        MyPrizeModel * model = self.model.dataArray[segmentC.selectedSegmentIndex][indexPath.row];
+        __WeakSelf__ wself = self;
+        [cell setInfomationWithMyPrizeModel:model getPrizeBlock:^(NSString * prizeId){
+            [wself getPrizeWithTaskID:model.task_id prizeID:prizeId];
+        } lookTaskContentBlock:^{
+            
+            RootTaskListModel * taskModel = [[RootTaskListModel alloc] init];
+            taskModel.content = model.task_content;
+            
+            UIStoryboard * storyBoard = [UIStoryboard storyboardWithName:@"Main" bundle:nil];
+            TaskDetailViewController * viewController = [storyBoard instantiateViewControllerWithIdentifier:@"TaskDetailViewController"];
+            viewController.task_model = taskModel;
+            [wself.navigationController pushViewController:viewController animated:YES];
+        }];
+        
+        return cell;
+    }else if (_currentPage == 2) {
+        static NSString * identifier = @"identifier2";
+        MyOutPrizeCell * cell = [tableView dequeueReusableCellWithIdentifier:identifier];
+        if (cell == nil) {
+            cell = [[MyOutPrizeCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:identifier];
+            cell.selectionStyle = UITableViewCellSelectionStyleNone;
+        }
+        
+        MyPrizeModel * model = self.model.dataArray[segmentC.selectedSegmentIndex][indexPath.row];
+        [cell setInfomationWithMyPrizeModel:model];
+        
+        return cell;
     }
     
-    MyPrizeModel * model = self.model.dataArray[segmentC.selectedSegmentIndex][indexPath.row];
-    __WeakSelf__ wself = self;
-    [cell setInfomationWithMyPrizeModel:model getPrizeBlock:^{
-        [wself getPrizeWithTaskID:model.task_id];
-    } lookTaskContentBlock:^{
-        
-        RootTaskListModel * taskModel = [[RootTaskListModel alloc] init];
-        taskModel.content = model.task_content;
-        
-        TaskDetailViewController * viewController = [[TaskDetailViewController alloc] init];
-        viewController.task_model = taskModel;
-        [wself.navigationController pushViewController:viewController animated:YES];
-    }];
     
-    return cell;
+    return nil;
 }
 
 
 -(void)loadNewData{
-    
+    [self getData];
 }
 - (void)loadMoreData{
     
@@ -137,7 +164,14 @@
     
 }
 - (CGFloat)heightForRowIndexPath:(NSIndexPath *)indexPath{
-    return 90 + (_currentPage==1?30:0);
+    if (_currentPage == 1) {
+        MyPrizeModel * model = self.model.dataArray[segmentC.selectedSegmentIndex][indexPath.row];
+        NSLog(@"--------  %lu ---  %lu",40 + model.prizes.count*55,(unsigned long)model.prizes.count);
+        return 40 + model.prizes.count*55;
+    } else if (_currentPage ==2) {
+        return 64;
+    }
+    return 0;
 }
 
 @end

@@ -9,6 +9,7 @@
 #import "MyPrizeCell.h"
 
 #define INDENT 15
+#define BLACK_TEXT_CLOLOR RGBCOLOR(73,73,73)
 
 @interface MyPrizeCell ()
 
@@ -38,84 +39,67 @@
             [_backView addSubview:_titleView];
         }
         
-        if (!_timeLabel) {
-            _timeLabel = [ZTools createLabelWithFrame:CGRectMake(_titleView.width-95, 0, 90, _titleView.height)
-                                                 text:@"2016-06-01"
-                                            textColor:[UIColor whiteColor]
-                                        textAlignment:NSTextAlignmentRight
-                                                 font:13];
-            [_titleView addSubview:_timeLabel];
-        }
         
-        if (!_PrizeNameLabel) {
-            _PrizeNameLabel = [ZTools createLabelWithFrame:CGRectMake(5, 0, _timeLabel.left - 15, 20)
-                                                      text:@"爱奇艺黄金会员"
+        if (!_taskNameLabel) {
+            _taskNameLabel = [ZTools createLabelWithFrame:CGRectMake(5, 0, _backView.width - 10, 20)
+                                                      text:@""
                                                  textColor:[UIColor whiteColor]
                                              textAlignment:NSTextAlignmentLeft
                                                       font:14];
-            [_titleView addSubview:_PrizeNameLabel];
+            [_titleView addSubview:_taskNameLabel];
         }
         
-        if (!_contentBackView) {
-            _contentBackView = [[UIView alloc] initWithFrame:CGRectMake(0, _titleView.bottom, _backView.width, 45)];
-            _contentBackView.backgroundColor = RGBCOLOR(229, 229, 229);
-            [_backView addSubview:_contentBackView];
+        if (!_prizeView) {
+            _prizeView = [[TaskPrizeView alloc] init];
+            _prizeView.delegate = self;
+            [_backView addSubview:_prizeView];
         }
         
-        if (!_contentLabel) {
-            _contentLabel = [ZTools createLabelWithFrame:CGRectMake(INDENT, 2.5, _contentBackView.width-INDENT*2, _contentBackView.height-5)
-                                                    text:@"不约而同！《刺猬小子之天生我次》7月22日 渣渣来袭"
-                                               textColor:DEFAULT_BLACK_TEXT_COLOR
-                                           textAlignment:NSTextAlignmentLeft
-                                                    font:14];
-            [_contentBackView addSubview:_contentLabel];
-        }
         
-        if (!_lotteryNumLabel) {
-            _lotteryNumLabel = [ZTools createLabelWithFrame:CGRectMake((DEVICE_WIDTH-80)/2.0f, _backView.bottom, 80, 20)
-                                                       text:@"抽奖：5次"
-                                                  textColor:DEFAULT_BLACK_TEXT_COLOR
-                                              textAlignment:NSTextAlignmentCenter
-                                                       font:13];
-            [self.contentView addSubview:_lotteryNumLabel];
-        }
-        
-        if (!_clickedNumLabel) {
-            _clickedNumLabel = [ZTools createLabelWithFrame:CGRectMake(INDENT, _backView.bottom, _lotteryNumLabel.left-25, 20)
-                                                       text:@"点击：50次"
-                                                  textColor:DEFAULT_BLACK_TEXT_COLOR
+        if (!_clickAndLotteryNum) {
+            _clickAndLotteryNum = [ZTools createLabelWithFrame:CGRectMake(INDENT, _backView.bottom, 80, 20)
+                                                       text:@""
+                                                  textColor:BLACK_TEXT_CLOLOR
                                               textAlignment:NSTextAlignmentLeft
-                                                       font:13];
-            [self.contentView addSubview:_clickedNumLabel];
+                                                       font:10];
+            [self.contentView addSubview:_clickAndLotteryNum];
         }
         
-        if (!_lookButton) {
-            _lookButton = [UIButton buttonWithType:UIButtonTypeCustom];
-            _lookButton.frame = CGRectMake(_backView.right-70, _backView.bottom, 60, 25);
-            [_lookButton setTitle:@"领取" forState:UIControlStateNormal];
-            _lookButton.titleLabel.font = [ZTools returnaFontWith:13];
-            [_lookButton setTitleColor:DEFAULT_RED_TEXT_COLOR forState:UIControlStateNormal];
-            [_lookButton addTarget:self action:@selector(lookButtonClicked:) forControlEvents:UIControlEventTouchUpInside];
-            [self.contentView addSubview:_lookButton];
-        }
         
-        if (!_statusLabel) {
-            _statusLabel = [ZTools createLabelWithFrame:CGRectMake(INDENT, _clickedNumLabel.bottom, 90, 20)
-                                                   text:@"状态：已发放"
-                                              textColor:DEFAULT_GRAY_TEXT_COLOR
-                                          textAlignment:NSTextAlignmentLeft
-                                                   font:12];
-            [self.contentView addSubview:_statusLabel];
-        }
+        //Add AutoLayOut
+        [_backView mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.left.equalTo(self.contentView).offset(16.0f);
+            make.right.equalTo(self.contentView).offset(-16.0f);
+            make.top.equalTo(self.contentView);
+            make.bottom.equalTo(self.contentView).offset(-20);
+        }];
         
-        if (!_platformLabel) {
-            _platformLabel = [ZTools createLabelWithFrame:CGRectMake(_statusLabel.right+10, _clickedNumLabel.bottom, DEVICE_WIDTH-_platformLabel.right-20, 20)
-                                                     text:@"物流：圆通 运单号：123456789012"
-                                                textColor:DEFAULT_GRAY_TEXT_COLOR
-                                            textAlignment:NSTextAlignmentRight
-                                                     font:12];
-            [self.contentView addSubview:_platformLabel];
-        }
+        
+        [_titleView mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.left.equalTo(_backView);
+            make.right.equalTo(_backView);
+            make.top.equalTo(_backView);
+            make.height.equalTo(@20);
+        }];
+        
+        [_taskNameLabel mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.left.and.right.equalTo(_titleView).offset(5);
+            make.top.and.bottom.equalTo(_titleView);
+        }];
+        
+        [_prizeView mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.left.and.right.equalTo(@0);
+            make.top.equalTo(_titleView.mas_bottom);
+            make.height.equalTo(@165);
+        }];
+        
+        [_clickAndLotteryNum mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.right.equalTo(self.contentView.mas_right).offset(-16.0f);
+            make.left.equalTo(self.contentView).offset(16);
+            make.top.equalTo(_backView.mas_bottom);
+            make.height.equalTo(@20);
+        }];
+        
     }
     return self;
 }
@@ -128,32 +112,38 @@
     lookBlock = lBlock;
     _prizeModel = model;
     
-    _PrizeNameLabel.text = model.prize_name;
-    _contentLabel.text = model.task_name;
-    _clickedNumLabel.text = [NSString stringWithFormat:@"点击：%@次",model.all_click];
-    _lotteryNumLabel.text = [NSString stringWithFormat:@"抽奖：%@次",model.drawed_num];
+    _taskNameLabel.text = model.task_name;    
+
+    [_prizeView setInfoWithArray:model.prizes];
     
-    _statusLabel.text = [self handleStatusWith:model.status];
-    _platformLabel.text = [self returnPlatformString];
+    [_prizeView mas_updateConstraints:^(MASConstraintMaker *make) {
+        make.height.equalTo(@(model.prizes.count*55));
+    }];
     
-    //奖品未领取，可以领取
-    _lookButton.hidden = model.canAcceptPrize.intValue?NO:YES;
-    
+    //点击/抽奖次数
+    NSString * num = [NSString stringWithFormat:@"点击：%@次  抽奖：%@次",model.all_click,model.drawed_num];
+    _clickAndLotteryNum.text = num;
 }
 
-#pragma mark ---  查看/领取奖品
--(void)lookButtonClicked:(UIButton *)button{
-    if (_prizeModel.canAcceptPrize.integerValue) {
-        if (getBlock) {
-            getBlock();
-        }
-    }else{
-        if (lookBlock) {
-            lookBlock();
-        }
+-(void)convertClicked:(NSString *)prizeId{
+    if (getBlock) {
+        getBlock(prizeId);
     }
-    
 }
+
+//#pragma mark ---  查看/领取奖品
+//-(void)lookButtonClicked:(UIButton *)button{
+//    if (_prizeModel.canAcceptPrize.integerValue) {
+//        if (getBlock) {
+//            getBlock();
+//        }
+//    }else{
+//        if (lookBlock) {
+//            lookBlock();
+//        }
+//    }
+//    
+//}
 
 #pragma mark ----- 查看任务详情
 -(void)showTaskContent:(UITapGestureRecognizer *)sender{
@@ -173,20 +163,20 @@
     }
     return @"";
 }
--(NSString *)returnPlatformString{
-    if (_prizeModel.isVirtual.intValue && _prizeModel.status.intValue == 2) {
-        return _prizeModel.reason;
-    }
-    
-    if (!_prizeModel.isVirtual.intValue) {
-        if (_prizeModel.status.intValue == 1) {
-            return [NSString stringWithFormat:@"物流：圆通 运单号：123456789012"];
-        }else if (_prizeModel.status.intValue == 2)  {
-            return _prizeModel.reason;
-        }
-    }
-    return @"";
-}
+//-(NSString *)returnPlatformString{
+//    if (_prizeModel.isVirtual.intValue && _prizeModel.status.intValue == 2) {
+//        return _prizeModel.reason;
+//    }
+//    
+//    if (!_prizeModel.isVirtual.intValue) {
+//        if (_prizeModel.status.intValue == 1) {
+//            return [NSString stringWithFormat:@"物流：圆通 运单号：123456789012"];
+//        }else if (_prizeModel.status.intValue == 2)  {
+//            return _prizeModel.reason;
+//        }
+//    }
+//    return @"";
+//}
 
 @end
 

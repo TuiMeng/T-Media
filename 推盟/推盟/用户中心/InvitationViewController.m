@@ -135,10 +135,10 @@
 #pragma mark - 邀请好友按钮
 - (IBAction)invitationClicked:(id)sender {
     SShareView * shareView = [[SShareView alloc] initWithTitles:@[SHARE_WECHAT_FRIEND,SHARE_WECHAT_CIRCLE,SHARE_TENTCENT_QQ,SHARE_SINA_WEIBO,SHARE_QZONE,SHARE_COPY]
-                                                          title:@"下载注册推盟得积分奖励！"
-                                                        content:@"您的好友邀请您成为推盟好友，接受邀请注册成功并完善个人资料就可以有机会获得积分奖励."
+                                                          title:[NSString stringWithFormat:@"下载注册%@得积分奖励！",APP_NAME]
+                                                        content:[NSString stringWithFormat:@"您的好友邀请您成为%@好友，接受邀请注册成功并完善个人资料就可以有机会获得积分奖励.",APP_NAME]
                                                             Url:WEBSITEH5
-                                                          image:[UIImage imageNamed:@"Icon"]
+                                                          image:IS_YML?[UIImage imageNamed:@"Icon"]:[UIImage imageNamed:@"Icon"]
                                                        location:nil
                                                     urlResource:nil
                                             presentedController:self];

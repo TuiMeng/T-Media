@@ -28,7 +28,7 @@
     [self.view addSubview:qrcode_imageView];
     
     //介绍
-    UILabel * prompt_label = [ZTools createLabelWithFrame:CGRectMake(20, qrcode_imageView.bottom+30, DEVICE_WIDTH-40, 30) tag:-11 text:@"扫一扫上面的二维码，加入推盟" textColor:RGBCOLOR(153, 153, 153) textAlignment:NSTextAlignmentCenter font:15];
+    UILabel * prompt_label = [ZTools createLabelWithFrame:CGRectMake(20, qrcode_imageView.bottom+30, DEVICE_WIDTH-40, 30) tag:-11 text:[NSString stringWithFormat:@"扫一扫上面的二维码，加入%@",APP_NAME] textColor:RGBCOLOR(153, 153, 153) textAlignment:NSTextAlignmentCenter font:15];
     [self.view addSubview:prompt_label];
     
     
@@ -38,7 +38,7 @@
         [self.view addSubview:line_imageView];
     }
     
-    UILabel * tuimeng_label = [ZTools createLabelWithFrame:CGRectMake(0, 0, 100, 40) tag:-10 text:@"推盟" textColor:DEFAULT_BACKGROUND_COLOR textAlignment:NSTextAlignmentCenter font:28];
+    UILabel * tuimeng_label = [ZTools createLabelWithFrame:CGRectMake(0, 0, 100, 40) tag:-10 text:APP_NAME textColor:DEFAULT_BACKGROUND_COLOR textAlignment:NSTextAlignmentCenter font:28];
     tuimeng_label.center = CGPointMake(DEVICE_WIDTH/2.0f, DEVICE_HEIGHT-64-120+0.5);
     [self.view addSubview:tuimeng_label];
 }

@@ -32,17 +32,17 @@
     UIImage * image;
     if (DEVICE_WIDTH == 320) {
         if (DEVICE_HEIGHT == 480) {
-            image = [UIImage imageNamed:@"ad_app4"];
+            image = IS_YML?[UIImage imageNamed:@"yml_app4"]:[UIImage imageNamed:@"ad_app4"];
         }else{
-            image = [UIImage imageNamed:@"ad_app5"];
+            image = IS_YML?[UIImage imageNamed:@"yml_app5"]:[UIImage imageNamed:@"ad_app5"];
         }
     }
     
     if (DEVICE_WIDTH == 375) {
-        image = [UIImage imageNamed:@"ad_app6"];
+        image = IS_YML?[UIImage imageNamed:@"yml_app6"]:[UIImage imageNamed:@"ad_app6"];
     }
     if (DEVICE_WIDTH == 414) {
-        image = [UIImage imageNamed:@"ad_app6p"];
+        image = IS_YML?[UIImage imageNamed:@"yml_app6p"]:[UIImage imageNamed:@"ad_app6p"];
     }
     
     _ad_background_imageView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, DEVICE_WIDTH, DEVICE_HEIGHT)];
@@ -82,7 +82,7 @@
 
 -(void)loadAdData{
     __weak typeof(self)wself = self;
-    [[ZAPI manager] sendGet:GET_GUANGGAO_IMAGE_URL success:^(id data) {
+    NSURLSessionDataTask * task = [[ZAPI manager] sendGet:GET_GUANGGAO_IMAGE_URL success:^(id data) {
         if (data && [data isKindOfClass:[NSDictionary class]]) {
             data_dic = (NSDictionary*)data;
             if ([data[@"status"] intValue] == 1) {
@@ -100,6 +100,8 @@
     } failure:^(NSError *error) {
         [wself cancelButtonTap:nil];
     }];
+    
+    
 }
 #pragma mark ----  增加计时器
 -(void)addTimerWithDelay:(CGFloat)delay{

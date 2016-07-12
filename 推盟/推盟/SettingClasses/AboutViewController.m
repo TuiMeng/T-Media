@@ -9,6 +9,12 @@
 #import "AboutViewController.h"
 #import <MessageUI/MessageUI.h>
 
+//影迷乐客服信息
+#define YML_KEFU_EMAIL @"kefu@yingmile.com"
+#define BUSINESS_EMAIL @"350656912@qq.com"
+//推盟客服信息
+#define TM_KEFU_EMAIL @"511968851@qq.com"
+
 @interface AboutViewController ()<MFMailComposeViewControllerDelegate>
 
 /**
@@ -23,6 +29,7 @@
 ///商务邮箱
 @property (weak, nonatomic) IBOutlet UILabel *joinus_mail_label;
 
+@property (strong, nonatomic) IBOutlet UIImageView *iconImageView;
 
 @end
 
@@ -32,17 +39,20 @@
     [super viewDidLoad];
     // Do any additional setup after loading the view.
     
-    self.title_label.text = @"关于推盟";
+    self.title_label.text = [NSString stringWithFormat:@"关于%@",APP_NAME];
     
-    NSString * service_num = @"客服邮箱：511968851@qq.com";
-    NSMutableAttributedString * service_attributed_string = [ZTools labelTextColorWith:service_num Color:DEFAULT_BACKGROUND_COLOR range:[service_num rangeOfString:@"511968851@qq.com"]];
-    [service_attributed_string addAttribute:NSUnderlineStyleAttributeName value:[NSNumber numberWithInteger:NSUnderlineStyleSingle] range:[service_num rangeOfString:@"511968851@qq.com"]];
+    
+    NSString * kefuEmail = IS_YML?YML_KEFU_EMAIL:TM_KEFU_EMAIL;
+    
+    NSString * service_num = [NSString stringWithFormat:@"客服邮箱：%@",kefuEmail];
+    NSMutableAttributedString * service_attributed_string = [ZTools labelTextColorWith:service_num Color:DEFAULT_BACKGROUND_COLOR range:[service_num rangeOfString:kefuEmail]];
+    [service_attributed_string addAttribute:NSUnderlineStyleAttributeName value:[NSNumber numberWithInteger:NSUnderlineStyleSingle] range:[service_num rangeOfString:kefuEmail]];
     _service_phone_num_label.attributedText = service_attributed_string;
     
     
-    NSString * joinus_mail = @"商务合作：350656912@qq.com";
-    NSMutableAttributedString * joinus_attributed_string = [ZTools labelTextColorWith:joinus_mail Color:DEFAULT_BACKGROUND_COLOR range:[joinus_mail rangeOfString:@"350656912@qq.com"]];
-    [joinus_attributed_string addAttribute:NSUnderlineStyleAttributeName value:[NSNumber numberWithInteger:NSUnderlineStyleSingle] range:[joinus_mail rangeOfString:@"350656912@qq.com"]];
+    NSString * joinus_mail = [NSString stringWithFormat:@"商务合作：%@",BUSINESS_EMAIL];
+    NSMutableAttributedString * joinus_attributed_string = [ZTools labelTextColorWith:joinus_mail Color:DEFAULT_BACKGROUND_COLOR range:[joinus_mail rangeOfString:BUSINESS_EMAIL]];
+    [joinus_attributed_string addAttribute:NSUnderlineStyleAttributeName value:[NSNumber numberWithInteger:NSUnderlineStyleSingle] range:[joinus_mail rangeOfString:BUSINESS_EMAIL]];
     _joinus_mail_label.attributedText = joinus_attributed_string;
     
     
@@ -52,14 +62,16 @@
     UITapGestureRecognizer * joinus_tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(joinus_tapTap:)];
     [_joinus_mail_label addGestureRecognizer:joinus_tap];
     _joinus_mail_label.userInteractionEnabled = YES;
+    
+    _iconImageView.image = IS_YML?[UIImage imageNamed:@"yml_Icon"]:[UIImage imageNamed:@"Icon"];
 }
 
 -(void)serviceTap:(UITapGestureRecognizer*)sender{
-    [self sendEMailWith:@"511968851@qq.com"];
+    [self sendEMailWith:(IS_YML?YML_KEFU_EMAIL:TM_KEFU_EMAIL)];
 }
 
 -(void)joinus_tapTap:(UITapGestureRecognizer*)sender{
-    [self sendEMailWith:@"350656912@qq.com"];
+    [self sendEMailWith:BUSINESS_EMAIL];
 }
 
 -(void)sendEMailWith:(NSString*)email{

@@ -8,13 +8,36 @@
 
 #import "MyPrizeModel.h"
 
+@implementation PrizeStatusModel
+
+
+
+@end
+
 @implementation MyPrizeModel
+
+-(instancetype)initWithDictionary:(NSDictionary *)dic{
+    self = [super initWithDictionary:dic];
+    if (self) {
+        _prizes = [NSMutableArray array];
+        id prize = dic[@"prize"];
+        if (prize && [prize isKindOfClass:[NSArray class]]) {
+            NSArray * prizeArray = (NSArray *)prize;
+            for (NSDictionary * item in prizeArray) {
+                PrizeStatusModel * model = [[PrizeStatusModel alloc] initWithDictionary:item];
+                [_prizes addObject:model];
+            }
+        }
+    }
+    
+    return self;
+}
 
 
 -(void)loadListDataWithType:(int)type page:(int)page withSuccess:(void(^)(NSMutableArray * array))success withFailure:(void(^)(NSString * error))failure{
     __WeakSelf__ wself = self;
     //张少南
-    NSDictionary * dic = @{@"page":@(page),@"type":@(type),@"user_id":@"1"};
+    NSDictionary * dic = @{@"page":@(page),@"type":@(type),@"user_id":[ZTools getUid]};
     [[ZAPI manager] sendPost:LOTTERY_LIST_URL myParams:dic success:^(id data) {
         if (data && [data isKindOfClass:[NSDictionary class]]) {
             if ([data[ERROR_CODE] intValue] == 1) {

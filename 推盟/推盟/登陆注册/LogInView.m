@@ -443,10 +443,10 @@
     [self showContentView];
     
     //判断是否是测试账号，测试账号不需要发送短信
-    if (![_phoneTF.text isEqualToString:@"18600755163"]) {
-        [self getVerificationCode];
-    }
-//    [self getVerificationCode];
+//    if (![_phoneTF.text isEqualToString:@"18600755163"]) {
+//        [self getVerificationCode];
+//    }
+    [self getVerificationCode];
 }
 
 #pragma mark ---------  跳转到第一页

@@ -46,9 +46,9 @@
 }
 
 -(void)setInfomationWithWinnerModel:(WinnerModel *)model{
-    _mobileLabel.text = [ZTools returnEncryptionMobileNumWith:model.user_mobile];
+    _mobileLabel.text   = model.user_mobile;
     _clickNumLabel.text = model.prize_name;
-    _dateLabel.text = [ZTools timechangeWithTimestamp:model.draw_time WithFormat:@"MM-dd HH:mm"];
+    _dateLabel.text     = [ZTools timechangeWithTimestamp:model.draw_time WithFormat:@"MM-dd HH:mm"];
 }
 
 

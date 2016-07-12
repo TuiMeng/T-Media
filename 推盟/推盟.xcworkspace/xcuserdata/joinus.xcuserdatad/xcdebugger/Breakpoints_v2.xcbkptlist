@@ -19,5 +19,85 @@
             landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "&#x63a8;&#x76df;/RootClasses/&#x7535;&#x5f71;&#x9891;&#x9053;/Controllers/MCinemaScheduleViewController.m"
+            timestampString = "488865513.745542"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "315"
+            endingLineNumber = "315"
+            landmarkName = "-loadNewData"
+            landmarkType = "5">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "&#x63a8;&#x76df;/RootClasses/&#x7535;&#x5f71;&#x9891;&#x9053;/Controllers/MCardPayViewController.m"
+            timestampString = "488978562.745606"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "414"
+            endingLineNumber = "414"
+            landmarkName = "-payButtonClicked:"
+            landmarkType = "5">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "&#x63a8;&#x76df;/RootClasses/&#x7535;&#x5f71;&#x9891;&#x9053;/Controllers/MPayViewController.m"
+            timestampString = "489295231.361074"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "365"
+            endingLineNumber = "365"
+            landmarkName = "-payButtonClicked:"
+            landmarkType = "5">
+            <Locations>
+               <Location
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "-[MPayViewController payButtonClicked:]"
+                  moduleName = "&#x63a8;&#x76df;"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/joinus/Desktop/joinus/%E6%8E%A8%E7%9B%9F/IOS%E5%AE%A2%E6%88%B7%E7%AB%AF/T-Media/%E6%8E%A8%E7%9B%9F/%E6%8E%A8%E7%9B%9F/RootClasses/%E7%94%B5%E5%BD%B1%E9%A2%91%E9%81%93/Controllers/MPayViewController.m"
+                  timestampString = "489982986.434523"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "366"
+                  endingLineNumber = "366"
+                  offsetFromSymbolStart = "1172">
+               </Location>
+               <Location
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "__39-[MPayViewController payButtonClicked:]_block_invoke"
+                  moduleName = "&#x63a8;&#x76df;"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/joinus/Desktop/joinus/%E6%8E%A8%E7%9B%9F/IOS%E5%AE%A2%E6%88%B7%E7%AB%AF/T-Media/%E6%8E%A8%E7%9B%9F/%E6%8E%A8%E7%9B%9F/RootClasses/%E7%94%B5%E5%BD%B1%E9%A2%91%E9%81%93/Controllers/MPayViewController.m"
+                  timestampString = "489982986.43476"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "367"
+                  endingLineNumber = "367"
+                  offsetFromSymbolStart = "76">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
    </Breakpoints>
 </Bucket>

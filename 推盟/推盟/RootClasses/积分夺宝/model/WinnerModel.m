@@ -17,15 +17,13 @@
 
 
 
--(void)loadListDataWithTaskId:(NSString *)taskId page:(int)page withSuccess:(void (^)(NSMutableArray * array))success withFailure:(void (^)(NSString * errorinfo))failure{
+-(void)loadListDataWithTaskId:(NSString *)taskId withSuccess:(void (^)(NSMutableArray * array))success withFailure:(void (^)(NSString * errorinfo))failure{
     __WeakSelf__ wself = self;
-    NSDictionary * dic = @{@"task_id":taskId,@"page":@(page),@"user_id":([ZTools isLogIn]?[ZTools getUid]:@"1")};
+    NSDictionary * dic = @{@"task_id":taskId,@"user_id":[ZTools getUid]};
     [[ZAPI manager] sendPost:WINNER_LIST_URL myParams:dic success:^(id data) {
         if (data && [data isKindOfClass:[NSDictionary class]]) {
             if ([data[ERROR_CODE] intValue] == 1) {
-                if (page == 1) {
-                    [wself.dataArray removeAllObjects];
-                }
+                [wself.dataArray removeAllObjects];
                 NSArray * dataArr = data[@"data"];
                 for (NSDictionary * dic in dataArr) {
                     WinnerModel * model = [[WinnerModel alloc] initWithDictionary:dic];

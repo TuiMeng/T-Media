@@ -65,7 +65,7 @@
     
     [self setTextFont];
     
-    NSString * string = @"确认并同意“推盟软件使用许可及服务协议”";
+    NSString * string = [NSString stringWithFormat:@"确认并同意“%@软件使用许可及服务协议”",APP_NAME];
     NSMutableAttributedString *content = [[NSMutableAttributedString alloc]initWithString:string];
     [content addAttribute:NSUnderlineStyleAttributeName value:[NSNumber numberWithInteger:NSUnderlineStyleSingle] range:NSMakeRange(0, string.length)];
     _protocol_label.attributedText = content;

@@ -13,18 +13,28 @@
 #import "LotteryView.h"
 #import "TaskDetailViewController.h"
 #import "AddressManangerViewController.h"
+#import "UIAlertView+Blocks.h"
+#import "PersonalInfoViewController.h"
 
 
 @interface PrizeDetailViewController ()<SNRefreshDelegate,UITableViewDataSource>{
     UIView * footerView;
+    //剩余数量
+    UILabel * restNumLabel;
+    //活动规则标题
+    UILabel * ruleIntroLabel;
     //活动规则
     UILabel * ruleIntro;
     //奖品介绍
     UILabel * prizeIntro;
+    //中奖名单
+    UILabel * winnerListLabel;
+    UIView * headerView;
     //抽奖请求
     NSURLSessionDataTask * lotteryTask;
     //抽奖界面
     LotteryView * lotteryView;
+    
 }
 
 @property(nonatomic,strong)SNRefreshTableView   * myTableView;
@@ -41,11 +51,18 @@
 
 -(void)viewWillAppear:(BOOL)animated{
     [super viewWillAppear:animated];
+    if (lotteryView) {
+        lotteryView.hidden = NO;
+    }
 }
 -(void)viewWillDisappear:(BOOL)animated{
     [super viewWillDisappear:animated];
     if (lotteryTask) {
         [lotteryTask cancel];
+    }
+    
+    if (lotteryView) {
+        lotteryView.hidden = YES;
     }
 }
 
@@ -53,14 +70,18 @@
     [super viewDidLoad];
     
     self.title_label.text = @"宝贝详情";
-    NSLog(@"model -----   %@",_model.task_describe);
     [self createMainView];
     
     [self createSectionView];
-    [self createFooterView];
+    
+    if (_model.task_status.integerValue == 1) {
+        [self createFooterView];
+    }
+    
     
     [self loadDetailData];
     [self loadWinnerListData];
+    [self getLotteryTimes];
 }
 
 #pragma mark ---- 懒加载
@@ -77,7 +98,7 @@
     __WeakSelf__ wself = self;
     if (_model) {
         [_model loadDetailDataWithTaskID:_model.id withSuccess:^(NSMutableArray *array) {
-            [wself setSectionInfo];
+            [wself setInfo];
         } withFailure:^(NSString *error) {
             
         }];
@@ -87,38 +108,90 @@
 -(void)loadWinnerListData{
     __WeakSelf__ wself = self;
     
-    [self.winnerModel loadListDataWithTaskId:_model.id page:_myTableView.pageNum withSuccess:^(NSMutableArray *array) {
-        wself.myTableView.isHaveMoreData = YES;
+    [self.winnerModel loadListDataWithTaskId:_model.id withSuccess:^(NSMutableArray *array) {
         [wself.myTableView finishReloadigData];
+        wself.myTableView.normalLabel.text = @"";
     } withFailure:^(NSString *errorinfo) {
-        if ([errorinfo isEqualToString:@"没有更多数据"]) {
-            wself.myTableView.isHaveMoreData = YES;
-        }
+        
         [wself.myTableView finishReloadigData];
+        if ([errorinfo isEqualToString:@"没有更多数据"]) {
+            wself.myTableView.normalLabel.text = @"暂无中奖信息";
+        }
     }];
 }
+
+#pragma mark -----  获取抽奖次数接口
+-(void)getLotteryTimes{
+    __WeakSelf__ wself = self;
+    NSDictionary * dic = @{@"user_id":[ZTools getUid],@"task_id":_model.id};
+    [[ZAPI manager] sendPost:PRIZE_TIMES_URL myParams:dic success:^(id data) {
+        if (data && [data isKindOfClass:[NSDictionary class]]) {
+            if ([data[ERROR_CODE] intValue] == 1) {
+                wself.model.can_draw_num = data[@"data"][@"draw_num"];
+                [wself setDrawNumInfo];
+            }
+        }
+    } failure:^(NSError *error) {
+        
+    }];
+}
+
 #pragma mark ----  抽奖
 -(void)lotteryPrize{
+    
+    if (_model.can_draw_num.intValue == 0) {
+        [ZTools showMBProgressWithText:@"您还没有抽奖机会"
+                              WihtType:MBProgressHUDModeText
+                             addToView:self.view
+                          isAutoHidden:YES];
+        return;
+    }
+    
     if (lotteryView) {
         [lotteryView removeFromSuperview];
         lotteryView = nil;
     }
     lotteryView = [LotteryView sharedInstance];
     [lotteryView loadingAnimation];
+    [self createWinningViewWithName:@"爱奇艺会员" isVirtual:YES WithPrizeId:@"301"];
+    return;
     
     __WeakSelf__ wself = self;
     NSDictionary * dic = @{@"task_id":_model.id,@"user_id":[ZTools getUid]};
-    lotteryTask = [[ZAPI manager] sendPost:LOTTERY_PRIZE_URL myParams:dic success:^(id data) {
-        [wself createWinningView];
+    lotteryTask = [[ZAPI manager] sendPost:LOTTERY_PRIZE_URL myParams:dic success:^(id data) {        
+        if (data && [data isKindOfClass:[NSDictionary class]]) {
+            if ([data[ERROR_CODE] intValue] == 1) {
+                if ([data[@"isprize"] intValue] == 1)//中奖
+                {
+                    [wself createWinningViewWithName:data[@"prize_name"] isVirtual:YES WithPrizeId:data[@"did"]];
+                }else if ([data[@"isprize"] intValue] == 2)//未中奖
+                {
+                    [wself createFailedView];
+                }
+                int draw_num = [wself.model.can_draw_num intValue];
+                wself.model.can_draw_num = [NSString stringWithFormat:@"%d",draw_num-1];
+                [wself getLotteryTimes];
+            }else{
+                [lotteryView removeFromSuperview];
+                [ZTools showMBProgressWithText:data[ERROR_INFO]
+                                      WihtType:MBProgressHUDModeText
+                                     addToView:wself.view
+                                  isAutoHidden:YES];
+            }
+        }else{
+            [lotteryView removeFromSuperview];
+            [ZTools showMBProgressWithText:@"请求失败" WihtType:MBProgressHUDModeText addToView:wself.view isAutoHidden:YES];
+        }
     } failure:^(NSError *error) {
-       
+        [lotteryView removeFromSuperview];
+       [ZTools showMBProgressWithText:@"请求失败" WihtType:MBProgressHUDModeText addToView:wself.view isAutoHidden:YES];
     }];
 }
 
 #pragma mark ----  奖品兑换
--(void)convertPrize{
+-(void)convertPrizeWithId:(NSString *)prizeId{
     __WeakSelf__ wself = self;
-    [_model getPrizeWithTaskID:_model.id success:^{
+    [_model getPrizeWithTaskID:_model.id prizeID:prizeId  success:^{
         [ZTools showMBProgressWithText:@"兑换成功，请注意查收" WihtType:MBProgressHUDModeText addToView:wself.view isAutoHidden:YES];
     } failed:^(NSString *errorInfo) {
         [ZTools showMBProgressWithText:errorInfo WihtType:MBProgressHUDModeText addToView:wself.view isAutoHidden:YES];
@@ -127,14 +200,14 @@
 
 #pragma mark ---  创建主视图
 -(void)createMainView{
-    _myTableView = [[SNRefreshTableView alloc] initWithFrame:CGRectMake(0, 0, DEVICE_WIDTH, DEVICE_HEIGHT-64-35) showLoadMore:YES];
+    _myTableView = [[SNRefreshTableView alloc] initWithFrame:CGRectMake(0, 0, DEVICE_WIDTH, DEVICE_HEIGHT-64) showLoadMore:YES];
     _myTableView.isHaveMoreData = YES;
     _myTableView.refreshDelegate = self;
     _myTableView.dataSource = self;
     [self.view addSubview:_myTableView];
 }
 -(void)createSectionView{
-    UIView * headerView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, DEVICE_WIDTH, 0)];
+    headerView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, DEVICE_WIDTH, 0)];
     
     UIView * prizeInfoBackView = [[UIView alloc] initWithFrame:CGRectMake(10, 10, DEVICE_WIDTH-20, 0)];
     prizeInfoBackView.layer.borderColor = DEFAULT_LINE_COLOR.CGColor;
@@ -149,8 +222,8 @@
     _cycle_scrollView.pageControlAliment = SDCycleScrollViewPageContolAlimentCenter;
     [prizeInfoBackView addSubview:_cycle_scrollView];
     //剩余数量
-    UILabel * restNumLabel = [ZTools createLabelWithFrame:CGRectMake(prizeInfoBackView.width-110, _cycle_scrollView.bottom+5, 100, 20)
-                                                     text:@"剩余：1000/1000"//[NSString stringWithFormat:@"剩余：%@/%@",_model.task_prize_surplus,_model.task_prize_num]
+    restNumLabel = [ZTools createLabelWithFrame:CGRectMake(prizeInfoBackView.width-110, _cycle_scrollView.bottom+5, 100, 20)
+                                                     text:[NSString stringWithFormat:@"剩余：%@/%@",_model.task_prize_surplus,_model.task_prize_num]
                                                 textColor:DEFAULT_RED_TEXT_COLOR
                                             textAlignment:NSTextAlignmentRight
                                                      font:12];
@@ -186,17 +259,16 @@
                                                         font:15];
     prizeIntroLabel.backgroundColor = DEFAULT_LINE_COLOR;
     [headerView addSubview:prizeIntroLabel];
-    prizeIntro = [ZTools createLabelWithFrame:CGRectMake(10, prizeIntroLabel.bottom+10, headerView.width-20, 0)
+    prizeIntro = [ZTools createLabelWithFrame:CGRectMake(10, prizeIntroLabel.bottom+10, headerView.width-20, 15)
                                                    text:@"加载中..."
                                               textColor:DEFAULT_LIGHT_BLACK_COLOR
                                           textAlignment:NSTextAlignmentLeft
                                                    font:13];
     prizeIntro.numberOfLines = 0;
-    [prizeIntro sizeToFit];
     [headerView addSubview:prizeIntro];
     
     //活动规则
-    UILabel * ruleIntroLabel = [ZTools createLabelWithFrame:CGRectMake(0, prizeIntro.bottom+10, headerView.width, 25)
+    ruleIntroLabel = [ZTools createLabelWithFrame:CGRectMake(0, prizeIntro.bottom+10, headerView.width, 25)
                                                         text:@"    活动规则"
                                                    textColor:DEFAULT_BLACK_TEXT_COLOR
                                                textAlignment:NSTextAlignmentLeft
@@ -204,16 +276,15 @@
     ruleIntroLabel.backgroundColor = DEFAULT_LINE_COLOR;
     [headerView addSubview:ruleIntroLabel];
     
-    ruleIntro = [ZTools createLabelWithFrame:CGRectMake(10, ruleIntroLabel.bottom+10, headerView.width-20, 0)
+    ruleIntro = [ZTools createLabelWithFrame:CGRectMake(10, ruleIntroLabel.bottom+10, headerView.width-20, 15)
                                                    text:@"加载中..."
                                               textColor:DEFAULT_LIGHT_BLACK_COLOR
                                           textAlignment:NSTextAlignmentLeft
                                                    font:13];
     ruleIntro.numberOfLines = 0;
-    [ruleIntro sizeToFit];
     [headerView addSubview:ruleIntro];
     
-    UILabel * winnerListLabel = [ZTools createLabelWithFrame:CGRectMake(0, ruleIntro.bottom+10, headerView.width, 25)
+    winnerListLabel = [ZTools createLabelWithFrame:CGRectMake(0, ruleIntro.bottom+10, headerView.width, 25)
                                                         text:@"    中奖名单"
                                                    textColor:[UIColor whiteColor]
                                                textAlignment:NSTextAlignmentLeft
@@ -226,9 +297,18 @@
     self.myTableView.tableHeaderView = headerView;
 }
 
--(void)setSectionInfo{
-    prizeIntro.text = _model.task_describe;
-    ruleIntro.text = _model.task_rule;
+-(void)setInfo{
+    prizeIntro.text     = _model.task_describe;
+    ruleIntro.text      = _model.task_rule;
+    restNumLabel.text   = [NSString stringWithFormat:@"剩余：%@/%@",_model.task_prize_surplus,_model.task_prize_num];
+    
+    [prizeIntro sizeToFit];
+    [ruleIntro sizeToFit];
+    ruleIntroLabel.top = prizeIntro.bottom+10;
+    ruleIntro.top = ruleIntroLabel.bottom+10;
+    winnerListLabel.top = ruleIntro.bottom+10;
+    headerView.height = winnerListLabel.bottom;
+    self.myTableView.tableHeaderView = headerView;
 }
 
 -(void)createFooterView{
@@ -236,9 +316,9 @@
         footerView = [[UIView alloc] initWithFrame:CGRectMake(0, DEVICE_HEIGHT-35-64, DEVICE_WIDTH, 35)];
         footerView.backgroundColor = [UIColor clearColor];
         NSArray * titles = @[@"获取抽奖资格",@"抽奖"];
-        CGFloat buttonHeight = DEVICE_WIDTH/2.0f-0.5;
+        CGFloat buttonHeight = (DEVICE_WIDTH-15)/2.0f;
         for (int i = 0; i < 2; i++) {
-            UIButton * button = [ZTools createButtonWithFrame:CGRectMake((buttonHeight+1)*i, 0, buttonHeight, footerView.height)
+            UIButton * button = [ZTools createButtonWithFrame:CGRectMake(5 + (buttonHeight+5)*i, 0, buttonHeight, footerView.height)
                                                         title:titles[i]
                                                         image:nil];
             [button setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
@@ -252,14 +332,18 @@
     }
 }
 
+-(void)setDrawNumInfo{
+    UIButton * button = (UIButton *)[footerView viewWithTag:101];
+    [button setTitle:[NSString stringWithFormat:@"抽奖（%@）",_model.can_draw_num] forState:UIControlStateNormal];
+}
+
 #pragma mark ------- 创建中奖视图
--(void)createWinningView{
+-(void)createWinningViewWithName:(NSString * )prize isVirtual:(BOOL)isVirtual WithPrizeId:(NSString *)prizeId{
     __WeakSelf__ wself = self;
-    [lotteryView showWinnerViewWithPrizeName:@"Iphone6s Plus" convertBlock:^{
-        [wself convertPrize];
+    [lotteryView showWinnerViewWithPrizeName:prize isVirtual:isVirtual convertBlock:^{
+        [wself convertPrizeWithId:prizeId];
     } modifyBlock:^{
-        AddressManangerViewController * viewController = [[AddressManangerViewController alloc] init];
-        [wself.navigationController pushViewController:viewController animated:YES];
+        [wself showAddressMananger];
     }];
 }
 #pragma mark -------  创建未中奖视图
@@ -306,7 +390,7 @@
         case 0:
         {
             PrizeShareViewController * shareView = [[PrizeShareViewController alloc] init];
-            shareView.task_id = _model.id;
+            shareView.task_id = _model.encrypt_id;
             shareView.shareImageUrl = _model.task_img;
             shareView.numForLotteryOnce = _model.task_draw_num;
             [self.navigationController pushViewController:shareView animated:YES];
@@ -314,6 +398,10 @@
             break;
         case 1:
         {
+            if ([ZTools getGrade] != 2) {
+                [self normalAlertView];
+                return;
+            }
             
             [self lotteryPrize];
         }
@@ -325,12 +413,39 @@
 }
 #pragma mark -----  查看任务详情
 -(void)showTaskContent:(UIButton *)button{
+    
     RootTaskListModel * model = [[RootTaskListModel alloc] init];
-    model.content = _model.content;
-    TaskDetailViewController * detailVC = [[TaskDetailViewController alloc] init];
+    model.content = _model.task_content;
+    UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"Main" bundle:nil];
+    TaskDetailViewController * detailVC = (TaskDetailViewController *)[storyboard instantiateViewControllerWithIdentifier:@"TaskDetailViewController"];
     detailVC.task_model = model;
     [self.navigationController pushViewController:detailVC animated:YES];
 }
+
+#pragma mark -----  跳转到收货地址界面
+-(void)showAddressMananger{
+    AddressManangerViewController * viewController = [[AddressManangerViewController alloc] init];
+    [self.navigationController pushViewController:viewController animated:YES];
+    
+    [viewController save:^(UserAddressModel *model) {
+        if (lotteryView) {
+            [lotteryView setupAddressWithAddressModel:model];
+        }
+    }];
+}
+
+#pragma mark -----  判断是否为高级用户
+-(void)normalAlertView{
+    UIAlertView * alertView = [UIAlertView showWithTitle:@"该活动只对高级用户开放，是否立即升级为高级用户" message:nil cancelButtonTitle:@"取消" otherButtonTitles:@[@"立即升级"] tapBlock:^(UIAlertView * _Nonnull alertView, NSInteger buttonIndex) {
+        if (buttonIndex == 1) {
+            UIStoryboard * storyBoard = [UIStoryboard storyboardWithName:@"Main" bundle:nil];
+            PersonalInfoViewController * vc = [storyBoard instantiateViewControllerWithIdentifier:@"PersonalInfoViewController"];
+            [self.navigationController pushViewController:vc animated:YES];
+        }
+    }];
+    [alertView show];
+}
+
 
 
 @end

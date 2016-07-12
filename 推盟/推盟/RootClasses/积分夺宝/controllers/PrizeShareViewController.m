@@ -210,16 +210,16 @@
         return;
     }
     
-    if (title_string.length == 0)
-    {
-        [ZTools showMBProgressWithText:@"请选择一个分享标题" WihtType:MBProgressHUDModeText addToView:self.view isAutoHidden:YES];
-        return;
-    }
+    PrizeShareModel * model = _model.dataArray[current];
+    title_string = model.title_name;
     
-//    UIImage *shareImage = _shareImage?_shareImage:[UIImage imageNamed:@"default_share_image"];
-    UMSocialUrlResource * url_resource = [[UMSocialUrlResource alloc] initWithSnsResourceType:UMSocialUrlResourceTypeImage url:_shareImageUrl];
+    
+    UIImage * cacheImage = [[SDImageCache sharedImageCache] imageFromDiskCacheForKey:_shareImageUrl];
+    
+    UIImage *shareImage = cacheImage?cacheImage:(IS_YML?[UIImage imageNamed:@"yml_Icon"]:[UIImage imageNamed:@"Icon"]);
+
+    UMSocialUrlResource * url_resource = [[UMSocialUrlResource alloc] initWithSnsResourceType:UMSocialUrlResourceTypeDefault url:_shareImageUrl];
     __weak typeof(self)wself = self;
-    
     
     NSArray * spread_type;
     NSString * userId = [ZTools getUid];
@@ -228,7 +228,7 @@
     NSString * sign = [[WXUtil md5:[NSString stringWithFormat:@"%@%@%@%@",[ZTools getPhoneNum],userId,_task_id,dateline]] lowercaseString];
     
     //分享到第三方平台的链接地址
-    NSString * share_string = [NSString stringWithFormat:@"%@&user_id=%@&task_id=%@&sign=%@",SHARE_CONTENT_URL,[ZTools getUid],_task_id,sign];
+    NSString * share_string = [NSString stringWithFormat:@"%@&user_id=%@&task_id=%@&sign=%@",PRIZE_SHARE_CONTENT_URL,[ZTools getUid],_task_id,sign];
     NSLog(@"share_content_url ------   %@",share_string);
     
     if ([[ZTools replaceNullString:_model.share_type WithReplaceString:@""] length] == 0) {
@@ -240,9 +240,9 @@
                                              title:nil
                                            content:title_string
                                                Url:share_string
-                                             image:nil
+                                             image:shareImage
                                           location:nil
-                                       urlResource:url_resource
+                                       urlResource:nil
                                presentedController:self];
     
     shareView.string_copy = [ZTools getInvitationCode];
@@ -309,7 +309,7 @@
 - (void) setupLocationManager {
     
     //高德地图
-    [AMapLocationServices sharedServices].apiKey = AMAP_KEY;
+    [AMapLocationServices sharedServices].apiKey = IS_YML?YML_AMAP_KEY:AMAP_KEY;
     
     locationManager = [[AMapLocationManager alloc] init];
     [locationManager setDesiredAccuracy:kCLLocationAccuracyHundredMeters];

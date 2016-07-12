@@ -38,7 +38,10 @@
     
     [UMSocialSinaSSOHandler openNewSinaSSOWithAppKey:@"1954703021" secret:@"bea6e1f323e5cd5044f70c794c9c096d" RedirectURL:@"http://sns.whalecloud.com"];
     
-    [MobClick startWithAppkey:UMENG_KEY reportPolicy:BATCH channelId:nil];
+    UMConfigInstance.appKey = UMENG_KEY;
+    UMConfigInstance.channelId = @"App Store";
+    [MobClick startWithConfigure:UMConfigInstance];
+    
     
     [UMessage startWithAppkey:UMENG_KEY launchOptions:launchOptions];
     [UMFeedback setAppkey:UMENG_KEY];

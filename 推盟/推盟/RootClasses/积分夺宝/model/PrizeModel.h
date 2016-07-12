@@ -15,6 +15,10 @@
  */
 @property(nonatomic,strong)NSString * id;
 /**
+ *  活动加密id
+ */
+@property(nonatomic,strong)NSString * encrypt_id;
+/**
  *  活动标题
  */
 @property(nonatomic,strong)NSString * task_name;
@@ -27,7 +31,7 @@
  */
 @property(nonatomic,strong)NSArray * imgarr;
 /**
- *  活动状态
+ *  活动状态(1:在线)
  */
 @property(nonatomic,strong)NSString * task_status;
 /**
@@ -83,6 +87,6 @@
 //获取奖品详情
 -(void)loadDetailDataWithTaskID:(NSString *)taskId withSuccess:(void(^)(NSMutableArray * array))success withFailure:(void(^)(NSString * error))failure;
 //领取奖品
--(void)getPrizeWithTaskID:(NSString *)taskId success:(void(^)(void))success failed:(void(^)(NSString * errorInfo))failed;
+-(void)getPrizeWithTaskID:(NSString *)taskId prizeID:(NSString *)prizeId success:(void(^)(void))success failed:(void(^)(NSString * errorInfo))failed;
 
 @end

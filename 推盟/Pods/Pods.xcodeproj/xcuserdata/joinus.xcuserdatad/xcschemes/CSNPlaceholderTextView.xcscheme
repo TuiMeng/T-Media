@@ -14,7 +14,7 @@
             buildForArchiving = "YES">
             <BuildableReference
                BuildableIdentifier = 'primary'
-               BlueprintIdentifier = '23C8E2C43142295169A63FEC'
+               BlueprintIdentifier = '0AB8DA740EE05875C6CBF10D'
                BlueprintName = 'CSNPlaceholderTextView'
                ReferencedContainer = 'container:Pods.xcodeproj'
                BuildableName = 'libCSNPlaceholderTextView.a'>

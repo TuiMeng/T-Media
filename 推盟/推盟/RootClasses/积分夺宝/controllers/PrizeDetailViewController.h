@@ -16,4 +16,5 @@
 
 @property(nonatomic,strong)NSString     * prizeId;
 
+
 @end

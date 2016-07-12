@@ -35,7 +35,7 @@
 -(void)viewDidAppear:(BOOL)animated{
     [super viewDidAppear:animated];
     
-    [MAMapServices sharedServices].apiKey = AMAP_KEY;
+    [MAMapServices sharedServices].apiKey = IS_YML?YML_AMAP_KEY:AMAP_KEY;
     
     _mapView            = [[MAMapView alloc] initWithFrame:CGRectMake(0, 0, DEVICE_WIDTH, DEVICE_HEIGHT-64)];
     _mapView.delegate   = self;

@@ -424,13 +424,13 @@
     [self.loadingIndicator stopAnimating];
     switch (loadingType) {
         case 1:
-            self.tableFooterView.height = TABLEFOOTER_HEIGHT;
+//            self.tableFooterView.height = TABLEFOOTER_HEIGHT;
             [self.normalLabel setHidden:NO];
             [self.normalLabel setText:NSLocalizedString(NORMAL_TEXT, nil)];
             [self.loadingLabel setHidden:YES];
             break;
         case 2:
-            self.tableFooterView.height = 0;
+//            self.tableFooterView.height = 0;
             [self.normalLabel setHidden:NO];
             [self.normalLabel setText:NSLocalizedString(NOMORE_TEXT, nil)];
             [self.loadingLabel setHidden:YES];

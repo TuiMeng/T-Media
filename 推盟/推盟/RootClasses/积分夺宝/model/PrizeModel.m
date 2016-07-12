@@ -12,8 +12,6 @@
 
 @property(nonatomic,strong)NSMutableArray * dataArray;
 
-@property(nonatomic,assign)int page;
-
 @end
 
 @implementation PrizeModel
@@ -35,29 +33,30 @@
 -(instancetype)initModel{
     self = [super init];
     if (self) {
-        _page = 1;
+        _dataArray = [NSMutableArray array];
     }
     
     return self;
 }
 
 -(void)loadListDataWithPage:(int)page withSuccess:(void(^)(NSMutableArray * array))success withFailure:(void(^)(NSString * error))failure{
-    
+    __WeakSelf__ wself = self;
     NSDictionary * dic = @{@"page":@(page)};
     [[ZAPI manager] sendPost:PRIZE_LIST_URL myParams:dic success:^(id data) {
         if (data && [data isKindOfClass:[NSDictionary class]]) {
             if ([data[ERROR_CODE] intValue] == 1) {
-                
+                if (page == 1) {
+                    [wself.dataArray removeAllObjects];
+                }
                 NSArray * dataArr = data[@"data"];
-                NSMutableArray * tempArray = [NSMutableArray array];
                 for (NSDictionary * dic in dataArr) {
                     PrizeModel * model = [[PrizeModel alloc] initWithDictionary:dic];
-                    [tempArray addObject:model];
+                    [wself.dataArray addObject:model];
                 }
                 
                 if (dataArr.count) {
                     if (success) {
-                        success(tempArray);
+                        success(wself.dataArray);
                     }
                 }else{
                     if (failure) {
@@ -81,7 +80,7 @@
 
 -(void)loadDetailDataWithTaskID:(NSString *)taskId withSuccess:(void (^)(NSMutableArray * array))success withFailure:(void (^)(NSString * error))failure{
     __WeakSelf__ wself = self;
-    NSDictionary * dic = @{@"task_id":taskId,@"user_id":@"1"};
+    NSDictionary * dic = @{@"task_id":taskId,@"user_id":[ZTools getUid]};
     [[ZAPI manager] sendPost:PRIZE_DETAIL_URL myParams:dic success:^(id data) {
         if (data && [data isKindOfClass:[NSDictionary class]]) {
             if ([data[ERROR_CODE] intValue] == 1) {
@@ -111,22 +110,26 @@
 
 
 -(void)getPrizeWithTaskID:(NSString *)taskId
+                  prizeID:(NSString *)prizeId
                   success:(void(^)(void))success
                    failed:(void(^)(NSString * errorInfo))failed{
     //张少南
-    NSDictionary * dic = @{@"task_id":taskId,@"user_id":@"1"};
+    NSDictionary * dic = @{@"task_id":taskId,
+                           @"user_id":[ZTools getUid],
+                           @"did":prizeId
+                           };
     [[ZAPI manager] sendPost:PRIZE_CONVERT_URL myParams:dic success:^(id data) {
         if (data && [data isKindOfClass:[NSDictionary class]]) {
             if ([data[ERROR_CODE] intValue] == 1) {
                 if (success) {
                     success();
                 }
-            }else{
+            }else {
                 if (failed) {
                     failed(data[ERROR_INFO]);
                 }
             }
-        }else{
+        }else {
             if (failed) {
                 failed(@"获取失败");
             }

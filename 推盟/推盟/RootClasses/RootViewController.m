@@ -26,7 +26,7 @@
 #define ROOT_TASK_ID @"1"
 #define ROOT_GAME_ID @"4"
 #define ROOT_MOVIE_ID @"2"
-//#define ROOT_PRIZE_ID @"8"
+#define ROOT_PRIZE_ID @"8"
 
 @interface RootViewController ()<SNRefreshDelegate,UITableViewDataSource,SDCycleScrollViewDelegate>{
     BOOL                isShowCycleView;
@@ -129,7 +129,7 @@
     
     [[NSUserDefaults standardUserDefaults] setBool:YES forKey:@"isFirstShow"];
     
-    SAlertView * apply_alertView = [[SAlertView alloc] initWithTitle:@"注意啦！全新推盟！全新玩儿法！" WithContentView:nil WithCancelTitle:@"确认" WithDoneTitle:@""];
+    SAlertView * apply_alertView = [[SAlertView alloc] initWithTitle:[NSString stringWithFormat:@"注意啦！全新%@！全新玩儿法！",APP_NAME] WithContentView:nil WithCancelTitle:@"确认" WithDoneTitle:@""];
     [apply_alertView alertShow];
     
     UIView * content_view = [[UIView alloc] initWithFrame:CGRectMake(0, 50, apply_alertView.contentView.width,240)];
@@ -486,7 +486,7 @@
         _focus_title_array  = [NSMutableArray array];
     }
     
-    NSArray * rootArray = @[ROOT_TASK_ID,ROOT_GAME_ID,ROOT_MOVIE_ID];
+    NSArray * rootArray = @[ROOT_TASK_ID,ROOT_GAME_ID,ROOT_MOVIE_ID,ROOT_PRIZE_ID];
     for (NSDictionary * dic in array) {
         
         RootTopTitleModel * model = [[RootTopTitleModel alloc] initWithDictionary:dic];
@@ -553,7 +553,7 @@
              UIWebView * webView = (UIWebView *)tableView;
              [MobClick event:@"RootGame"];
              if (!webView.request.URL) {
-                 [webView loadRequest:[[NSURLRequest alloc] initWithURL:[NSURL URLWithString:GAME_SITE]]];
+                 [webView loadRequest:[[NSURLRequest alloc] initWithURL:[NSURL URLWithString:GAME_SITE([ZTools timechangeToDateline])]]];
              }
          }else if([tableView isKindOfClass:[SNRefreshTableView class]])
          {
@@ -595,7 +595,7 @@
             [_myScrollView addSubview:webView];
             [_contentViews addObject:webView];
             if (i == 0) {
-                [webView loadRequest:[[NSURLRequest alloc] initWithURL:[NSURL URLWithString:GAME_SITE]]];
+                [webView loadRequest:[[NSURLRequest alloc] initWithURL:[NSURL URLWithString:GAME_SITE([ZTools timechangeToDateline])]]];
             }
         }else if([model.id isEqualToString:ROOT_TASK_ID])
         {
@@ -618,13 +618,13 @@
                 [tableView showRefreshHeader:YES];
             }
         }
-//        else if ([model.id isEqualToString:ROOT_PRIZE_ID])
-//        {
-//            PrizeListView * prizeView = [[PrizeListView alloc] initWithFrame:CGRectMake(DEVICE_WIDTH*i, 0, DEVICE_WIDTH, self.myScrollView.height)];
-//            prizeView.viewController = self;
-//            [_myScrollView addSubview:prizeView];
-//            [_contentViews addObject:prizeView];
-//        }
+        else if ([model.id isEqualToString:ROOT_PRIZE_ID])
+        {
+            PrizeListView * prizeView = [[PrizeListView alloc] initWithFrame:CGRectMake(DEVICE_WIDTH*i, 0, DEVICE_WIDTH, self.myScrollView.height)];
+            prizeView.viewController = self;
+            [_myScrollView addSubview:prizeView];
+            [_contentViews addObject:prizeView];
+        }
     }
     
     _myScrollView.contentSize = CGSizeMake(DEVICE_WIDTH*_top_array.count, 0);
@@ -717,7 +717,7 @@
     
     __weak typeof(self)wself = self;
     //高德地图
-    [AMapLocationServices sharedServices].apiKey = AMAP_KEY;
+    [AMapLocationServices sharedServices].apiKey = IS_YML?YML_AMAP_KEY:AMAP_KEY;
     
     locationManager = [[AMapLocationManager alloc] init];
     [locationManager setDesiredAccuracy:kCLLocationAccuracyHundredMeters];

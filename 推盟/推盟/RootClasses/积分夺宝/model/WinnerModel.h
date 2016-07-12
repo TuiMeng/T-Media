@@ -44,7 +44,7 @@
 
 
 
--(void)loadListDataWithTaskId:(NSString *)taskId page:(int)page withSuccess:(void (^)(NSMutableArray * array))success withFailure:(void (^)(NSString * errorinfo))failure;
+-(void)loadListDataWithTaskId:(NSString *)taskId withSuccess:(void (^)(NSMutableArray * array))success withFailure:(void (^)(NSString * errorinfo))failure;
 
 
 @end

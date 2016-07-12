@@ -28,11 +28,16 @@ typedef void(^LotteryViewConvertBlock)(void);
 /**
  *  中奖
  */
--(void)showWinnerViewWithPrizeName:(NSString *)name convertBlock:(LotteryViewConvertBlock)cBlock modifyBlock:(LotteryViewModifyAddressBlock)mBlock;
+-(void)showWinnerViewWithPrizeName:(NSString *)name
+                         isVirtual:(BOOL)isVirtual
+                      convertBlock:(LotteryViewConvertBlock)cBlock
+                       modifyBlock:(LotteryViewModifyAddressBlock)mBlock;
 /**
  *  未中奖
  */
 -(void)showFailedViewWithBackTap:(void(^)(void))back;
 
+#pragma mark ------  设置收货地址
+-(void)setupAddressWithAddressModel:(UserAddressModel *)address;
 
 @end

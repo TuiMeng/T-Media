@@ -7,8 +7,14 @@
 //
 
 #import "LotteryView.h"
+#import "UserInfoModel.h"
 
-@interface LotteryView ()
+@interface LotteryView (){
+    UITextView * addressTextView;
+    UIButton * doneButton;
+    UIButton * modifyAddressButton;
+    UILabel * userNameLabel;
+}
 
 /**
  *  抽奖视图
@@ -79,7 +85,10 @@
     [self shakingAnimation];
 }
 #pragma mark -------  中奖视图
--(void)showWinnerViewWithPrizeName:(NSString *)name convertBlock:(LotteryViewConvertBlock)cBlock modifyBlock:(LotteryViewModifyAddressBlock)mBlock{
+-(void)showWinnerViewWithPrizeName:(NSString *)name
+                         isVirtual:(BOOL)isVirtual
+                      convertBlock:(LotteryViewConvertBlock)cBlock
+                       modifyBlock:(LotteryViewModifyAddressBlock)mBlock{
     convertBlock = cBlock;
     modifyBlock = mBlock;
     
@@ -96,43 +105,39 @@
                                                        font:15];
     [_winnerView addSubview:prizeNameLabel];
     
-    UILabel * userNameLabel = [ZTools createLabelWithFrame:CGRectMake(40, 200, _winnerView.width-80, 20)
-                                                      text:@"张少南(18600755163)"
+    userNameLabel = [ZTools createLabelWithFrame:CGRectMake(40, 200, _winnerView.width-80, 20)
+                                                      text:@""
                                                  textColor:DEFAULT_GRAY_TEXT_COLOR
                                              textAlignment:NSTextAlignmentLeft
                                                       font:13];
     [_winnerView addSubview:userNameLabel];
     
     
-    UITextView * addressTextView = [[UITextView alloc] initWithFrame:CGRectMake(40, userNameLabel.bottom+5, _winnerView.width-80, 60)];
+    addressTextView = [[UITextView alloc] initWithFrame:CGRectMake(30, userNameLabel.bottom+5, _winnerView.width-60, 60)];
     addressTextView.editable = NO;
     addressTextView.textColor = DEFAULT_GRAY_TEXT_COLOR;
     addressTextView.font = [ZTools returnaFontWith:13];
     addressTextView.textAlignment = NSTextAlignmentLeft;
-    addressTextView.text = @"北京市朝阳区安立路60号润枫德尚2号楼1201室";
+    addressTextView.showsVerticalScrollIndicator = NO;
+    addressTextView.text = @"";
     addressTextView.backgroundColor = [UIColor whiteColor];
     [_winnerView addSubview:addressTextView];
     
-    UIButton * doneButton = [ZTools createButtonWithFrame:CGRectMake(_winnerView.width-130, _winnerView.height-60, 90, 25)
-                                                    title:@"立即兑换"
-                                                    image:nil];
+    doneButton = [ZTools createButtonWithFrame:CGRectMake(_winnerView.width-130, _winnerView.height-60, 90, 25)
+                                         title:@"立即兑换"
+                                         image:nil];
     doneButton.titleLabel.font = [ZTools returnaFontWith:13];
     [doneButton addTarget:self action:@selector(convertByNow:) forControlEvents:UIControlEventTouchUpInside];
     [_winnerView addSubview:doneButton];
     
-    //如果绑定收货地址
-    BOOL haveAddress = YES;
-    if (haveAddress)
-    {
-        UIButton * modifyAddressButton = [ZTools createButtonWithFrame:CGRectMake(40, _winnerView.height-60, 90, 25)
-                                                                 title:@"修改地址"
-                                                                 image:nil];
-        modifyAddressButton.titleLabel.font = [ZTools returnaFontWith:13];
-        [modifyAddressButton addTarget:self action:@selector(modifyAddress:) forControlEvents:UIControlEventTouchUpInside];
-        [_winnerView addSubview:modifyAddressButton];
-    }else
-    {
-        [doneButton setTitle:@"添加收货地址" forState:UIControlStateNormal];
+    if (isVirtual) {
+        addressTextView.text = @"宝贝信息将以短信形式发送到您手机上，请注意查收。您也可以到个人中心的“夺宝历史”查看宝贝状态";
+        userNameLabel.text = [NSString stringWithFormat:@"手机号码:%@",[ZTools getPhoneNum]];
+        doneButton.center = CGPointMake(_winnerView.width/2.0f, doneButton.center.y);
+    } else {
+        //管理收货地址
+        UserAddressModel * address = [ZTools getAddressModel];
+        [self setupAddressWithAddressModel:address];
     }
     
     [self cureInAnimationWithView:_winnerView];
@@ -172,7 +177,6 @@
     if (modifyBlock) {
         modifyBlock();
     }
-    [self removeFromSuperview];
 }
 
 #pragma mark - 抖动动画
@@ -206,7 +210,27 @@
     [view.layer addAnimation:animation forKey:nil];
 }
 
+#pragma mark ------  设置收货地址
+-(void)setupAddressWithAddressModel:(UserAddressModel *)address{
+    if (address)
+    {
+        if (!modifyAddressButton) {
+            modifyAddressButton = [ZTools createButtonWithFrame:CGRectMake(40, _winnerView.height-60, 90, 25)
+                                                          title:@"修改地址"
+                                                          image:nil];
+            modifyAddressButton.titleLabel.font = [ZTools returnaFontWith:13];
+            [modifyAddressButton addTarget:self action:@selector(modifyAddress:) forControlEvents:UIControlEventTouchUpInside];
 
+        }
+        [_winnerView addSubview:modifyAddressButton];
+    }else
+    {
+        [doneButton setTitle:@"添加收货地址" forState:UIControlStateNormal];
+    }
+    
+    addressTextView.text = [NSString stringWithFormat:@"%@%@",address.user_city,address.user_area];
+    userNameLabel.text = [NSString stringWithFormat:@"%@(%@)",address.put_man,[ZTools getPhoneNum]];
+}
 
 
 -(void)dealloc{

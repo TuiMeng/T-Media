@@ -284,8 +284,12 @@
 }
 
 -(void)startLoading{
-    dispatch_async(dispatch_get_main_queue(), ^{
-        _loading_hud = [ZTools showMBProgressWithText:@"加载中..." WihtType:MBProgressHUDModeIndeterminate addToView:self.view isAutoHidden:NO];
+        
+    __WeakSelf__ wself = self;
+    dispatch_async(dispatch_get_main_queue(), ^{        
+        [wself.loading_hud hide:YES];
+        wself.loading_hud = [ZTools showMBProgressWithText:@"加载中..." WihtType:MBProgressHUDModeIndeterminate addToView:wself.view isAutoHidden:NO];
+        
     });
 }
 -(void)startLoadingWithText:(NSString *)text{
@@ -294,7 +298,9 @@
     });
 }
 -(void)endLoading{
+    
     [_loading_hud hide:YES];
+    
 }
 
 #pragma mark ----------   获取用户当前地理位置
@@ -304,7 +310,7 @@
     location_failed_block           = failed;
     
     locationManager = [[CLLocationManager alloc] init] ;
-    
+        
     if ([CLLocationManager locationServicesEnabled]) {
         NSLog( @"Starting CLLocationManager" );
         locationManager.delegate = self;

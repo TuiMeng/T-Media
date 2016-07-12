@@ -41,7 +41,7 @@
     if ([[ZTools getPhoneNum] isEqualToString:@"18600755163"] || ![ZTools isLogIn]) {
         [_myWebView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:[NSString stringWithFormat:@"%@?mobile=18600755163",_task_model.content]]]];
         NSLog(@"----请求带手机号码的 ---  %@",[NSString stringWithFormat:@"%@?mobile=18600755163",_task_model.content]);
-    }else{
+    }else {
         [_myWebView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:_task_model.content]]];
         NSLog(@"------- 请求不带手机号码的 ---  %@",_task_model.content);
     }
