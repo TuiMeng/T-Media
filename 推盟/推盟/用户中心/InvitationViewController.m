@@ -138,7 +138,7 @@
                                                           title:[NSString stringWithFormat:@"下载注册%@得积分奖励！",APP_NAME]
                                                         content:[NSString stringWithFormat:@"您的好友邀请您成为%@好友，接受邀请注册成功并完善个人资料就可以有机会获得积分奖励.",APP_NAME]
                                                             Url:WEBSITEH5
-                                                          image:IS_YML?[UIImage imageNamed:@"Icon"]:[UIImage imageNamed:@"Icon"]
+                                                          image:IS_YML?[UIImage imageNamed:@"yml_Icon"]:[UIImage imageNamed:@"Icon"]
                                                        location:nil
                                                     urlResource:nil
                                             presentedController:self];

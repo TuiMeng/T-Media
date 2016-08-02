@@ -20,7 +20,31 @@
 -(instancetype)initWithDictionary:(NSDictionary *)dic{
     self = [super initWithDictionary:dic];
     if (self) {
-        
+        id item = dic[@"prize"];
+        NSString * prizeString = @"";
+        if (item && [item isKindOfClass:[NSDictionary class]]) {
+            NSArray * prize_level = item[@"prize_level"];
+            NSArray * prize_reset = item[@"prize_reset"];
+            if (prize_level && [prize_level isKindOfClass:[NSArray class]]) {
+                if (prize_reset && [prize_reset isKindOfClass:[NSArray class]]) {
+                    if (prize_reset.count == prize_level.count) {
+                        
+                        for (int i = 0; i < prize_level.count; i++) {
+                            NSString * level = prize_level[i];
+                            NSString * reset = prize_reset[i];
+                            NSString * finalString = [NSString stringWithFormat:@"%@：%@名 ",[self changeNum:level],reset];
+                            prizeString = [prizeString stringByAppendingString:finalString];
+                        }
+                    }
+                }
+            }
+            
+            if (prizeString) {
+                _prizeRestString = [NSString stringWithFormat:@"剩余：%@",prizeString];
+            }else {
+                _prizeRestString = @"";
+            }
+        }
     }
     return self;
 }
@@ -62,9 +86,7 @@
                     if (failure) {
                         failure(@"没有更多数据");
                     }
-                }
-                
-                
+                }                
             }else{
                 if (failure) {
                     failure(data[ERROR_INFO]);
@@ -90,6 +112,7 @@
                 wself.all_click         = data[@"data"][@"all_click"];
                 wself.can_draw_num      = data[@"data"][@"can_draw_num"];
                 wself.task_draw_num     = data[@"data"][@"task_draw_num"];
+                wself.share_img         = data[@"data"][@"share_img"];
                 
                 if (success) {
                     success(nil);
@@ -113,7 +136,7 @@
                   prizeID:(NSString *)prizeId
                   success:(void(^)(void))success
                    failed:(void(^)(NSString * errorInfo))failed{
-    //张少南
+    
     NSDictionary * dic = @{@"task_id":taskId,
                            @"user_id":[ZTools getUid],
                            @"did":prizeId
@@ -141,7 +164,10 @@
     }];
 }
 
-
+-(NSString *)changeNum:(NSString *)num{
+    NSArray * numberchar = @[@"零等奖",@"一等奖",@"二等奖",@"三等奖",@"四等奖",@"五等奖",@"六等奖",@"七等奖",@"八等奖",@"九等奖"];
+    return numberchar[num.intValue];
+}
 
 
 

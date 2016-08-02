@@ -432,7 +432,7 @@
         case 2:
 //            self.tableFooterView.height = 0;
             [self.normalLabel setHidden:NO];
-            [self.normalLabel setText:NSLocalizedString(NOMORE_TEXT, nil)];
+            [self.normalLabel setText:NSLocalizedString(@"", nil)];
             [self.loadingLabel setHidden:YES];
             break;
         default:

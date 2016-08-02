@@ -37,6 +37,13 @@ typedef void(^LotteryViewConvertBlock)(void);
  */
 -(void)showFailedViewWithBackTap:(void(^)(void))back;
 
+/**
+ *  立即兑换视图
+ */
+-(void)showConertViewWithVirtual:(BOOL)isVirtual
+                      convertBlock:(LotteryViewConvertBlock)cBlock
+                       modifyBlock:(LotteryViewModifyAddressBlock)mBlock;
+
 #pragma mark ------  设置收货地址
 -(void)setupAddressWithAddressModel:(UserAddressModel *)address;
 

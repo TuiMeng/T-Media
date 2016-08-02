@@ -461,11 +461,8 @@
             NSString * status = data[ERROR_CODE];
             if (status.intValue == 1) {
                 [wself pushToConfirOrderViewController];
-            }else{
-                UIAlertView * alertView = [UIAlertView showWithTitle:@"预定失败" message:@"非常抱歉，您选的座位已经被其他用户预定，请重新选择" cancelButtonTitle:@"确定" otherButtonTitles:nil tapBlock:^(UIAlertView * _Nonnull alertView, NSInteger buttonIndex) {
-                    
-                }];
-                [alertView show];
+            }else{                
+                [ZTools showMBProgressWithText:data[ERROR_INFO] WihtType:MBProgressHUDModeText addToView:wself.view isAutoHidden:YES];
             }
         }else{
             [ZTools showMBProgressWithText:@"提交订单失败，请重试" WihtType:MBProgressHUDModeText addToView:wself.view isAutoHidden:YES];

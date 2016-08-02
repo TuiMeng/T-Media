@@ -69,11 +69,7 @@ NSString * const ID = @"cycleCell";
     _titleLabelTextFont= [UIFont fontWithName:@"RTWS YueGothic Trial" size:14];
     _titleLabelBackgroundColor = [UIColor colorWithRed:0 green:0 blue:0 alpha:0.5];
     _titleLabelHeight = 30;
-    if (_imagesGroup.count == 1) {
-        self.autoScroll = NO;
-    }else{
-        _autoScroll = YES;
-    }
+
     
     _infiniteLoop = YES;
     _showPageControl = YES;
@@ -188,6 +184,12 @@ NSString * const ID = @"cycleCell";
 {
     _imagesGroup = imagesGroup;
     
+    if (_imagesGroup && _imagesGroup.count > 1) {
+        self.autoScroll = YES;
+    }else {
+        self.autoScroll = NO;
+    }
+    
     _totalItemsCount = self.infiniteLoop ? self.imagesGroup.count * 100 : self.imagesGroup.count;
     
     if (imagesGroup.count != 1) {
@@ -207,7 +209,7 @@ NSString * const ID = @"cycleCell";
     
     NSMutableArray *images = [NSMutableArray arrayWithCapacity:imageURLStringsGroup.count];
     for (int i = 0; i < imageURLStringsGroup.count; i++) {
-        UIImage *image = [UIImage imageNamed:@"default_loading_big_image"];
+        UIImage *image = [UIImage imageNamed:@"prize_loading_image"];//[UIImage imageNamed:@"default_loading_big_image"];
         [images addObject:image];
     }
     self.imagesGroup = images;

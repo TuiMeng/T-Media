@@ -83,6 +83,19 @@
  *  活动状态（1：审核中  2：审核完毕）
  */
 @property(nonatomic,strong)NSString * RAStatus;
+/**
+ *  转发量
+ */
+@property(nonatomic,strong)NSString * forward_num;
+/**
+ *  曝光量
+ */
+@property(nonatomic,strong)NSString * exposure_num;
+/**
+ *  点击量
+ */
+@property(nonatomic,strong)NSString * click_num;
+
 
 
 @end

@@ -65,15 +65,13 @@
      */
     [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent];
     
-    //显示广告页面
-    [self showAdvertisementView];
     //判断是否显示介绍页面
-//    NSUserDefaults * userDefault = [NSUserDefaults standardUserDefaults];
-//    if (![[userDefault valueForKey:@"isNeedToShowGuildView"] isEqualToString:CURRENT_BUILD]) {
-//        [self shwoIntroductionView];
-//    }else{
-//        [self showAdvertisementView];
-//    }
+    NSUserDefaults * userDefault = [NSUserDefaults standardUserDefaults];
+    if (![[userDefault valueForKey:@"isNeedToShowGuildView"] isEqualToString:CURRENT_BUILD]) {
+        [self shwoIntroductionView];
+    }else{
+        [self showAdvertisementView];
+    }
     
     //内存管理
     //网页缓存

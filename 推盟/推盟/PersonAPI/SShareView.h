@@ -52,5 +52,7 @@ presentedController:(UIViewController *)presentedController;
 -(void)shareButtonClicked:(SShareViewButtonClickedBlock)block;
 ///分享
 -(void)shareWithSNS:(NSString*)snsName WithShareType:(NSString*)type;
+///为新浪微博140字符限制提供的自定义分享标题
+-(void)shareWithSNS:(NSString *)snsName WithShareType:(NSString *)type title:(NSString *)title;
 
 @end

@@ -27,6 +27,8 @@
 @property(nonatomic,strong)UILabel      * restLabel;
 //已结束提示视图
 @property(nonatomic,strong)UIImageView  * endRemindImageView;
+////进度条
+//@property(nonatomic,strong)CAShapeLayer * progress_hud;
 
 
 -(void)setInfomationWithPrizeModel:(PrizeModel *)model;

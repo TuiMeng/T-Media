@@ -28,7 +28,7 @@
 #import "SDCycleScrollView.h"
 #import "MBProgressHUD.h"
 #import "MYIntroductionPanel.h"
-#import "MYIntroductionView.h"
+#import "MYBlurIntroductionView.h"
 #import "ZTools.h"
 #import "MovieNetWork.h"
 #import "ZAPI.h"

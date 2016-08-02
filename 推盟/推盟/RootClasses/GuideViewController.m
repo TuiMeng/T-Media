@@ -31,27 +31,32 @@
     //隐藏status bar
     [UIApplication sharedApplication].statusBarHidden = YES;
     
-
     //STEP 1 Construct Panels
-    MYIntroductionPanel *panel = [[MYIntroductionPanel alloc] initWithimage:[UIImage imageNamed:@"introduction_view_one.png"] description:@""];
-    MYIntroductionPanel *panel2 = [[MYIntroductionPanel alloc] initWithimage:[UIImage imageNamed:@"introduction_view_two.png"] description:@""];
-    MYIntroductionPanel *panel3 = [[MYIntroductionPanel alloc] initWithimage:[UIImage imageNamed:@"introduction_view_three.png"] description:@""];
-    
-    MYIntroductionView *introductionView = [[MYIntroductionView alloc] initWithFrame:self.view.bounds panels:@[panel,panel2,panel3] languageDirection:MYLanguageDirectionLeftToRight];//[[MYIntroductionView alloc] initWithFrame:self.view.bounds panels:@[panel,panel2,panel3]];
-    NSLog(@"--------%@",NSStringFromCGRect(introductionView.bounds));
+    MYIntroductionPanel * panel1 = [[MYIntroductionPanel alloc] initWithFrame:self.view.bounds title:@"" description:@"" image:[UIImage imageNamed:@"guide_one"]];
+    MYIntroductionPanel * panel2 = [[MYIntroductionPanel alloc] initWithFrame:self.view.bounds title:@"" description:@"" image:[UIImage imageNamed:@"guide_two"]];
+    MYIntroductionPanel * panel3 = [[MYIntroductionPanel alloc] initWithFrame:self.view.bounds title:@"" description:@"" image:[UIImage imageNamed:@"guide_three"]];
+    MYIntroductionPanel * panel4 = [[MYIntroductionPanel alloc] initWithFrame:self.view.bounds title:@"" description:@"" image:[UIImage imageNamed:@"guide_four"]];
+    MYIntroductionPanel * panel5 = [[MYIntroductionPanel alloc] initWithFrame:self.view.bounds title:@"" description:@"" image:[UIImage imageNamed:@"guide_five"]];
+
+    MYBlurIntroductionView *introductionView = [[MYBlurIntroductionView alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height)];
+    [introductionView buildIntroductionWithPanels:@[panel1,panel2,panel3,panel4,panel5]];
     [introductionView setBackgroundColor:[UIColor whiteColor]];
+    introductionView.LanguageDirection = MYLanguageDirectionLeftToRight;
     
-    introductionView.SkipButton.hidden = YES;
-    introductionView.PageControl.hidden = YES;
+//    introductionView.SkipButton.hidden = NO;
+//    introductionView.PageControl.hidden = NO;
     
-//    introductionView.PageControl.currentPageIndicatorTintColor = [UIColor colorWithRed:37.0/255.0 green:49.0/255.0 blue:50.0/255.0 alpha:1.0];
-//    introductionView.PageControl.pageIndicatorTintColor = [UIColor colorWithRed:216.0/255.0 green:216.0/255.0 blue:216.0/255.0 alpha:1.0];
+    introductionView.PageControl.currentPageIndicatorTintColor = [UIColor colorWithRed:37.0/255.0 green:49.0/255.0 blue:50.0/255.0 alpha:1.0];
+    introductionView.PageControl.pageIndicatorTintColor = [UIColor colorWithRed:216.0/255.0 green:216.0/255.0 blue:216.0/255.0 alpha:1.0];
+    
+    [introductionView.RightSkipButton setTitleColor:RGBCOLOR(175, 174, 174) forState:UIControlStateNormal];
+    [introductionView.RightSkipButton setTitle:@"跳过>>" forState:UIControlStateNormal];
     
     //Set delegate to self for callbacks (optional)
     introductionView.delegate = self;
     
     //STEP 3: Show introduction view
-    [introductionView showInView:self.view];
+    [self.view addSubview:introductionView];
     
 }
 -(void)introductionDidFinishWithType:(MYFinishType)finishType{
@@ -71,6 +76,19 @@
      setValue:CURRENT_BUILD
      forKey: @"isNeedToShowGuildView"];
 }
+
+-(void)introduction:(MYBlurIntroductionView *)introductionView didFinishWithType:(MYFinishType)finishType {
+    AppDelegate* application  = [[UIApplication sharedApplication] delegate];
+    [application resetInitialViewController];
+    
+    [[NSUserDefaults standardUserDefaults]
+     setValue:CURRENT_BUILD
+     forKey: @"isNeedToShowGuildView"];
+}
+-(void)introduction:(MYBlurIntroductionView *)introductionView didChangeToPanel:(MYIntroductionPanel *)panel withIndex:(NSInteger)panelIndex {
+    
+}
+
 
 
 - (void)didReceiveMemoryWarning {

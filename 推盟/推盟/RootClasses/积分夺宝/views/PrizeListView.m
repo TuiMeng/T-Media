@@ -49,7 +49,11 @@
     [self.model loadListDataWithPage:_myTableView.pageNum withSuccess:^(NSMutableArray *array) {
         
         wself.dataArray = array;
-        wself.myTableView.isHaveMoreData = YES;
+        if (array.count < 10) {
+            wself.myTableView.isHaveMoreData = NO;
+        }else {
+            wself.myTableView.isHaveMoreData = YES;
+        }
         [wself.myTableView finishReloadigData];
     } withFailure:^(NSString *error) {
         if ([error isEqualToString:@"没有更多数据"]) {
@@ -72,6 +76,15 @@
     _myTableView.refreshDelegate    = self;
     _myTableView.dataSource         = self;
     [self addSubview:_myTableView];
+    
+    // 调cell对齐
+    if ([self.myTableView respondsToSelector:@selector(setSeparatorInset:)]) {
+        [self.myTableView setSeparatorInset:UIEdgeInsetsZero];
+    }
+    if ([self.myTableView respondsToSelector:@selector(setLayoutMargins:)]) {
+        [self.myTableView setLayoutMargins:UIEdgeInsetsZero];
+    }
+
 }
 
 
@@ -81,6 +94,7 @@
 }
 
 -(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
+    /*
     static NSString * identifier = @"identifier";
     PrizeCell * cell = [tableView dequeueReusableCellWithIdentifier:identifier];
     if (cell == nil) {
@@ -89,6 +103,13 @@
     }
     
     [cell setInfomationWithPrizeModel:_dataArray[indexPath.row]];
+    */
+    
+    static NSString * cellIdentifier = @"cellIdentifier";
+    [tableView registerClass:[PrizeCell class] forCellReuseIdentifier:cellIdentifier];
+    UITableViewCell * cell = [tableView dequeueReusableCellWithIdentifier:cellIdentifier forIndexPath:indexPath];
+    cell.selectionStyle = UITableViewCellSelectionStyleNone;
+    [(PrizeCell *)cell setInfomationWithPrizeModel:_dataArray[indexPath.row]];
     
     return cell;
 }
@@ -114,8 +135,15 @@
     [_viewController.navigationController pushViewController:detailVC animated:YES];
 }
 - (CGFloat)heightForRowIndexPath:(NSIndexPath *)indexPath{
-    return 208;
+    return [ZTools autoWidthWith:180] + 40;
 }
-
+- (void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath{
+    if ([cell respondsToSelector:@selector(setSeparatorInset:)]) {
+        [cell setSeparatorInset:UIEdgeInsetsZero];
+    }
+    if ([cell respondsToSelector:@selector(setLayoutMargins:)]) {
+        [cell setLayoutMargins:UIEdgeInsetsZero];
+    }
+}
 
 @end

@@ -33,6 +33,7 @@
         _rollLabel = [[UILabel alloc] init];
         _rollLabel.textColor = color;
         _rollLabel.font = font;
+        _rollLabel.textAlignment = NSTextAlignmentCenter;
         [self addSubview:_rollLabel];
     }
     return self;

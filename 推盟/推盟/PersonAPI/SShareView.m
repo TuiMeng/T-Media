@@ -152,7 +152,7 @@
          [UMSocialData defaultData].extConfig.wechatSessionData.url = _share_url;
         [UMSocialData defaultData].extConfig.wechatSessionData.title = _share_title;
         
-        [UMSocialData defaultData].urlResource = _share_urlResource;
+//        [UMSocialData defaultData].urlResource = _share_urlResource;
         
     }else  if ([title isEqualToString:SHARE_WECHAT_CIRCLE]) {
         share_type = @"微信朋友圈";
@@ -218,6 +218,7 @@
 }
 
 -(void)shareWithSNS:(NSString *)snsName WithShareType:(NSString *)type{
+    
     if (snsName.length > 0) {
         [[UMSocialDataService defaultDataService] postSNSWithTypes:@[snsName]
                                                            content:_share_content
@@ -243,6 +244,36 @@
     }
 
 }
+//为新浪微博140字符限制提供的自定义分享标题
+-(void)shareWithSNS:(NSString *)snsName WithShareType:(NSString *)type title:(NSString *)title{
+    
+    if (snsName.length > 0) {
+        [[UMSocialDataService defaultDataService] postSNSWithTypes:@[snsName]
+                                                           content:title
+                                                             image:_share_image
+                                                          location:_share_location
+                                                       urlResource:_share_urlResource
+                                               presentedController:_presentedController
+                                                        completion:^(UMSocialResponseEntity * response)
+         {
+             if (response.responseCode == UMSResponseCodeSuccess)
+             {
+                 if (share_success_block) {
+                     share_success_block(type);
+                 }
+             } else if(response.responseCode != UMSResponseCodeCancel) {
+                 if (share_failed_block) {
+                     share_failed_block();
+                 }
+             }else{
+                 share_failed_block();
+             }
+         }];
+    }
+    
+}
+
+
 -(void)shareButtonClicked:(SShareViewButtonClickedBlock)block{
     share_button_clicked_block = block;
 }

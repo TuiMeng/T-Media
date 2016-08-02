@@ -33,10 +33,9 @@
     return self;
 }
 
-
 -(void)loadListDataWithType:(int)type page:(int)page withSuccess:(void(^)(NSMutableArray * array))success withFailure:(void(^)(NSString * error))failure{
     __WeakSelf__ wself = self;
-    //张少南
+    
     NSDictionary * dic = @{@"page":@(page),@"type":@(type),@"user_id":[ZTools getUid]};
     [[ZAPI manager] sendPost:LOTTERY_LIST_URL myParams:dic success:^(id data) {
         if (data && [data isKindOfClass:[NSDictionary class]]) {
@@ -47,7 +46,14 @@
                 NSArray * dataArr = data[@"data"];
                 for (NSDictionary * dic in dataArr) {
                     MyPrizeModel * model = [[MyPrizeModel alloc] initWithDictionary:dic];
-                    [wself.dataArray[type-1] addObject:model];
+                    if (type == 1)//如果是请求已中奖信息，先判断该条数据有没有中奖信息，如果没有删除该条数据
+                    {
+                        if (model.prizes.count != 0) {
+                            [wself.dataArray[type-1] addObject:model];
+                        }
+                    }else {
+                        [wself.dataArray[type-1] addObject:model];
+                    }
                 }
                 
                 if (success) {

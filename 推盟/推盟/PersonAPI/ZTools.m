@@ -138,7 +138,9 @@
     UserAddressModel * addressModel;
     NSDictionary * dic = [[[NSUserDefaults standardUserDefaults] objectForKey:@"UserInfomationData"] objectForKey:@"address"];
     if (dic && [dic isKindOfClass:[NSDictionary class]]) {
-        addressModel = [[UserAddressModel alloc] initWithDictionary:dic];
+        if ([dic[@"user_area"] length] != 0 && ![dic[@"user_area"] isKindOfClass:[NSNull class]]) {
+            addressModel = [[UserAddressModel alloc] initWithDictionary:dic];
+        }
     }
     return addressModel;
 }
@@ -651,6 +653,20 @@
     }
 }
 
+#pragma mark - 进入动画
++(void)cureInAnimationWithView:(UIView *)view{
+    CAKeyframeAnimation* animation = [CAKeyframeAnimation animationWithKeyPath:@"transform"];
+    animation.duration = 0.6;
+    
+    NSMutableArray *values = [NSMutableArray array];
+    [values addObject:[NSValue valueWithCATransform3D:CATransform3DMakeScale(0.1, 0.1, 1.0)]];
+    [values addObject:[NSValue valueWithCATransform3D:CATransform3DMakeScale(1.2, 1.2, 1.0)]];
+    [values addObject:[NSValue valueWithCATransform3D:CATransform3DMakeScale(0.9, 0.9, 1.0)]];
+    [values addObject:[NSValue valueWithCATransform3D:CATransform3DMakeScale(1.0, 1.0, 1.0)]];
+    animation.values = values;
+    [view.layer addAnimation:animation forKey:nil];
+}
+
 + (UIImage *)imageWithColor:(UIColor *)color {
     CGRect rect = CGRectMake(0.0f, 0.0f, 1.0f, 1.0f);
     UIGraphicsBeginImageContext(rect.size);
@@ -690,5 +706,7 @@
 +(NSString *)signWithDateLine:(NSString *)dateline{
     return [[WXUtil md5:[NSString stringWithFormat:@"%@tm220661",[[WXUtil md5:[NSString stringWithFormat:@"%@%@",[ZTools getUid],dateline]] lowercaseString]]] lowercaseString];
 }
+
+
 
 @end

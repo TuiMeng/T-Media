@@ -125,7 +125,7 @@
                 _date_label.text = [NSString stringWithFormat:@"密码：%@",passWord];
             }
         }else if (model.type.intValue == 4)//实物订单
-        {//张少南
+        {
             NSString * status = @"状态：已发货";
             _state_label.attributedText = [ZTools labelTextColorWith:status Color:DEFAULT_LINE_COLOR range:[status rangeOfString:@"已充值"]];
             //物流平台+运单号

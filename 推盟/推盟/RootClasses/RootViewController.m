@@ -203,7 +203,31 @@
     [self getIpAddress];
     
     
+    ///检查当前版本
+    [self getVersion];
+    
     NSLog(@"ip--%@\n phone--%@\n gps-%@",[ZTools getIPAddress],[ZTools getPhoneNumAddress],location_city);
+}
+
+#pragma mark -------  检查当前版本
+-(void)getVersion{
+    [[ZAPI manager] sendGet:GET_NOW_VERSION_URL success:^(id data) {
+        if (data && [data isKindOfClass:[NSDictionary class]]) {
+            if ([data[@"is_up"] intValue] == 1) {
+                NSString * version = data[@"version"];
+                if (![version isEqualToString:CURRENT_VERSION])
+                {
+                    [[UIAlertView showWithTitle:@"系统检测到新版本，是否更新？" message:nil cancelButtonTitle:@"取消" otherButtonTitles:@[@"立即更新"] tapBlock:^(UIAlertView * _Nonnull alertView, NSInteger buttonIndex) {
+                        if (buttonIndex == 1) {
+                            [[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"https://itunes.apple.com/cn/app/tui-meng-sui-shou-qing-song/id1121904204?mt=8"]];
+                        }
+                    }] show];
+                }
+            }
+        }
+    } failure:^(NSError *error) {
+        
+    }];
 }
 
 -(void)getIpAddress{
@@ -486,7 +510,7 @@
         _focus_title_array  = [NSMutableArray array];
     }
     
-    NSArray * rootArray = @[ROOT_TASK_ID,ROOT_GAME_ID,ROOT_MOVIE_ID,ROOT_PRIZE_ID];
+    NSArray * rootArray = @[ROOT_TASK_ID,ROOT_MOVIE_ID,ROOT_PRIZE_ID];
     for (NSDictionary * dic in array) {
         
         RootTopTitleModel * model = [[RootTopTitleModel alloc] initWithDictionary:dic];
@@ -624,6 +648,10 @@
             prizeView.viewController = self;
             [_myScrollView addSubview:prizeView];
             [_contentViews addObject:prizeView];
+            
+            if (i == 0) {
+                [prizeView getData];
+            }
         }
     }
     
@@ -662,7 +690,7 @@
     [self performSegueWithIdentifier:@"ShowTaskDetailSegue" sender:model];
 }
 - (CGFloat)heightForRowIndexPath:(NSIndexPath *)indexPath{
-    return 25+[ZTools autoWidthWith:95];
+    return 50+[ZTools autoWidthWith:100];
 }
 #pragma mark ----------------   UITableView Delegate
 -(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{

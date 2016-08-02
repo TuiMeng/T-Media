@@ -341,6 +341,9 @@
 #pragma mark ----  分享 ---- 
 -(void)shareButtonTap:(UIButton*)sender{
     
+    [self shareWithSystem];
+    return;
+    
     if (![ZTools isLogIn]) {
         [self performSegueWithIdentifier:@"showLoginSegue" sender:@"share"];
         return;
@@ -351,7 +354,7 @@
         [ZTools showMBProgressWithText:@"请选择一个分享标题" WihtType:MBProgressHUDModeText addToView:self.view isAutoHidden:YES];
         return;
     }
-    
+//    http://www.twttmob.com/Admin/Tpl/Public/task_img/5784b0fb92b51.jpg
     UIImage * cacheImage = [[SDImageCache sharedImageCache] imageFromDiskCacheForKey:_task_model.task_img];
     
     UIImage *shareImage = cacheImage?cacheImage:(IS_YML?[UIImage imageNamed:@"yml_Icon"]:[UIImage imageNamed:@"Icon"]);
@@ -374,7 +377,7 @@
         spread_type = [_task_model.spread_type componentsSeparatedByString:@"|"];
     }
     shareView = [[SShareView alloc] initWithTitles:spread_type
-                                             title:nil
+                                             title:title_string
                                            content:title_string
                                                Url:share_string
                                              image:shareImage
@@ -413,6 +416,17 @@
         [shareView shareWithSNS:snsName WithShareType:type];
     }];
     [alertView show];
+}
+#pragma mark -----  系统分享
+-(void)shareWithSystem {
+    
+    NSString * shareText = @"系统分享";
+    UIImage * sImage = [UIImage imageNamed:@"Icon"];
+    NSURL * url = [NSURL URLWithString:@"http://baidu.com"];
+    
+    UIActivityViewController * activityVC = [[UIActivityViewController alloc] initWithActivityItems:@[shareText,sImage,url] applicationActivities:nil];
+    
+    [self presentViewController:activityVC animated:YES completion:nil];
 }
 
 /*

@@ -46,6 +46,8 @@
     _addressModel = [ZTools getAddressModel];
     if (_addressModel) {
         user_area = _addressModel.user_city;
+    }else {
+        _addressModel = [[UserAddressModel alloc] init];
     }
     
     titleArray = @[ADDRESS_NAME,ADDRESS_MOBILE,ADDRESS_CITY,ADDRESS_DETEAIL,ADDRESS_CODE];
@@ -266,12 +268,24 @@
                            @"user_city":user_area,                  //收货人所在省市
                            @"user_area":addressTV.text,             //收货人地址详细信息
                            @"user_email":codeTF.text};              //收货人邮编
+    
+    NSDictionary * addressInfo = @{@"put_man":userNameTF.text,
+                                   @"user_city":user_area,
+                                   @"user_area":addressTV.text,
+                                   @"user_email":codeTF.text};
+    
     __WeakSelf__ wself = self;
     [[ZAPI manager] sendPost:ADDRESS_MANAGER_URL myParams:dic success:^(id data) {
         if (data && [data isKindOfClass:[NSDictionary class]]) {
             if ([data[ERROR_CODE] intValue] == 1) {
                 [ZTools showMBProgressWithText:@"保存成功" WihtType:MBProgressHUDModeText addToView:wself.view isAutoHidden:YES];
-                [[NSNotificationCenter defaultCenter] postNotificationName:@"modifyUserInfomation" object:nil];
+//                [[NSNotificationCenter defaultCenter] postNotificationName:@"modifyUserInfomation" object:nil];
+                
+                //更改保存的地址信息
+                NSMutableDictionary * userInfo = [[NSMutableDictionary alloc] initWithDictionary:[[NSUserDefaults standardUserDefaults] objectForKey:@"UserInfomationData"]];
+                [userInfo setObject:addressInfo forKey:@"address"];
+                [[NSUserDefaults standardUserDefaults] setObject:userInfo forKey:@"UserInfomationData"];
+                
                 [wself performSelector:@selector(saveSuccess) withObject:self afterDelay:1.5];
             }else{
                 [ZTools showMBProgressWithText:data[ERROR_INFO] WihtType:MBProgressHUDModeText addToView:wself.view isAutoHidden:YES];
@@ -283,6 +297,7 @@
         [ZTools showMBProgressWithText:@"请求失败" WihtType:MBProgressHUDModeText addToView:wself.view isAutoHidden:YES];
     }];
 }
+
 #pragma mark ----  保存成功
 -(void)save:(addressManangerSaveSuccessBlock)block{
     saveBlock = block;

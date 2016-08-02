@@ -64,7 +64,6 @@
 @property(nonatomic,strong)NSString * Platform;
 
 
-
 @end
 
 

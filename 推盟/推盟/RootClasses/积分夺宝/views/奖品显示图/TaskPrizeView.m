@@ -79,7 +79,7 @@
     if (_delegate && [_delegate respondsToSelector:@selector(convertClicked:)]) {
         NSIndexPath * indexP = [_tableView indexPathForCell:cell];
         PrizeStatusModel * model = _dataArray[indexP.row];
-        [_delegate convertClicked:model.did];
+        [_delegate convertClicked:model];
     }
 }
 

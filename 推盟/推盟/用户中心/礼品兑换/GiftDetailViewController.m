@@ -323,7 +323,6 @@
             return;
         }
     }
-    info.type = @"4";
     
     UserAddressModel * addressModel = [ZTools getAddressModel];
 
@@ -331,7 +330,6 @@
         [self modifyAddressButtonTap:nil];
         return;
     }
-    
     
     alertView = [[SAlertView alloc] initWithTitle:@"确认兑换" WithContentView:nil WithCancelTitle:@"取消" WithDoneTitle:@"确认"];
     alertView.delegate = self;

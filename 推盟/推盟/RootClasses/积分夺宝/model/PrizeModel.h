@@ -43,6 +43,10 @@
  */
 @property(nonatomic,strong)NSString * task_prize_surplus;
 /**
+ *  奖品剩余数量介绍
+ */
+@property(nonatomic,strong)NSString * prizeRestString;
+/**
  *  活动开始时间
  */
 @property(nonatomic,strong)NSString * task_create_time;
@@ -75,9 +79,32 @@
  */
 @property(nonatomic,strong)NSString * can_draw_num;
 /**
+ *  已抽奖次数
+ */
+@property(nonatomic,strong)NSString * drawed_num;
+/**
  *  点击多少次可以抽奖
  */
 @property(nonatomic,strong)NSString * task_draw_num;
+/**
+ *  分享图片
+ */
+@property(nonatomic,strong)NSString * share_img;
+/**
+ *  当前任务总点击数
+ */
+@property(nonatomic,strong)NSString * task_clicks;
+/**
+ *  当前任务总分享数
+ */
+@property(nonatomic,strong)NSString * task_shared_times;
+/**
+ *  任务当前曝光量
+ */
+@property(nonatomic,strong)NSString * task_exposures;
+
+
+
 
 
 +(instancetype)sharedInstance;

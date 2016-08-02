@@ -39,9 +39,42 @@
     return self;
 }
 
++(instancetype)shareInstance {
+    return [[[self class] alloc] init];
+}
 
 
+-(void)loadPersonInfoWithSuccess:(void (^)(UserInfoModel *))success failed:(void (^)(NSString *))failed{
+    
+    [[ZAPI manager] sendGet:[NSString stringWithFormat:@"%@&user_id=%@",GET_USERINFOMATION_URL,[ZTools getUid]] success:^(id data) {
+        if (data && [data isKindOfClass:[NSDictionary class]]) {
+            if ([data[ERROR_CODE] intValue] == 1) {
+                UserInfoModel * model = [[UserInfoModel alloc] initWithDictionary:[data objectForKey:@"user_info"]];
+                [[NSUserDefaults standardUserDefaults] setObject:[NSDictionary dictionaryWithDictionary:[data objectForKey:@"user_info"]] forKey:@"UserInfomationData"];
+                if (success) {
+                    success(model);
+                }
+            }else {
+                if (failed) {
+                    failed(data[ERROR_INFO]);
+                }
+            }
+        }else {
+            if (failed) {
+                failed(@"请求失败");
+            }
+        }
+    } failure:^(NSError *error) {
+        if (failed) {
+            failed(@"请求失败");
+        }
+    }];
+}
 
+
+-(void)dealloc {
+    
+}
 
 @end
 

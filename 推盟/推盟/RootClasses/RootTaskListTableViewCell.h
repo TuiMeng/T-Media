@@ -28,6 +28,10 @@ typedef void(^RootForwardBlock)(void);
  */
 @property (strong, nonatomic) SLabel *title_label;
 /**
+ *  日期
+ */
+@property(nonatomic,strong) UILabel * date_label;
+/**
  *  奖金总额
  */
 @property (strong, nonatomic) UILabel *bonus_label;
@@ -43,6 +47,30 @@ typedef void(^RootForwardBlock)(void);
  *  标签视图
  */
 @property(nonatomic,strong)SLabel * tag_label;
+/**
+ *  转发数量
+ */
+@property(nonatomic,strong)UILabel * forward_num;
+/**
+ *  曝光量
+ */
+@property(nonatomic,strong)UILabel * exposure_num;
+/**
+ *  点击量
+ */
+@property(nonatomic,strong)UILabel * click_num;
+/**
+ *  横线分割
+ */
+@property(nonatomic,strong)UIView * h_line_view;
+/**
+ *  竖线分割
+ */
+@property(nonatomic,strong)UIView * v_line_view1;
+/**
+ *  竖线分割
+ */
+@property(nonatomic,strong)UIView * v_line_view2;
 
 
 

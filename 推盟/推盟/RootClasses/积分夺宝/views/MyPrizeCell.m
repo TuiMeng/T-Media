@@ -125,9 +125,9 @@
     _clickAndLotteryNum.text = num;
 }
 
--(void)convertClicked:(NSString *)prizeId{
+-(void)convertClicked:(PrizeStatusModel *)model{
     if (getBlock) {
-        getBlock(prizeId);
+        getBlock(model);
     }
 }
 

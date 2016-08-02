@@ -13,9 +13,13 @@
 #import "PrizeDetailViewController.h"
 #import "TaskDetailViewController.h"
 #import "MyOutPrizeCell.h"
+#import "LotteryView.h"
+#import "AddressManangerViewController.h"
 
 @interface MyPrizeViewController ()<SNRefreshDelegate,UITableViewDataSource>{
     UISegmentedControl * segmentC;
+    //兑换界面
+    LotteryView * lotteryView;
 }
 
 @property(nonatomic,strong)SNRefreshTableView   * myTableView;
@@ -28,6 +32,21 @@
 
 
 @implementation MyPrizeViewController
+
+-(void)viewWillAppear:(BOOL)animated{
+    [super viewWillAppear:animated];
+    if (lotteryView) {
+        lotteryView.hidden = NO;
+    }
+}
+-(void)viewWillDisappear:(BOOL)animated{
+    [super viewWillDisappear:animated];
+    
+    if (lotteryView) {
+        lotteryView.hidden = YES;
+    }
+}
+
 
 
 -(void)viewDidLoad{
@@ -75,19 +94,33 @@
 -(void)getData{
     __WeakSelf__ wself = self;
     [self.model loadListDataWithType:_currentPage page:_myTableView.pageNum withSuccess:^(NSMutableArray *array) {
+        [wself endLoading];
+        if (array.count == 0) {
+            wself.myTableView.isHaveMoreData = NO;
+        }
         [wself.myTableView finishReloadigData];
     } withFailure:^(NSString *error) {
-        
+        [wself endLoading];
     }];
 }
 //兑换礼品
--(void)getPrizeWithTaskID:(NSString *)taskId prizeID:(NSString *)prizeId{
+-(void)getPrizeWithTaskID:(NSString *)taskId prizeID:(NSString *)prizeId virtual:(BOOL)isVirtual {
+    
+    if (lotteryView) {
+        [lotteryView removeFromSuperview];
+        lotteryView = nil;
+    }
+    lotteryView = [LotteryView sharedInstance];
     __WeakSelf__ wself = self;
-    [[PrizeModel sharedInstance] getPrizeWithTaskID:taskId prizeID:prizeId success:^{
-        [ZTools showMBProgressWithText:@"兑换成功，请注意查收" WihtType:MBProgressHUDModeText addToView:wself.view isAutoHidden:YES];
-        [wself getData];
-    } failed:^(NSString *errorInfo) {
-        [ZTools showMBProgressWithText:errorInfo WihtType:MBProgressHUDModeText addToView:wself.view isAutoHidden:YES];
+    [lotteryView showConertViewWithVirtual:isVirtual convertBlock:^{
+        [[PrizeModel sharedInstance] getPrizeWithTaskID:taskId prizeID:prizeId success:^{
+            [ZTools showMBProgressWithText:@"兑换成功，请注意查收" WihtType:MBProgressHUDModeText addToView:wself.view isAutoHidden:YES];
+            [wself getData];
+        } failed:^(NSString *errorInfo) {
+            [ZTools showMBProgressWithText:errorInfo WihtType:MBProgressHUDModeText addToView:wself.view isAutoHidden:YES];
+        }];
+    } modifyBlock:^{
+        [wself showAddressMananger];
     }];
 }
 
@@ -96,8 +129,10 @@
     _currentPage = (int)sender.selectedSegmentIndex+1;
     
     if ([self.model.dataArray[sender.selectedSegmentIndex] count] == 0) {
+        [self startLoading];
         [self getData];
     }else {
+        
         [_myTableView finishReloadigData];
     }
     
@@ -121,8 +156,8 @@
         
         MyPrizeModel * model = self.model.dataArray[segmentC.selectedSegmentIndex][indexPath.row];
         __WeakSelf__ wself = self;
-        [cell setInfomationWithMyPrizeModel:model getPrizeBlock:^(NSString * prizeId){
-            [wself getPrizeWithTaskID:model.task_id prizeID:prizeId];
+        [cell setInfomationWithMyPrizeModel:model getPrizeBlock:^(PrizeStatusModel * prizeModel){
+            [wself getPrizeWithTaskID:model.task_id prizeID:prizeModel.did virtual:(prizeModel.isVirtual.intValue == 1)];
         } lookTaskContentBlock:^{
             
             RootTaskListModel * taskModel = [[RootTaskListModel alloc] init];
@@ -166,12 +201,26 @@
 - (CGFloat)heightForRowIndexPath:(NSIndexPath *)indexPath{
     if (_currentPage == 1) {
         MyPrizeModel * model = self.model.dataArray[segmentC.selectedSegmentIndex][indexPath.row];
-        NSLog(@"--------  %lu ---  %lu",40 + model.prizes.count*55,(unsigned long)model.prizes.count);
         return 40 + model.prizes.count*55;
     } else if (_currentPage ==2) {
         return 64;
     }
     return 0;
 }
+
+
+
+#pragma mark -----  跳转到收货地址界面
+-(void)showAddressMananger{
+    AddressManangerViewController * viewController = [[AddressManangerViewController alloc] init];
+    [self.navigationController pushViewController:viewController animated:YES];
+    
+    [viewController save:^(UserAddressModel *model) {
+        if (lotteryView) {
+            [lotteryView setupAddressWithAddressModel:model];
+        }
+    }];
+}
+
 
 @end

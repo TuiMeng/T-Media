@@ -11,6 +11,7 @@
 #import "WXUtil.h"
 #import "SShareView.h"
 #import "UIAlertView+Blocks.h"
+#import "PersonalInfoViewController.h"
 
 
 @interface PrizeShareViewController ()<UITableViewDelegate,UITableViewDataSource>{
@@ -41,6 +42,9 @@
 
 -(void)viewDidLoad{
     [super viewDidLoad];
+    
+    //下载分享图片
+   // [self downloadShareImage];
     
     self.title_label.text = @"分享页";
     
@@ -76,11 +80,10 @@
     label.font = [ZTools returnaFontWith:12];
     label.textColor = DEFAULT_LINE_COLOR;
     label.hidden = ![ZTools isLogIn];
-    
     [footer_view addSubview:label];
     
     if ([ZTools getGrade] == 2) {
-        label.text = [NSString stringWithFormat:@"您是高级用户，该任务每次转发点击收益为：%@积分/次",_numForLotteryOnce];
+        label.text = [NSString stringWithFormat:@"您是高级用户，该任务每累计%@次点击即可获取一次抽奖机会",_numForLotteryOnce];
     }else if([ZTools getGrade] == 1){
         label.userInteractionEnabled = YES;
         UITapGestureRecognizer * tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(showPersonalInfomation)];
@@ -102,13 +105,6 @@
     
     [footer_view addSubview:share_button];
     
-    
-//    if (_task_model.task_status.intValue != 1) {
-//        share_button.backgroundColor = [UIColor lightGrayColor];
-//        share_button.userInteractionEnabled = NO;
-//        [share_button setTitle:@"已结束" forState:UIControlStateNormal];
-//    }
-    
     _myTableView.tableFooterView = footer_view;
 }
 
@@ -116,9 +112,12 @@
 #pragma mark ------  网络请求
 -(void)getTitlesData{
     __WeakSelf__ wself = self;
+    [self startLoading];
     [self.model loadTitlesDataWithTaskId:_task_id success:^{
+        [wself endLoading];
         [wself.myTableView reloadData];
     } failed:^(NSString *errorInfo) {
+        [wself endLoading];
         [ZTools showMBProgressWithText:errorInfo WihtType:MBProgressHUDModeText addToView:wself.view isAutoHidden:YES];
     }];
 }
@@ -213,7 +212,6 @@
     PrizeShareModel * model = _model.dataArray[current];
     title_string = model.title_name;
     
-    
     UIImage * cacheImage = [[SDImageCache sharedImageCache] imageFromDiskCacheForKey:_shareImageUrl];
     
     UIImage *shareImage = cacheImage?cacheImage:(IS_YML?[UIImage imageNamed:@"yml_Icon"]:[UIImage imageNamed:@"Icon"]);
@@ -305,6 +303,18 @@
     }];
 }
 
+#pragma mark ---------该版本友盟分享不支持分享图片链接需要下载分享图片
+-(void)downloadShareImage{
+    
+    UIImage * shareImage = [[SDImageCache sharedImageCache] imageFromDiskCacheForKey:_shareImageUrl];
+    if (!shareImage) {
+        [[UIImageView alloc] sd_setImageWithURL:[NSURL URLWithString:_shareImageUrl] placeholderImage:nil completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, NSURL *imageURL) {
+            
+        }];
+    }
+}
+
+
 #pragma mark ---------  获取用户地理位置信息
 - (void) setupLocationManager {
     
@@ -331,6 +341,27 @@
             NSString * local = regeocode.city?regeocode.city:regeocode.formattedAddress;
             location_city = [ZTools CutAreaString:local];
         }
+    }];
+}
+
+
+#pragma mark ---- 跳转到高级用户界面
+-(void)showPersonalInfomation {
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(reloadPersonalInfomation:) name:@"modifyUserInfomation" object:nil];
+    
+    UIStoryboard * storyBoard = [UIStoryboard storyboardWithName:@"Main" bundle:nil];
+    PersonalInfoViewController * vc = [storyBoard instantiateViewControllerWithIdentifier:@"PersonalInfoViewController"];
+    [self.navigationController pushViewController:vc animated:YES];
+}
+
+-(void)reloadPersonalInfomation:(NSNotification *)notification {
+    __WeakSelf__ wself = self;
+    [[UserInfoModel shareInstance] loadPersonInfoWithSuccess:^(UserInfoModel *model) {
+        if (model.grade.intValue == 2) {
+            [wself createFooterView];
+        }
+    } failed:^(NSString *error) {
+        
     }];
 }
 

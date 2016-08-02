@@ -40,8 +40,10 @@
 //高德地图key（影迷乐）
 #define YML_AMAP_KEY            @"f135a41c82e11c56494ab4d0efd25c3b"
 
-
+//移动官网
 #define WEBSITEH5 @"http://h5.twttmob.com/tuimengmobile/"
+//积分夺宝地址
+#define PRIZE_WEBSITEH5(taskId,userId) [NSString stringWithFormat:@"http://h5.twttmob.com/tuimengpages/jifenduobao/baobeixiangqing.html?task_id=%@&user_id=%@",taskId,userId]
 //游戏中心地址
 #define GAME_SITE(dateline) [NSString stringWithFormat:@"http://h5.twttmob.com/game2/index2.html?%@",dateline]
 
@@ -61,36 +63,36 @@
 #define IS_YML          [APP_NAME isEqualToString:@"影迷乐"]
 
 #pragma mark 所有接口
-#pragma mark -----------测试域名 start--------------
-#define WEBSITE @"http://tmtest.twttmob.com"
-//测试地址
-//推盟域名
-#define BASE_URL            @"http://tmtest.twttmob.com/test_version.php"
-//首页任务txt文件地址
-#define TASK_TXT_URL(dateline) [NSString stringWithFormat:@"http://tmtest.twttmob.com/Test_version/include/index_lista.txt?%@",dateline]
-//电影频道域名
-#define BASE_MOVIE_URL      @"http://202.108.31.66:8088/tmmobile/mobile/"
-//微信回调测试地址
-#define WECHAT_CALLBACK_URL [NSString stringWithFormat:@"%@/Test_version/include/wxpay/xmkp_notify.php",WEBSITE]
-#pragma mark -----------------  图形验证码地址
-#define T_VERICATION_CODE_IMAGE_URL(dateline) [NSString stringWithFormat:@"http://tmtest.twttmob.com/Test_version/Tpl/Public/phpyzm/code_gg.php?%@",dateline]
-#pragma mark ****-----------测试域名 end--------------****
-
-
-//#pragma mark -----------正式域名 start--------------
-////正式地址
-//#define WEBSITE @"http://api.twttmob.com"
+//#pragma mark -----------测试域名 start--------------
+//#define WEBSITE @"http://tmtest.twttmob.com"
+////测试地址
 ////推盟域名
-//#define BASE_URL          @"http://api.twttmob.com/Api.php"
-////首页任务txt文件地址(正式环境)
-//#define TASK_TXT_URL(dateline) [NSString stringWithFormat:@"http://api.twttmob.com/Api/include/index_lista.txt?%@",dateline]
+//#define BASE_URL            @"http://tmtest.twttmob.com/test_version.php"
+////首页任务txt文件地址
+//#define TASK_TXT_URL(dateline) [NSString stringWithFormat:@"http://tmtest.twttmob.com/Test_version/include/index_lista.txt?%@",dateline]
 ////电影频道域名
-//#define  BASE_MOVIE_URL     @"http://www.yingmile.com/tmmobile/mobile/"
-////微信回调正式地址
-//#define WECHAT_CALLBACK_URL [NSString stringWithFormat:@"%@/Api/include/wxpay/xmkp_notify.php",WEBSITE]
+//#define BASE_MOVIE_URL      @"http://202.108.31.66:8088/tmmobile/mobile/"
+////微信回调测试地址
+//#define WECHAT_CALLBACK_URL [NSString stringWithFormat:@"%@/Test_version/include/wxpay/xmkp_notify.php",WEBSITE]
 //#pragma mark -----------------  图形验证码地址
-//#define T_VERICATION_CODE_IMAGE_URL(dateline) [NSString stringWithFormat:@"http://api.twttmob.com/Api/Tpl/Public/phpyzm/code_gg.php?%@",dateline]
-//#pragma mark ****----------正式域名 end--------------****
+//#define T_VERICATION_CODE_IMAGE_URL(dateline) [NSString stringWithFormat:@"http://tmtest.twttmob.com/Test_version/Tpl/Public/phpyzm/code_gg.php?%@",dateline]
+//#pragma mark ****-----------测试域名 end--------------****
+
+
+#pragma mark -----------正式域名 start--------------
+//正式地址
+#define WEBSITE @"http://api.twttmob.com"
+//推盟域名
+#define BASE_URL          @"http://api.twttmob.com/Api.php"
+//首页任务txt文件地址(正式环境)
+#define TASK_TXT_URL(dateline) [NSString stringWithFormat:@"http://api.twttmob.com/Api/include/index_lista.txt?%@",dateline]
+//电影频道域名
+#define  BASE_MOVIE_URL     @"http://www.yingmile.com/tmmobile/mobile/"
+//微信回调正式地址
+#define WECHAT_CALLBACK_URL [NSString stringWithFormat:@"%@/Api/include/wxpay/xmkp_notify.php",WEBSITE]
+#pragma mark -----------------  图形验证码地址
+#define T_VERICATION_CODE_IMAGE_URL(dateline) [NSString stringWithFormat:@"http://api.twttmob.com/Api/Tpl/Public/phpyzm/code_gg.php?%@",dateline]
+#pragma mark ****----------正式域名 end--------------****
 
 
 //电影频道图片地址域名
@@ -196,7 +198,7 @@
 ///获取开屏广告
 #define GET_GUANGGAO_IMAGE_URL [NSString stringWithFormat:@"%@?m=Ad&a=e_point_getAd",BASE_URL]
 ///获取最新版本号接口
-#define GET_NOW_VERSION_URL [NSString stringWithFormat:@"%@/Task/e_point_getVersion",BASE_URL]
+#define GET_NOW_VERSION_URL [NSString stringWithFormat:@"%@?m=Task&a=e_point_getVersion",BASE_URL]
 
 #pragma mark ******************电影相关接口***********************
 #define GET_MOVIE_LIST_URL 

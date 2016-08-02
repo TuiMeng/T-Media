@@ -28,6 +28,11 @@
  *  未中奖视图
  */
 @property(nonatomic,strong)UIImageView * failedView;
+/**
+ *  兑换视图
+ */
+@property(nonatomic,strong)UIImageView * convertView;
+
 
 @end
 
@@ -79,6 +84,14 @@
     }
     return _failedView;
 }
+-(UIImageView *)convertView{
+    if (!_convertView) {
+        _convertView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"prize_convert_confirm_image"]];
+        _convertView.center = self.center;
+        _convertView.userInteractionEnabled = YES;
+    }
+    return _convertView;
+}
 
 #pragma mark ------  抽奖动画
 -(void)loadingAnimation{
@@ -105,6 +118,7 @@
                                                        font:15];
     [_winnerView addSubview:prizeNameLabel];
     
+    /*
     userNameLabel = [ZTools createLabelWithFrame:CGRectMake(40, 200, _winnerView.width-80, 20)
                                                       text:@""
                                                  textColor:DEFAULT_GRAY_TEXT_COLOR
@@ -139,8 +153,9 @@
         UserAddressModel * address = [ZTools getAddressModel];
         [self setupAddressWithAddressModel:address];
     }
-    
-    [self cureInAnimationWithView:_winnerView];
+    */
+    [self createAddressConfirmWithTop:200 target:_winnerView isVirtual:isVirtual convert:NO];
+    [ZTools cureInAnimationWithView:_winnerView];
 }
 #pragma mark -------  未中奖视图
 -(void)showFailedViewWithBackTap:(void (^)(void))back{
@@ -156,8 +171,63 @@
     [backButton addTarget:self action:@selector(backButtonClicked:) forControlEvents:UIControlEventTouchUpInside];
     [self.failedView addSubview:backButton];
     
-    [self cureInAnimationWithView:_failedView];
-        
+    [ZTools cureInAnimationWithView:_failedView];
+}
+#pragma mark ------  夺宝历史->立即兑换视图
+-(void)showConertViewWithVirtual:(BOOL)isVirtual
+                      convertBlock:(LotteryViewConvertBlock)cBlock
+                       modifyBlock:(LotteryViewModifyAddressBlock)mBlock {
+    convertBlock = cBlock;
+    modifyBlock = mBlock;
+    
+    [self addSubview:self.convertView];
+    
+    UIButton * closeButton = [UIButton buttonWithType:UIButtonTypeCustom];
+    closeButton.frame = CGRectMake(self.convertView.width-56, 0, 56, 20);
+    [closeButton setImage:[UIImage imageNamed:@"prize_convert_close_image"] forState:UIControlStateNormal];
+    [closeButton addTarget:self action:@selector(backButtonClicked:) forControlEvents:UIControlEventTouchUpInside];
+    [self.convertView addSubview:closeButton];
+    
+    [self createAddressConfirmWithTop:70 target:self.convertView isVirtual:isVirtual convert:YES];
+    
+    [ZTools cureInAnimationWithView:self.convertView];
+}
+
+-(void)createAddressConfirmWithTop:(float)top target:(UIView *)view isVirtual:(BOOL)isVirtual convert:(BOOL)isConvert{
+    
+    userNameLabel = [ZTools createLabelWithFrame:CGRectMake(isConvert?20:40, top, view.width-(isConvert?40:80), 20)
+                                            text:@""
+                                       textColor:DEFAULT_GRAY_TEXT_COLOR
+                                   textAlignment:NSTextAlignmentLeft
+                                            font:13];
+    [view addSubview:userNameLabel];
+    
+    addressTextView = [[UITextView alloc] initWithFrame:CGRectMake(isConvert?15:30, userNameLabel.bottom+5, view.width-(isConvert?30:60), 60)];
+    addressTextView.editable = NO;
+    addressTextView.textColor = DEFAULT_GRAY_TEXT_COLOR;
+    addressTextView.font = [ZTools returnaFontWith:13];
+    addressTextView.textAlignment = NSTextAlignmentLeft;
+    addressTextView.showsVerticalScrollIndicator = NO;
+    addressTextView.text = @"";
+    addressTextView.backgroundColor = [UIColor whiteColor];
+    [view addSubview:addressTextView];
+    
+    doneButton = [ZTools createButtonWithFrame:CGRectMake(view.width-90-(isConvert?20:40), addressTextView.bottom+10, 90, 25)
+                                         title:@"立即兑换"
+                                         image:nil];
+    doneButton.titleLabel.font = [ZTools returnaFontWith:13];
+    [doneButton addTarget:self action:@selector(convertByNow:) forControlEvents:UIControlEventTouchUpInside];
+    [view addSubview:doneButton];
+    
+    if (isVirtual) {
+        addressTextView.text = @"宝贝信息将以短信形式发送到您手机上，请注意查收。您也可以到个人中心的“夺宝历史”查看宝贝状态";
+        userNameLabel.text = [NSString stringWithFormat:@"手机号码:%@",[ZTools getPhoneNum]];
+        doneButton.center = CGPointMake(view.width/2.0f, doneButton.center.y);
+    } else {
+        //管理收货地址
+        UserAddressModel * address = [ZTools getAddressModel];
+        [self setupAddressWithAddressModel:address];
+    }
 }
 
 #pragma mark ------  返回按钮
@@ -167,10 +237,17 @@
 
 #pragma mark ----  立即兑换
 -(void)convertByNow:(UIButton *)button{
-    if (convertBlock) {
-        convertBlock();
+    
+    if ([button.titleLabel.text isEqualToString:@"添加收货地址"]) {
+        if (modifyBlock) {
+            modifyBlock();
+        }
+    } else {
+        if (convertBlock) {
+            convertBlock();
+        }
+        [self removeFromSuperview];
     }
-    [self removeFromSuperview];
 }
 #pragma mark ----  修改收货地址
 -(void)modifyAddress:(UIButton *)button{
@@ -196,40 +273,49 @@
     
     [_lotteryImageView.layer addAnimation:anim forKey:@"shake"];
 }
-#pragma mark - 进入动画
--(void)cureInAnimationWithView:(UIView *)view{
-    CAKeyframeAnimation* animation = [CAKeyframeAnimation animationWithKeyPath:@"transform"];
-    animation.duration = 0.6;
-    
-    NSMutableArray *values = [NSMutableArray array];
-    [values addObject:[NSValue valueWithCATransform3D:CATransform3DMakeScale(0.1, 0.1, 1.0)]];
-    [values addObject:[NSValue valueWithCATransform3D:CATransform3DMakeScale(1.2, 1.2, 1.0)]];
-    [values addObject:[NSValue valueWithCATransform3D:CATransform3DMakeScale(0.9, 0.9, 1.0)]];
-    [values addObject:[NSValue valueWithCATransform3D:CATransform3DMakeScale(1.0, 1.0, 1.0)]];
-    animation.values = values;
-    [view.layer addAnimation:animation forKey:nil];
-}
+
 
 #pragma mark ------  设置收货地址
 -(void)setupAddressWithAddressModel:(UserAddressModel *)address{
+    
+    BOOL isConvert = _convertView;
+    
+    UIView * view = nil;
+    if (_winnerView && !_convertView) {
+        view = self.winnerView;
+    }else if (_convertView && !_winnerView) {
+        view = self.convertView;
+    }else {
+        return;
+    }
+    
     if (address)
     {
         if (!modifyAddressButton) {
-            modifyAddressButton = [ZTools createButtonWithFrame:CGRectMake(40, _winnerView.height-60, 90, 25)
+            modifyAddressButton = [ZTools createButtonWithFrame:CGRectZero
                                                           title:@"修改地址"
                                                           image:nil];
             modifyAddressButton.titleLabel.font = [ZTools returnaFontWith:13];
             [modifyAddressButton addTarget:self action:@selector(modifyAddress:) forControlEvents:UIControlEventTouchUpInside];
 
         }
-        [_winnerView addSubview:modifyAddressButton];
+        
+        modifyAddressButton.frame = CGRectMake(isConvert?20:40, doneButton.top, 90, 25);
+        [view addSubview:modifyAddressButton];
+        
+        addressTextView.text = [NSString stringWithFormat:@"%@%@",address.user_city,address.user_area];
+        userNameLabel.text = [NSString stringWithFormat:@"%@(%@)",address.put_man,[ZTools getPhoneNum]];
+        
+        if ([doneButton.titleLabel.text isEqualToString:@"添加收货地址"]) {
+            [doneButton setTitle:@"立即兑换" forState:UIControlStateNormal];
+            doneButton.left = view.width - 90 - (isConvert?20:40);
+        }
     }else
     {
+        userNameLabel.text = @"请先添加收货信息";
+        doneButton.centerX = view.width/2.0f;
         [doneButton setTitle:@"添加收货地址" forState:UIControlStateNormal];
     }
-    
-    addressTextView.text = [NSString stringWithFormat:@"%@%@",address.user_city,address.user_area];
-    userNameLabel.text = [NSString stringWithFormat:@"%@(%@)",address.put_man,[ZTools getPhoneNum]];
 }
 
 

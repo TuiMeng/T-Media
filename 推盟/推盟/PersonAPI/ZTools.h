@@ -182,6 +182,10 @@
  */
 +(NSString*)replaceUtf8CodingWithString:(NSString*)str;
 /**
+ * 放大缩小放大动画
+ */
++(void)cureInAnimationWithView:(UIView *)view;
+/**
  *  生成图片根据已有颜色
  */
 + (UIImage *)imageWithColor:(UIColor *)color;

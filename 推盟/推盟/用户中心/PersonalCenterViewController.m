@@ -208,7 +208,7 @@
                                                          buttonWidth,
                                                          buttonHeight);
                 [button addTarget:self action:@selector(functionButtonClicked:) forControlEvents:UIControlEventTouchUpInside];
-                button.tag                  = 10000+i;
+                button.tag                  = 10000+i*3+j;
                 [section_view addSubview:button];
                 
                 UIImageView * imageView     = [[UIImageView alloc] initWithImage:dataArray[i*3+j]];
@@ -297,20 +297,33 @@
     
     __weak typeof(self)wself = self;
     NSLog(@"nihoadasod  ----  %@",[NSString stringWithFormat:@"%@&user_id=%@",GET_USERINFOMATION_URL,[ZTools getUid]]);
-    NSURLSessionDataTask * task = [[ZAPI manager] sendGet:[NSString stringWithFormat:@"%@&user_id=%@",GET_USERINFOMATION_URL,[ZTools getUid]] success:^(id data) {
-        if (data && [data isKindOfClass:[NSDictionary class]]) {
-            wself.info = [[UserInfoModel alloc] initWithDictionary:[data objectForKey:@"user_info"]];
-            [[NSUserDefaults standardUserDefaults] setObject:[NSDictionary dictionaryWithDictionary:[data objectForKey:@"user_info"]] forKey:@"UserInfomationData"];
-            
-            [[NSNotificationCenter defaultCenter] postNotificationName:@"SuccessReloadPersonalInfomation" object:nil];
-            
-            [wself setInfomation];
-        }
-    } failure:^(NSError *error) {
+    
+    [[UserInfoModel shareInstance] loadPersonInfoWithSuccess:^(UserInfoModel *model) {
+        
+        wself.info = model;
+        
+        [[NSNotificationCenter defaultCenter] postNotificationName:@"SuccessReloadPersonalInfomation" object:nil];
+        
+        [wself setInfomation];
+        
+    } failed:^(NSString *error) {
         
     }];
     
-    [[ZAPI manager] cancel];
+//    NSURLSessionDataTask * task = [[ZAPI manager] sendGet:[NSString stringWithFormat:@"%@&user_id=%@",GET_USERINFOMATION_URL,[ZTools getUid]] success:^(id data) {
+//        if (data && [data isKindOfClass:[NSDictionary class]]) {
+//            wself.info = [[UserInfoModel alloc] initWithDictionary:[data objectForKey:@"user_info"]];
+//            [[NSUserDefaults standardUserDefaults] setObject:[NSDictionary dictionaryWithDictionary:[data objectForKey:@"user_info"]] forKey:@"UserInfomationData"];
+//            
+//            [[NSNotificationCenter defaultCenter] postNotificationName:@"SuccessReloadPersonalInfomation" object:nil];
+//            
+//            [wself setInfomation];
+//        }
+//    } failure:^(NSError *error) {
+//        
+//    }];
+//    
+//    [[ZAPI manager] cancel];
 }
 /**
  *  获取抢单任务列表数据
@@ -385,9 +398,9 @@
 #pragma mark ----  邀请好友、电影票订单、礼品兑换
 -(void)functionButtonClicked:(UIButton *)button{
     switch (button.tag-10000) {
-        case 0://邀请好友
+        case 0://立即提现
         {
-            [self performSegueWithIdentifier:@"showInvitationSegue" sender:nil];
+            [self performSegueWithIdentifier:@"showApplyMoneySegue" sender:nil];
         }
             break;
         case 1://礼品兑换
@@ -395,18 +408,30 @@
             [self performSegueWithIdentifier:@"showGiftListSegue" sender:nil];
         }
             break;
-        case 2://购票记录
+        case 2://邀请好友
+        {
+            [self performSegueWithIdentifier:@"showInvitationSegue" sender:nil];
+        }
+            break;
+        case 3://购票记录
         {
             MOrderListController * vc = [[MOrderListController alloc] init];
             [self.navigationController pushViewController:vc animated:YES];
+             
         }
             break;
-        case 3://收货地址
+        case 4://夺宝历史
         {
+            MyPrizeViewController * viewController = [[MyPrizeViewController alloc] init];
+            [self.navigationController pushViewController:viewController animated:YES];
             
+        }
+            break;
+        case 5://收货地址
+        {
             AddressManangerViewController * addressVC = [[AddressManangerViewController alloc] init];
             [self.navigationController pushViewController:addressVC animated:YES];
-             
+            
         }
             break;
             

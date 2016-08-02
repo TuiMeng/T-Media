@@ -15,7 +15,7 @@
 
 @protocol TaskPrizeViewConvertDelegate <NSObject>
 
--(void)convertClicked:(NSString *)prizeId;
+-(void)convertClicked:(PrizeStatusModel *)model;
 
 @end
 

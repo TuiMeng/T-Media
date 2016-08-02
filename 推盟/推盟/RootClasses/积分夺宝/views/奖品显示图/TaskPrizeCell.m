@@ -127,6 +127,7 @@
     
     _extra1.text  = @"";
     _extra2.text  = @"";
+    
     _convert.hidden = !(model.canAcceptPrize.intValue == 1);
     
     if (model.canAcceptPrize.intValue == 1) //是否可以领奖

@@ -34,7 +34,7 @@
 			<key>isShown</key>
 			<false/>
 		</dict>
-		<key>MYIntroduction.xcscheme</key>
+		<key>MYBlurIntroductionView.xcscheme</key>
 		<dict>
 			<key>isShown</key>
 			<false/>
@@ -82,17 +82,17 @@
 	</dict>
 	<key>SuppressBuildableAutocreation</key>
 	<dict>
-		<key>0CF187C2704ED44392D42A7EBCE0D61B</key>
+		<key>1108F9DE3483035C00F95BD1EB6B1E48</key>
 		<dict>
 			<key>primary</key>
 			<true/>
 		</dict>
-		<key>0DA95A7798445B64990A271E272A2E53</key>
+		<key>1B45972C0A1F17915F35FBC9E9D94963</key>
 		<dict>
 			<key>primary</key>
 			<true/>
 		</dict>
-		<key>256BE9DB359C7FE888A1127955353360</key>
+		<key>208C4504888E3C8A0BBEFDD87E3B364B</key>
 		<dict>
 			<key>primary</key>
 			<true/>
@@ -112,7 +112,7 @@
 			<key>primary</key>
 			<true/>
 		</dict>
-		<key>580666D607D789696C573F69899EDEA0</key>
+		<key>687D723FFE8384C38EBF8DF224BCFCE1</key>
 		<dict>
 			<key>primary</key>
 			<true/>
@@ -122,12 +122,12 @@
 			<key>primary</key>
 			<true/>
 		</dict>
-		<key>928353533005A4198EBDA5B700D37B64</key>
+		<key>87613838DC2D0273E1F0C861D70589E9</key>
 		<dict>
 			<key>primary</key>
 			<true/>
 		</dict>
-		<key>A70D33E4FBFBEC876150F0A83CB7801A</key>
+		<key>928353533005A4198EBDA5B700D37B64</key>
 		<dict>
 			<key>primary</key>
 			<true/>
@@ -137,12 +137,12 @@
 			<key>primary</key>
 			<true/>
 		</dict>
-		<key>E421B7471C420C1C227C435C434E45A9</key>
+		<key>E35CA22FC3EBAFAD9C7021768BBF7525</key>
 		<dict>
 			<key>primary</key>
 			<true/>
 		</dict>
-		<key>F2149F0EBAF9EF662979CA97E31F4837</key>
+		<key>E421B7471C420C1C227C435C434E45A9</key>
 		<dict>
 			<key>primary</key>
 			<true/>

@@ -134,10 +134,16 @@
  */
 @property(nonatomic,strong)NSString * invite_status;
 
+//网络请求
+@property(nonatomic,strong)NSURLSessionDataTask * task;
+
 
 
 -(UserInfoModel *)initWithDic:(NSDictionary *)dic;
 
++(instancetype)shareInstance;
+
+-(void)loadPersonInfoWithSuccess:(void(^)(UserInfoModel * model))success failed:(void(^)(NSString * error))failed;
 
 
 

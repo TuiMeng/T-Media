@@ -27,7 +27,6 @@
 @property(nonatomic,strong)UIButton     * firstNextButon;
 //关闭按钮
 @property(nonatomic,strong)UIButton     * closeButton;
-
 //验证码输入框
 @property(nonatomic,strong)UITextField  * verificationCodeTF;
 //确认按钮
@@ -430,7 +429,6 @@
     [self loginHidden];
 }
 
-
 #pragma mark ---------  跳转到第二页
 -(void)goToSecondView:(UIButton *)button{
     
@@ -442,7 +440,7 @@
     self.currentPage = 2;
     [self showContentView];
     
-    //判断是否是测试账号，测试账号不需要发送短信
+//    //判断是否是测试账号，测试账号不需要发送短信
 //    if (![_phoneTF.text isEqualToString:@"18600755163"]) {
 //        [self getVerificationCode];
 //    }

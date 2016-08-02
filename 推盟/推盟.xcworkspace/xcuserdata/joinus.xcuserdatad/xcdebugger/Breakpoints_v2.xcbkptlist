@@ -74,12 +74,12 @@
                   moduleName = "&#x63a8;&#x76df;"
                   usesParentBreakpointCondition = "Yes"
                   urlString = "file:///Users/joinus/Desktop/joinus/%E6%8E%A8%E7%9B%9F/IOS%E5%AE%A2%E6%88%B7%E7%AB%AF/T-Media/%E6%8E%A8%E7%9B%9F/%E6%8E%A8%E7%9B%9F/RootClasses/%E7%94%B5%E5%BD%B1%E9%A2%91%E9%81%93/Controllers/MPayViewController.m"
-                  timestampString = "489982986.434523"
+                  timestampString = "491800198.978531"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
                   startingLineNumber = "366"
                   endingLineNumber = "366"
-                  offsetFromSymbolStart = "1172">
+                  offsetFromSymbolStart = "1285">
                </Location>
                <Location
                   shouldBeEnabled = "Yes"
@@ -89,12 +89,12 @@
                   moduleName = "&#x63a8;&#x76df;"
                   usesParentBreakpointCondition = "Yes"
                   urlString = "file:///Users/joinus/Desktop/joinus/%E6%8E%A8%E7%9B%9F/IOS%E5%AE%A2%E6%88%B7%E7%AB%AF/T-Media/%E6%8E%A8%E7%9B%9F/%E6%8E%A8%E7%9B%9F/RootClasses/%E7%94%B5%E5%BD%B1%E9%A2%91%E9%81%93/Controllers/MPayViewController.m"
-                  timestampString = "489982986.43476"
+                  timestampString = "491800198.97866"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
                   startingLineNumber = "367"
                   endingLineNumber = "367"
-                  offsetFromSymbolStart = "76">
+                  offsetFromSymbolStart = "61">
                </Location>
             </Locations>
          </BreakpointContent>

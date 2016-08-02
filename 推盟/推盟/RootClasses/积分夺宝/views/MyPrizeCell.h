@@ -12,7 +12,7 @@
 #import "CLRollLabel.h"
 
 //领取奖品
-typedef void(^MyPrizeCellGetPrizeBlock)(NSString * pirzeId);
+typedef void(^MyPrizeCellGetPrizeBlock)(PrizeStatusModel * pirzeModel);
 //查看奖品
 typedef void(^MyPrizeCellLookTaskContentBlock)(void);
 
